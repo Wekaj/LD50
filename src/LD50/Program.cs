@@ -1,14 +1,5 @@
-﻿using System;
+﻿using LD50;
 
-namespace LD50
-{
-    public static class Program
-    {
-        [STAThread]
-        static void Main()
-        {
-            using (var game = new Game1())
-                game.Run();
-        }
-    }
-}
+using var game = new LD50Game();
+
+game.Run();
