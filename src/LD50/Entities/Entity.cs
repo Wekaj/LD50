@@ -6,5 +6,7 @@ namespace LD50.Entities {
         public Vector2 Position { get; set; }
 
         public Texture2D? Texture { get; set; }
+        public Vector2 Origin { get; set; }
+        public Vector2 Scale { get; set; } = Vector2.One;
     }
 }

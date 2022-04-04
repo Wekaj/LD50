@@ -12,6 +12,7 @@ namespace LD50.Screens {
         private readonly SpriteBatch _spriteBatch;
         private readonly InputBindings _bindings;
 
+        private readonly Texture2D _unitTexture;
         private readonly SpriteFont _font;
 
         private readonly List<Level> _levels = new();
@@ -21,6 +22,7 @@ namespace LD50.Screens {
             _spriteBatch = spriteBatch;
             _bindings = bindings;
 
+            _unitTexture = content.Load<Texture2D>("Textures/Character Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
             
             var random = new Random();
@@ -30,7 +32,9 @@ namespace LD50.Screens {
                 for (int j = 0; j < 10; j++) {
                     level.Entities.Add(new Entity {
                         Position = new Vector2(random.Next(0, 800), random.Next(0, 600)),
-                        Texture = content.Load<Texture2D>("Textures/unit"),
+                        Texture = _unitTexture,
+                        Origin = new Vector2(_unitTexture.Width / 2, _unitTexture.Height),
+                        Scale = new Vector2(0.4f),
                     });
                 }
 
@@ -54,7 +58,7 @@ namespace LD50.Screens {
         }
 
         public void Draw(GameTime gameTime) {
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            _spriteBatch.Begin();
 
             for (int i = 0; i < _currentLevel.Entities.Count; i++) {
                 DrawEntity(_currentLevel.Entities[i]);
@@ -70,7 +74,20 @@ namespace LD50.Screens {
         }
 
         private void DrawEntity(Entity entity) {
-            _spriteBatch.Draw(entity.Texture, entity.Position, Color.White);
+            if (entity.Texture is null) {
+                return;
+            }
+
+            _spriteBatch.Draw(
+                entity.Texture,
+                entity.Position,
+                null,
+                Color.White,
+                0f,
+                entity.Origin,
+                entity.Scale,
+                SpriteEffects.None,
+                0f);
         }
     }
 }
