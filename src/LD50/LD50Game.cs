@@ -1,4 +1,5 @@
-﻿using LD50.Screens;
+﻿using LD50.Input;
+using LD50.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,10 +9,14 @@ namespace LD50 {
     public class LD50Game : Game {
         private readonly GraphicsDeviceManager _graphics;
 
+        private readonly InputBindings _bindings;
+
         private ScreenManager? _screenManager;
 
         public LD50Game() {
             _graphics = new GraphicsDeviceManager(this);
+
+            _bindings = CreateBindings();
 
             Content.RootDirectory = "res";
             IsMouseVisible = true;
@@ -36,6 +41,7 @@ namespace LD50 {
                 Exit();
             }
 
+            _bindings.Update();
             _screenManager!.Update(gameTime);
 
             base.Update(gameTime);
@@ -52,6 +58,7 @@ namespace LD50 {
         private Container CreateContainer() {
             var container = new Container();
 
+            container.RegisterInstance(_bindings);
             container.RegisterInstance(Content);
             container.RegisterInstance(new SpriteBatch(GraphicsDevice));
 
@@ -59,6 +66,17 @@ namespace LD50 {
             container.Register<ScreenManager>();
 
             return container;
+        }
+
+        private InputBindings CreateBindings() {
+            var bindings = new InputBindings();
+
+            bindings.CreateBinding(BindingId.Level1, Keys.D1);
+            bindings.CreateBinding(BindingId.Level2, Keys.D2);
+            bindings.CreateBinding(BindingId.Level3, Keys.D3);
+            bindings.CreateBinding(BindingId.Level4, Keys.D4);
+
+            return bindings;
         }
     }
 }
