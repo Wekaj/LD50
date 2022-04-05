@@ -12,8 +12,9 @@ namespace LD50.Screens {
         private readonly SpriteBatch _spriteBatch;
         private readonly InputBindings _bindings;
 
-        private readonly Texture2D _unitTexture1;
-        private readonly Texture2D _unitTexture2;
+        private readonly Texture2D _gunnerTexture;
+        private readonly Texture2D _batterTexture;
+        private readonly Texture2D _batterAttackingTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -25,8 +26,9 @@ namespace LD50.Screens {
             _spriteBatch = spriteBatch;
             _bindings = bindings;
 
-            _unitTexture1 = content.Load<Texture2D>("Textures/Character Test 3");
-            _unitTexture2 = content.Load<Texture2D>("Textures/Batter Test 1");
+            _gunnerTexture = content.Load<Texture2D>("Textures/Character Test 3");
+            _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
+            _batterAttackingTexture = content.Load<Texture2D>("Textures/Batter_Attack Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
             
             for (int i = 0; i < 4; i++) {
@@ -98,8 +100,8 @@ namespace LD50.Screens {
             return new Entity {
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
 
-                Texture = _unitTexture1,
-                Origin = new Vector2(_unitTexture1.Width / 2, _unitTexture1.Height),
+                Texture = _gunnerTexture,
+                Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
                 Scale = new Vector2(0.75f),
 
                 Health = 80,
@@ -114,8 +116,8 @@ namespace LD50.Screens {
             return new Entity {
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
 
-                Texture = _unitTexture2,
-                Origin = new Vector2(_unitTexture1.Width / 2, _unitTexture1.Height),
+                Texture = _batterTexture,
+                Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
                 Scale = new Vector2(0.75f),
 
                 Health = 100,
@@ -123,6 +125,8 @@ namespace LD50.Screens {
                 AttackRange = 50f,
                 AttackDamage = 10,
                 AttackInterval = 1f,
+
+                AttackingTexture = _batterAttackingTexture,
             };
         }
 
@@ -142,6 +146,10 @@ namespace LD50.Screens {
         }
 
         private void UpdateEntity(Entity entity, Level level, float deltaTime) {
+            if (entity.AttackingTimer > 0f) {
+                entity.AttackingTimer -= deltaTime;
+            }
+
             if (entity.TargetEntity is not null && entity.TargetEntity.Health <= 0) {
                 entity.TargetEntity = null;
             }
@@ -162,6 +170,7 @@ namespace LD50.Screens {
 
                 if (entity.AttackTimer >= entity.AttackInterval) {
                     entity.AttackTimer -= entity.AttackInterval;
+                    entity.AttackingTimer = 0.25f;
 
                     entity.TargetEntity.Health -= entity.AttackDamage;
                     entity.TargetEntity.AttackTimer -= 0.25f;
@@ -202,7 +211,7 @@ namespace LD50.Screens {
             }
 
             _spriteBatch.Draw(
-                entity.Texture,
+                entity.AttackingTexture is not null && entity.AttackingTimer > 0f ? entity.AttackingTexture : entity.Texture,
                 entity.Position + new Vector2(0f, -(float)Math.Abs(Math.Sin(entity.HopTimer)) * 10f),
                 null,
                 entity.Color,

@@ -23,5 +23,7 @@ namespace LD50.Entities {
         public float AttackInterval { get; set; }
 
         public float AttackTimer { get; set; }
+        public float AttackingTimer { get; set; }
+        public Texture2D? AttackingTexture { get; set; }
     }
 }
