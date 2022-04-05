@@ -1,0 +1,55 @@
+{
+	"root": "../../res/",
+	"references": [
+
+	],
+	"content": {
+		"textures": {
+			"path": "Textures/*.png",
+			"recursive": "True",
+			"action": "build",
+			"importer": "TextureImporter",
+			"processor": "TextureProcessor",
+			"processorParam": {
+				"ColorKeyColor": "255,0,255,255",
+				"ColorKeyEnabled": "True",
+				"GenerateMipmaps": "False",
+				"PremultiplyAlpha": "True",
+				"ResizeToPowerOfTwo": "False",
+				"MakeSquare": "False",
+				"TextureFormat": "Color"
+			}
+		},
+		"effects": {
+			"path": "Effects/*.fx",
+			"recursive": "True",
+			"action": "build",
+			"importer": "EffectImporter",
+			"processor": "EffectProcessor",
+			"processorParam": {
+				"DebugMode": "Auto"
+			}
+		},
+		"fonts": {
+			"path": "Fonts/*.spritefont",
+			"recursive": "True",
+			"action": "build",
+			"importer": "FontDescriptionImporter",
+			"processor": "FontDescriptionProcessor",
+			"processorParam": {
+				"PremultiplyAlpha": "True",
+				"TextureFormat": "Compressed"
+			}
+		},
+		"sounds": {
+			"path": "Sounds/*.wav",
+			"recursive": "True",
+			"action": "build",
+			"importer": "WavImporter",
+			"processor": "SoundEffectProcessor",
+			"processorParam": {
+				"Quality": "Best"
+			}
+		}
+	}
+}

@@ -18,7 +18,6 @@ namespace LD50 {
 
             _bindings = CreateBindings();
 
-            Content.RootDirectory = "res";
             IsMouseVisible = true;
         }
 
