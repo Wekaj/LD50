@@ -1,4 +1,5 @@
-﻿using LD50.Input;
+﻿using LD50.Graphics;
+using LD50.Input;
 using LD50.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -47,7 +48,7 @@ namespace LD50 {
         }
 
         protected override void Draw(GameTime gameTime) {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.LightGray);
 
             _screenManager!.Draw(gameTime);
 
@@ -60,6 +61,8 @@ namespace LD50 {
             container.RegisterInstance(_bindings);
             container.RegisterInstance(Content);
             container.RegisterInstance(new SpriteBatch(GraphicsDevice));
+
+            container.RegisterSingleton<AnimationManager>();
 
             container.Register<GameScreen>();
             container.Register<ScreenManager>();

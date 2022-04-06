@@ -1,4 +1,5 @@
 ﻿using LD50.Entities;
+using LD50.Graphics;
 using LD50.Input;
 using LD50.Levels;
 using Microsoft.Xna.Framework;
@@ -9,12 +10,13 @@ using System.Collections.Generic;
 
 namespace LD50.Screens {
     public class GameScreen : IScreen {
+        private readonly AnimationManager _animations;
         private readonly SpriteBatch _spriteBatch;
         private readonly InputBindings _bindings;
 
+        private readonly Texture2D _pixelTexture;
         private readonly Texture2D _gunnerTexture;
         private readonly Texture2D _batterTexture;
-        private readonly Texture2D _batterAttackingTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -22,13 +24,14 @@ namespace LD50.Screens {
         private readonly List<Level> _levels = new();
         private Level _currentLevel;
 
-        public GameScreen(ContentManager content, SpriteBatch spriteBatch, InputBindings bindings) {
+        public GameScreen(ContentManager content, AnimationManager animations, SpriteBatch spriteBatch, InputBindings bindings) {
+            _animations = animations;
             _spriteBatch = spriteBatch;
             _bindings = bindings;
 
+            _pixelTexture = content.Load<Texture2D>("Textures/pixel");
             _gunnerTexture = content.Load<Texture2D>("Textures/Character Test 3");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
-            _batterAttackingTexture = content.Load<Texture2D>("Textures/Batter_Attack Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
             
             for (int i = 0; i < 4; i++) {
@@ -81,6 +84,10 @@ namespace LD50.Screens {
                 DrawEntity(_currentLevel.Entities[i]);
             }
 
+            for (int i = 0; i < _currentLevel.Entities.Count; i++) {
+                DrawEntityOverlay(_currentLevel.Entities[i]);
+            }
+
             for (int i = 0; i < _levels.Count; i++) {
                 Level level = _levels[i];
 
@@ -104,6 +111,9 @@ namespace LD50.Screens {
                 Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
                 Scale = new Vector2(0.75f),
 
+                DefaultTexture = _gunnerTexture,
+
+                MaxHealth = 80,
                 Health = 80,
 
                 AttackRange = 150f,
@@ -117,16 +127,19 @@ namespace LD50.Screens {
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
 
                 Texture = _batterTexture,
-                Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
+                Origin = new Vector2(_batterTexture.Width / 2, _batterTexture.Height),
                 Scale = new Vector2(0.75f),
 
+                DefaultTexture = _batterTexture,
+
+                MaxHealth = 100,
                 Health = 100,
 
                 AttackRange = 50f,
                 AttackDamage = 10,
                 AttackInterval = 1f,
 
-                AttackingTexture = _batterAttackingTexture,
+                AttackingAnimation = _animations.BatterAttacking,
             };
         }
 
@@ -146,8 +159,16 @@ namespace LD50.Screens {
         }
 
         private void UpdateEntity(Entity entity, Level level, float deltaTime) {
-            if (entity.AttackingTimer > 0f) {
-                entity.AttackingTimer -= deltaTime;
+            if (entity.Animation is not null) {
+                entity.Animation.Update(deltaTime);
+
+                if (entity.Animation.IsFinished) {
+                    entity.Animation = null;
+                    entity.Texture = entity.DefaultTexture;
+                }
+                else {
+                    entity.Animation.Apply(entity);
+                }
             }
 
             if (entity.TargetEntity is not null && entity.TargetEntity.Health <= 0) {
@@ -170,10 +191,13 @@ namespace LD50.Screens {
 
                 if (entity.AttackTimer >= entity.AttackInterval) {
                     entity.AttackTimer -= entity.AttackInterval;
-                    entity.AttackingTimer = 0.25f;
 
                     entity.TargetEntity.Health -= entity.AttackDamage;
                     entity.TargetEntity.AttackTimer -= 0.25f;
+
+                    if (entity.AttackingAnimation is not null) {
+                        entity.Animation = entity.AttackingAnimation.Play();
+                    }
                 }
             }
 
@@ -211,7 +235,7 @@ namespace LD50.Screens {
             }
 
             _spriteBatch.Draw(
-                entity.AttackingTexture is not null && entity.AttackingTimer > 0f ? entity.AttackingTexture : entity.Texture,
+                entity.Texture,
                 entity.Position + new Vector2(0f, -(float)Math.Abs(Math.Sin(entity.HopTimer)) * 10f),
                 null,
                 entity.Color,
@@ -220,14 +244,39 @@ namespace LD50.Screens {
                 entity.Scale,
                 entity.Effects,
                 0f);
+        }
 
-            string health = entity.Health.ToString();
-            Vector2 healthSize = _font.MeasureString(health);
-            _spriteBatch.DrawString(
-                _font,
-                health,
-                entity.Position + new Vector2(-healthSize.X / 2f, -96f),
-                Color.White);
+        private void DrawEntityOverlay(Entity entity) {
+            if (entity.Health >= entity.MaxHealth) {
+                return;
+            }
+
+            const float healthBarWidth = 40f;
+            const float healthBarHeight = 2f;
+            
+            Vector2 healthBarPosition = entity.Position + new Vector2(-healthBarWidth / 2f, -70f);
+
+            _spriteBatch.Draw(
+                _pixelTexture,
+                healthBarPosition,
+                null,
+                Color.Black,
+                0f,
+                Vector2.Zero,
+                new Vector2(healthBarWidth, healthBarHeight),
+                SpriteEffects.None,
+                0f);
+
+            _spriteBatch.Draw(
+                _pixelTexture,
+                healthBarPosition,
+                null,
+                Color.Red,
+                0f,
+                Vector2.Zero,
+                new Vector2(healthBarWidth * entity.Health / entity.MaxHealth, healthBarHeight),
+                SpriteEffects.None,
+                0f);
         }
     }
 }

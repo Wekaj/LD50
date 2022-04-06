@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LD50.Graphics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace LD50.Entities {
@@ -11,11 +12,15 @@ namespace LD50.Entities {
         public Vector2 Scale { get; set; } = Vector2.One;
         public SpriteEffects Effects { get; set; }
 
+        public ActiveAnimation? Animation { get; set; }
+        public Texture2D? DefaultTexture { get; set; }
+
         public Vector2? TargetPosition { get; set; }
         public Entity? TargetEntity { get; set; }
         public float HopTimer { get; set; }
 
         public Team Team { get; set; }
+        public int MaxHealth { get; set; }
         public int Health { get; set; }
 
         public float AttackRange { get; set; }
@@ -23,7 +28,6 @@ namespace LD50.Entities {
         public float AttackInterval { get; set; }
 
         public float AttackTimer { get; set; }
-        public float AttackingTimer { get; set; }
-        public Texture2D? AttackingTexture { get; set; }
+        public Animation? AttackingAnimation { get; set; }
     }
 }
