@@ -17,7 +17,7 @@ namespace LD50.Entities {
 
         public Vector2? TargetPosition { get; set; }
         public Entity? TargetEntity { get; set; }
-        public float HopTimer { get; set; }
+        public float WalkTimer { get; set; }
 
         public Team Team { get; set; }
         public int MaxHealth { get; set; }

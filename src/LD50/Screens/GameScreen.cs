@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LD50.Screens {
     public class GameScreen : IScreen {
@@ -15,6 +16,7 @@ namespace LD50.Screens {
         private readonly InputBindings _bindings;
 
         private readonly Texture2D _pixelTexture;
+        private readonly Texture2D _circleTexture;
         private readonly Texture2D _gunnerTexture;
         private readonly Texture2D _batterTexture;
         private readonly SpriteFont _font;
@@ -24,12 +26,15 @@ namespace LD50.Screens {
         private readonly List<Level> _levels = new();
         private Level _currentLevel;
 
+        private readonly List<Entity> _drawingEntities = new();
+
         public GameScreen(ContentManager content, AnimationManager animations, SpriteBatch spriteBatch, InputBindings bindings) {
             _animations = animations;
             _spriteBatch = spriteBatch;
             _bindings = bindings;
 
             _pixelTexture = content.Load<Texture2D>("Textures/pixel");
+            _circleTexture = content.Load<Texture2D>("Textures/circle");
             _gunnerTexture = content.Load<Texture2D>("Textures/Character Test 3");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
@@ -81,8 +86,14 @@ namespace LD50.Screens {
             _spriteBatch.Begin();
 
             for (int i = 0; i < _currentLevel.Entities.Count; i++) {
-                DrawEntity(_currentLevel.Entities[i]);
+                DrawEntityShadow(_currentLevel.Entities[i]);
             }
+            
+            _drawingEntities.AddRange(_currentLevel.Entities.OrderBy(entity => entity.Position.Y));
+            for (int i = 0; i < _drawingEntities.Count; i++) {
+                DrawEntity(_drawingEntities[i]);
+            }
+            _drawingEntities.Clear();
 
             for (int i = 0; i < _currentLevel.Entities.Count; i++) {
                 DrawEntityOverlay(_currentLevel.Entities[i]);
@@ -119,6 +130,8 @@ namespace LD50.Screens {
                 AttackRange = 150f,
                 AttackDamage = 30,
                 AttackInterval = 2f,
+
+                AttackingAnimation = _animations.GunnerAttacking,
             };
         }
 
@@ -213,6 +226,8 @@ namespace LD50.Screens {
                 float speed = 100f * deltaTime;
                 if (distance < speed) {
                     entity.Position = targetPosition.Value;
+
+                    entity.WalkTimer = 0f;
                 }
                 else if (targetDistance is null || distance > targetDistance.Value) {
                     entity.Position += (targetPosition.Value - entity.Position) * (speed / distance);
@@ -224,7 +239,10 @@ namespace LD50.Screens {
                         entity.Effects = SpriteEffects.FlipHorizontally;
                     }
 
-                    entity.HopTimer += 15f * deltaTime;
+                    entity.WalkTimer += deltaTime;
+                }
+                else {
+                    entity.WalkTimer = 0f;
                 }
             }
         }
@@ -236,13 +254,26 @@ namespace LD50.Screens {
 
             _spriteBatch.Draw(
                 entity.Texture,
-                entity.Position + new Vector2(0f, -(float)Math.Abs(Math.Sin(entity.HopTimer)) * 10f),
+                entity.Position + new Vector2(0f, -(float)Math.Abs(Math.Sin(entity.WalkTimer * 15f)) * 10f),
                 null,
                 entity.Color,
-                0f,
+                (float)Math.Sin(entity.WalkTimer * 15f) * 0.05f,
                 entity.Origin,
                 entity.Scale,
                 entity.Effects,
+                0f);
+        }
+
+        private void DrawEntityShadow(Entity entity) {
+            _spriteBatch.Draw(
+                _circleTexture,
+                entity.Position,
+                null,
+                Color.Black * 0.25f,
+                0f,
+                new Vector2(_circleTexture.Width / 2f, _circleTexture.Height / 2f),
+                new Vector2(0.5f, 0.25f),
+                SpriteEffects.None,
                 0f);
         }
 
