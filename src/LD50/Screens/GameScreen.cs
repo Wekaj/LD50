@@ -2,6 +2,7 @@
 using LD50.Graphics;
 using LD50.Input;
 using LD50.Levels;
+using LD50.Scenarios;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,10 +24,11 @@ namespace LD50.Screens {
 
         private readonly Random _random = new();
 
-        private readonly List<Level> _levels = new();
-        private Level _currentLevel;
+        private readonly World _world = new();
 
         private readonly List<Entity> _drawingEntities = new();
+
+        private readonly List<Scenario> _scenarios = new();
 
         public GameScreen(ContentManager content, AnimationManager animations, SpriteBatch spriteBatch, InputBindings bindings) {
             _animations = animations;
@@ -57,52 +59,218 @@ namespace LD50.Screens {
                     });
                 }
 
-                _levels.Add(level);
+                _world.Levels.Add(level);
             }
 
-            _levels[0].Name = "Family Restaurant";
-            _levels[1].Name = "Back Alleys";
-            _levels[2].Name = "Workrooms";
-            _levels[3].Name = "Headquarters";
+            _world.Levels[0].Name = "Family Restaurant";
+            _world.Levels[1].Name = "Back Alleys";
+            _world.Levels[2].Name = "Workrooms";
+            _world.Levels[3].Name = "Headquarters";
 
-            _currentLevel = _levels[0];
+            _world.CurrentLevel = _world.Levels[0];
+
+            _scenarios.Add(new Scenario {
+                Description = "There is a dude and he says \"Hi.\"",
+                Choices = {
+                    new Choice {
+                        Label = "Punch him.",
+                        Action = world => {
+                            world.PlayerMoney += 1000000;
+
+                            world.CurrentScenario = new Scenario {
+                                Description = "You punch the dude and it turns out he bleeds money. You and the boys\nbeat him up and now you have a million dollars.",
+
+                                Choices = {
+                                    new Choice {
+                                        Label = "Give the money to charity.",
+                                        Action = world => {
+                                            world.PlayerMoney -= 1000000;
+                                            
+                                            world.CurrentLevel?.Entities.Add(CreateUnit() with {
+                                                Team = Team.Enemy,
+                                                Color = Color.Red,
+
+                                                Scale = new Vector2(3f),
+                                                
+                                                MaxHealth = 1000,
+                                                Health = 1000,
+                                                AttackDamage = 50,
+                                            });
+
+                                            world.CurrentScenario = new Scenario {
+                                                Description = "Uh oh, the representative for the charity absorbs all the money\ninstead and powers up. Prepare for combat.",
+                                            };
+                                        },
+                                    },
+                                    new Choice {
+                                        Label = "Keep the money.",
+                                    },
+                                }
+                            };
+                        },
+                    },
+                    new Choice {
+                        Label = "Say hi back.",
+                        Action = world => {
+                            for (int i = 0; i < 50; i++) {
+                                world.CurrentLevel?.Entities.Add(CreateUnit() with {
+                                    Team = Team.Enemy,
+                                    Color = Color.Red,
+                                });
+                            }
+
+                            world.CurrentScenario = new Scenario {
+                                Description = "Now you've gone and done it. The dude goes mental and\nhe splits into 50 dudes. They're all after you.",
+                            };
+                        },
+                    }
+                },
+            });
+
+            Scenario guyScenario = null;
+            guyScenario = new Scenario {
+                Description = "A guy comes up to you and asks to join your gang for $100.\nThe crowd of guys behind him watch with intrigue.",
+                Choices = {
+                    new Choice {
+                        Label = "Give him the money.",
+                        Action = world => {
+                            if (world.PlayerMoney < 100) {
+                                world.CurrentScenario = new Scenario {
+                                    Description = "It turns out you don't even have $100. He scoffs and walks away.",
+                                };
+                                return;
+                            }
+                            
+                            world.PlayerMoney -= 100;
+
+                            Entity recruit = CreateUnit() with {
+                                Team = Team.Player,
+                            };
+                            world.CurrentLevel?.Entities.Add(recruit);
+
+                            world.CurrentScenario = new Scenario {
+                                Description = "He thanks you and mentions that one of his friends will be interested in joining too.",
+                                Choices = {
+                                    new Choice {
+                                        Label = "Give the recruit the customary slap on the butt and tell him to be on his way.",
+                                        Action = world => {
+                                            recruit.Health -= 10;
+
+                                            world.CurrentScenario = guyScenario;
+                                        }
+                                    },
+                                    new Choice {
+                                        Label = "Grunt. You don't like this recruit.",
+                                        Action = world => {
+                                            world.CurrentScenario = guyScenario;
+                                        }
+                                    },
+                                }
+                            };
+                        },
+                    },
+                    new Choice {
+                        Label = "Reject him.",
+                        Action = world => {
+                            world.CurrentScenario = new Scenario {
+                                Description = "Booing and expletives erupt from the crowd of guys and they all walk away.",
+                            };
+                        },
+                    },
+                },
+            };
+            _scenarios.Add(guyScenario);
         }
 
         public void Update(GameTime gameTime) {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            for (int i = 0; i < 4; i++) {
-                if (_bindings.JustPressed(BindingId.Level1 + i)) {
-                    _currentLevel = _levels[i];
+            if (_world.CurrentScenario is not null) {
+                for (int i = 0; i < 4; i++) {
+                    if (_bindings.JustPressed(BindingId.Level1 + i)) {
+                        if (_world.CurrentScenario.Choices.Count == 0) {
+                            _world.CurrentScenario = null;
+                            break;
+                        }
+                        else if (i < _world.CurrentScenario.Choices.Count) {
+                            Choice choice = _world.CurrentScenario.Choices[i];
+                            _world.CurrentScenario = null;
+                            choice.Action(_world);
+                            break;
+                        }
+                    }
                 }
             }
+            else {
+                for (int i = 0; i < 4; i++) {
+                    if (_bindings.JustPressed(BindingId.Level1 + i)) {
+                        _world.CurrentLevel = _world.Levels[i];
+                    }
+                }
+                
+                for (int i = 0; i < _world.Levels.Count; i++) {
+                    UpdateLevel(_world.Levels[i], deltaTime);
+                }
 
-            for (int i = 0; i < _levels.Count; i++) {
-                UpdateLevel(_levels[i], deltaTime);
+                _world.ScenarioTimer += deltaTime;
+                if (_world.ScenarioTimer >= 20f) {
+                    _world.CurrentScenario = _scenarios[_random.Next(_scenarios.Count)];
+                    _world.ScenarioTimer = 0f;
+                }
             }
         }
 
         public void Draw(GameTime gameTime) {
             _spriteBatch.Begin();
 
-            for (int i = 0; i < _currentLevel.Entities.Count; i++) {
-                DrawEntityShadow(_currentLevel.Entities[i]);
-            }
-            
-            _drawingEntities.AddRange(_currentLevel.Entities.OrderBy(entity => entity.Position.Y));
-            for (int i = 0; i < _drawingEntities.Count; i++) {
-                DrawEntity(_drawingEntities[i]);
-            }
-            _drawingEntities.Clear();
+            if (_world.CurrentLevel is not null) {
+                for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
+                    DrawEntityShadow(_world.CurrentLevel.Entities[i]);
+                }
 
-            for (int i = 0; i < _currentLevel.Entities.Count; i++) {
-                DrawEntityOverlay(_currentLevel.Entities[i]);
+                _drawingEntities.AddRange(_world.CurrentLevel.Entities.OrderBy(entity => entity.Position.Y));
+                for (int i = 0; i < _drawingEntities.Count; i++) {
+                    DrawEntity(_drawingEntities[i]);
+                }
+                _drawingEntities.Clear();
+
+                for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
+                    DrawEntityOverlay(_world.CurrentLevel.Entities[i]);
+                }
             }
 
-            for (int i = 0; i < _levels.Count; i++) {
-                Level level = _levels[i];
+            for (int i = 0; i < _world.Levels.Count; i++) {
+                Level level = _world.Levels[i];
 
-                _spriteBatch.DrawString(_font, level.Name, new Vector2(8f + 160f * i, 8f), level == _currentLevel ? Color.White : Color.Black);
+                _spriteBatch.DrawString(_font, level.Name, new Vector2(8f + 160f * i, 8f), level == _world.CurrentLevel ? Color.White : Color.Black);
+            }
+
+            string moneyString = $"${_world.PlayerMoney}";
+            _spriteBatch.DrawString(_font, moneyString, new Vector2(8f, 600f - 8f - _font.MeasureString(moneyString).Y), Color.Black);
+
+            if (_world.CurrentScenario is not null) {
+                string text = _world.CurrentScenario.Description;
+                
+                if (_world.CurrentScenario.Choices.Count > 0) {
+                    text += "\n";
+                }
+
+                for (int i = 0; i < _world.CurrentScenario.Choices.Count; i++) {
+                    text += $"\n{i + 1}: {_world.CurrentScenario.Choices[i].Label}";
+                }
+
+                Vector2 textSize = _font.MeasureString(text);
+                _spriteBatch.Draw(
+                    _pixelTexture,
+                    new Vector2(400f - textSize.X / 2f - 8f, 300f - textSize.Y / 2f - 8f),
+                    null,
+                    Color.Black * 0.5f,
+                    0f,
+                    Vector2.Zero,
+                    new Vector2(textSize.X + 16f, textSize.Y + 16f),
+                    SpriteEffects.None,
+                    0f);
+                _spriteBatch.DrawString(_font, text, Vector2.Floor(new Vector2(400f - textSize.X / 2f, 300f - textSize.Y / 2f)), Color.White);
             }
 
             _spriteBatch.End();
@@ -117,6 +285,7 @@ namespace LD50.Screens {
         private Entity CreateGunner() {
             return new Entity {
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                Friction = 500f,
 
                 Texture = _gunnerTexture,
                 Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
@@ -138,6 +307,7 @@ namespace LD50.Screens {
         private Entity CreateBatter() {
             return new Entity {
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                Friction = 500f,
 
                 Texture = _batterTexture,
                 Origin = new Vector2(_batterTexture.Width / 2, _batterTexture.Height),
@@ -163,11 +333,19 @@ namespace LD50.Screens {
                 if (entity.Health <= 0) {
                     level.Entities.RemoveAt(i);
                     i--;
+
+                    if (entity.Team == Team.Enemy) {
+                        _world.PlayerMoney += 50;
+                    }
                 }
             }
 
             for (int i = 0; i < level.Entities.Count; i++) {
                 UpdateEntity(level.Entities[i], level, deltaTime);
+
+                for (int j = i + 1; j < level.Entities.Count; j++) {
+                    DoEntityCollisions(level.Entities[i], level.Entities[j]);
+                }
             }
         }
 
@@ -199,7 +377,7 @@ namespace LD50.Screens {
             else if (entity.PreviousHealth > entity.Health) {
                 entity.PreviousHealthTimer += deltaTime;
 
-                if (entity.PreviousHealthTimer > 1f) {
+                if (entity.PreviousHealthTimer > 0.5f) {
                     entity.PreviousHealth -= 200f * deltaTime;
                 }
             }
@@ -241,14 +419,14 @@ namespace LD50.Screens {
 
             if (targetPosition.HasValue && entity.Animation is null) {
                 float distance = Vector2.Distance(entity.Position, targetPosition.Value);
-                float speed = 100f * deltaTime;
-                if (distance < speed) {
+                float walkSpeed = 100f * deltaTime;
+                if (distance < walkSpeed) {
                     entity.Position = targetPosition.Value;
 
                     entity.WalkTimer = 0f;
                 }
                 else if (targetDistance is null || distance > targetDistance.Value) {
-                    entity.Position += (targetPosition.Value - entity.Position) * (speed / distance);
+                    entity.Position += (targetPosition.Value - entity.Position) * (walkSpeed / distance);
 
                     if (targetPosition.Value.X > entity.Position.X) {
                         entity.Effects = SpriteEffects.None;
@@ -266,6 +444,40 @@ namespace LD50.Screens {
             else {
                 entity.WalkTimer = 0f;
             }
+
+            // Apply force.
+            entity.Velocity += (entity.Impulse + entity.Force * deltaTime) / entity.Mass;
+            entity.Impulse = Vector2.Zero;
+            entity.Force = Vector2.Zero;
+
+            // Apply friction.
+            float speed = entity.Velocity.Length();
+            if (speed > entity.Friction * deltaTime) {
+                entity.Velocity *= 1f - entity.Friction * deltaTime / speed;
+            }
+            else {
+                entity.Velocity = Vector2.Zero;
+            }
+
+            // Apply velocity.
+            entity.Position += entity.Velocity * deltaTime;
+        }
+
+        private void DoEntityCollisions(Entity entity1, Entity entity2) {
+            const float entityDiameter = 30f;
+
+            Vector2 delta = entity2.Position - entity1.Position;
+            float distance = delta.Length();
+            
+            if (distance >= entityDiameter) {
+                return;
+            }
+            
+            float overlap = entityDiameter - distance;
+            Vector2 normal = delta / distance;
+
+            entity1.Force -= normal * overlap * 50f;
+            entity2.Force += normal * overlap * 50f;
         }
 
         private void DrawEntity(Entity entity) {
