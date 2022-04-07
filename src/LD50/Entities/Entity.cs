@@ -23,11 +23,14 @@ namespace LD50.Entities {
         public int MaxHealth { get; set; }
         public int Health { get; set; }
 
+        public float PreviousHealth { get; set; }
+        public float PreviousHealthTimer { get; set; }
+
         public float AttackRange { get; set; }
         public int AttackDamage { get; set; }
-        public float AttackInterval { get; set; }
+        public float AttackCooldown { get; set; }
 
-        public float AttackTimer { get; set; }
+        public float CooldownTimer { get; set; }
         public Animation? AttackingAnimation { get; set; }
     }
 }

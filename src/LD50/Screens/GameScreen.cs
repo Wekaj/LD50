@@ -35,7 +35,7 @@ namespace LD50.Screens {
 
             _pixelTexture = content.Load<Texture2D>("Textures/pixel");
             _circleTexture = content.Load<Texture2D>("Textures/circle");
-            _gunnerTexture = content.Load<Texture2D>("Textures/Character Test 3");
+            _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
             
@@ -129,7 +129,7 @@ namespace LD50.Screens {
 
                 AttackRange = 150f,
                 AttackDamage = 30,
-                AttackInterval = 2f,
+                AttackCooldown = 2f,
 
                 AttackingAnimation = _animations.GunnerAttacking,
             };
@@ -150,7 +150,7 @@ namespace LD50.Screens {
 
                 AttackRange = 50f,
                 AttackDamage = 10,
-                AttackInterval = 1f,
+                AttackCooldown = 1f,
 
                 AttackingAnimation = _animations.BatterAttacking,
             };
@@ -188,6 +188,25 @@ namespace LD50.Screens {
                 entity.TargetEntity = null;
             }
 
+            if (entity.CooldownTimer > 0f) {
+                entity.CooldownTimer -= deltaTime;
+            }
+
+            if (entity.PreviousHealth < entity.Health) {
+                entity.PreviousHealth = entity.Health;
+                entity.PreviousHealthTimer = 0f;
+            }
+            else if (entity.PreviousHealth > entity.Health) {
+                entity.PreviousHealthTimer += deltaTime;
+
+                if (entity.PreviousHealthTimer > 1f) {
+                    entity.PreviousHealth -= 200f * deltaTime;
+                }
+            }
+            else {
+                entity.PreviousHealthTimer = 0f;
+            }
+
             if (entity.TargetEntity is null) {
                 for (int j = 0; j < level.Entities.Count; j++) {
                     Entity other = level.Entities[j];
@@ -200,13 +219,12 @@ namespace LD50.Screens {
                 }
             }
             else if (Vector2.DistanceSquared(entity.Position, entity.TargetEntity.Position) <= entity.AttackRange * entity.AttackRange) {
-                entity.AttackTimer += deltaTime;
-
-                if (entity.AttackTimer >= entity.AttackInterval) {
-                    entity.AttackTimer -= entity.AttackInterval;
+                if (entity.CooldownTimer <= 0f) {
+                    entity.CooldownTimer = entity.AttackCooldown;
 
                     entity.TargetEntity.Health -= entity.AttackDamage;
-                    entity.TargetEntity.AttackTimer -= 0.25f;
+                    entity.TargetEntity.PreviousHealthTimer = 0f;
+                    entity.TargetEntity.CooldownTimer += 0.25f;
 
                     if (entity.AttackingAnimation is not null) {
                         entity.Animation = entity.AttackingAnimation.Play();
@@ -221,7 +239,7 @@ namespace LD50.Screens {
             Vector2? targetPosition = entity.TargetEntity?.Position ?? entity.TargetPosition;
             float? targetDistance = entity.TargetEntity is not null ? entity.AttackRange : null;
 
-            if (targetPosition.HasValue) {
+            if (targetPosition.HasValue && entity.Animation is null) {
                 float distance = Vector2.Distance(entity.Position, targetPosition.Value);
                 float speed = 100f * deltaTime;
                 if (distance < speed) {
@@ -244,6 +262,9 @@ namespace LD50.Screens {
                 else {
                     entity.WalkTimer = 0f;
                 }
+            }
+            else {
+                entity.WalkTimer = 0f;
             }
         }
 
@@ -295,6 +316,17 @@ namespace LD50.Screens {
                 0f,
                 Vector2.Zero,
                 new Vector2(healthBarWidth, healthBarHeight),
+                SpriteEffects.None,
+                0f);
+
+            _spriteBatch.Draw(
+                _pixelTexture,
+                healthBarPosition,
+                null,
+                Color.White,
+                0f,
+                Vector2.Zero,
+                new Vector2(healthBarWidth * entity.PreviousHealth / entity.MaxHealth, healthBarHeight),
                 SpriteEffects.None,
                 0f);
 
