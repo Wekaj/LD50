@@ -20,6 +20,7 @@ namespace LD50.Screens {
         private readonly Texture2D _circleTexture;
         private readonly Texture2D _gunnerTexture;
         private readonly Texture2D _batterTexture;
+        private readonly Texture2D _minigunLieutenantTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -39,6 +40,7 @@ namespace LD50.Screens {
             _circleTexture = content.Load<Texture2D>("Textures/circle");
             _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
+            _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
             
             for (int i = 0; i < 4; i++) {
@@ -61,6 +63,8 @@ namespace LD50.Screens {
 
                 _world.Levels.Add(level);
             }
+
+            _world.Levels[0].Entities.Add(CreateMinigunLieutenant());
 
             _world.Levels[0].Name = "Family Restaurant";
             _world.Levels[1].Name = "Back Alleys";
@@ -323,6 +327,26 @@ namespace LD50.Screens {
                 AttackCooldown = 1f,
 
                 AttackingAnimation = _animations.BatterAttacking,
+            };
+        }
+
+        private Entity CreateMinigunLieutenant() {
+            return new Entity {
+                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                Friction = 500f,
+
+                Texture = _minigunLieutenantTexture,
+                Origin = new Vector2(_minigunLieutenantTexture.Width / 2, _minigunLieutenantTexture.Height),
+                Scale = new Vector2(0.75f),
+
+                DefaultTexture = _minigunLieutenantTexture,
+
+                MaxHealth = 300,
+                Health = 300,
+
+                AttackRange = 200f,
+                AttackDamage = 60,
+                AttackCooldown = 3f,
             };
         }
 
