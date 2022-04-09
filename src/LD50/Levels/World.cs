@@ -1,4 +1,5 @@
-﻿using LD50.Scenarios;
+﻿using LD50.Interface;
+using LD50.Scenarios;
 using System.Collections.Generic;
 
 namespace LD50.Levels {
@@ -10,5 +11,8 @@ namespace LD50.Levels {
 
         public Scenario? CurrentScenario { get; set; }
         public float ScenarioTimer { get; set; }
+        public List<Element> ScenarioElements { get; } = new();
+
+        public List<Element> Elements { get; } = new();
     }
 }

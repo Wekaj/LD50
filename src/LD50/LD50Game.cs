@@ -12,6 +12,7 @@ namespace LD50 {
 
         private readonly InputBindings _bindings;
 
+        private XnaMouse? _mouse;
         private ScreenManager? _screenManager;
 
         public LD50Game() {
@@ -33,6 +34,7 @@ namespace LD50 {
         protected override void LoadContent() {
             Container container = CreateContainer();
 
+            _mouse = container.GetInstance<XnaMouse>();
             _screenManager = container.GetInstance<ScreenManager>();
         }
 
@@ -42,6 +44,7 @@ namespace LD50 {
             }
 
             _bindings.Update();
+            _mouse?.Update();
             _screenManager!.Update(gameTime);
 
             base.Update(gameTime);
@@ -60,9 +63,11 @@ namespace LD50 {
 
             container.RegisterInstance(_bindings);
             container.RegisterInstance(Content);
+            container.RegisterInstance(Window);
             container.RegisterInstance(new SpriteBatch(GraphicsDevice));
 
             container.RegisterSingleton<AnimationManager>();
+            container.RegisterSingleton<XnaMouse>();
 
             container.Register<GameScreen>();
             container.Register<ScreenManager>();
@@ -72,6 +77,9 @@ namespace LD50 {
 
         private InputBindings CreateBindings() {
             var bindings = new InputBindings();
+
+            bindings.CreateBinding(BindingId.Select, MouseButton.Left);
+            bindings.CreateBinding(BindingId.Move, MouseButton.Right);
 
             bindings.CreateBinding(BindingId.Level1, Keys.D1);
             bindings.CreateBinding(BindingId.Level2, Keys.D2);
