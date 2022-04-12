@@ -1,6 +1,7 @@
 ﻿using LD50.Entities;
 using LD50.Graphics;
 using LD50.Input;
+using LD50.Interface;
 using LD50.Levels;
 using LD50.Scenarios;
 using Microsoft.Xna.Framework;
@@ -9,17 +10,23 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace LD50.Screens {
     public class GameScreen : IScreen {
+        private const float _levelWidth = 800f;
+        private const float _levelHeight = 600f;
+
         private readonly AnimationManager _animations;
         private readonly SpriteBatch _spriteBatch;
         private readonly InputBindings _bindings;
+        private readonly XnaMouse _mouse;
 
         private readonly Texture2D _pixelTexture;
         private readonly Texture2D _circleTexture;
         private readonly Texture2D _gunnerTexture;
         private readonly Texture2D _batterTexture;
+        private readonly Texture2D _minigunLieutenantTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -30,30 +37,41 @@ namespace LD50.Screens {
 
         private readonly List<Scenario> _scenarios = new();
 
-        public GameScreen(ContentManager content, AnimationManager animations, SpriteBatch spriteBatch, InputBindings bindings) {
+        private readonly Entity _commander;
+
+        public GameScreen(
+            ContentManager content,
+            AnimationManager animations,
+            SpriteBatch spriteBatch,
+            InputBindings bindings,
+            XnaMouse mouse) {
+
             _animations = animations;
             _spriteBatch = spriteBatch;
             _bindings = bindings;
-
+            _mouse = mouse;
             _pixelTexture = content.Load<Texture2D>("Textures/pixel");
             _circleTexture = content.Load<Texture2D>("Textures/circle");
             _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
+            _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
             
             for (int i = 0; i < 4; i++) {
-                var level = new Level();
+                var level = new Level {
+                    Position = new Vector2((i % 2) * _levelWidth, (i / 2) * _levelHeight),
+                };
 
                 int units = _random.Next(2, 10);
                 for (int j = 0; j < units; j++) {
-                    level.Entities.Add(CreateUnit() with {
+                    level.Entities.Add(CreateUnit(level) with {
                         Team = Team.Player,
                     });
                 }
 
                 int enemies = _random.Next(2, 4);
                 for (int j = 0; j < enemies; j++) {
-                    level.Entities.Add(CreateUnit() with {
+                    level.Entities.Add(CreateUnit(level) with {
                         Team = Team.Enemy,
                         Color = Color.Red,
                     });
@@ -62,12 +80,27 @@ namespace LD50.Screens {
                 _world.Levels.Add(level);
             }
 
+            _commander = CreateMinigunLieutenant();
+            _world.Levels[0].Entities.Add(_commander);
+
             _world.Levels[0].Name = "Family Restaurant";
             _world.Levels[1].Name = "Back Alleys";
             _world.Levels[2].Name = "Workrooms";
             _world.Levels[3].Name = "Headquarters";
 
             _world.CurrentLevel = _world.Levels[0];
+
+            float screenButtonWidth = (800f - 8f * (_world.Levels.Count + 1)) / _world.Levels.Count;
+            for (int i = 0; i < _world.Levels.Count; i++) {
+                Level level = _world.Levels[i];
+
+                _world.Elements.Add(new Element {
+                    Position = new Vector2(8f + (screenButtonWidth + 8f) * i, 8f),
+                    Size = new Vector2(screenButtonWidth, 20f),
+                    Label = level.Name,
+                    OnClick = () => _world.CurrentLevel = level,
+                });
+            }
 
             _scenarios.Add(new Scenario {
                 Description = "There is a dude and he says \"Hi.\"",
@@ -77,8 +110,8 @@ namespace LD50.Screens {
                         Action = world => {
                             world.PlayerMoney += 1000000;
 
-                            world.CurrentScenario = new Scenario {
-                                Description = "You punch the dude and it turns out he bleeds money. You and the boys\nbeat him up and now you have a million dollars.",
+                            ShowScenario(new Scenario {
+                                Description = "You punch the dude and it turns out he bleeds money. You and the boys beat him up and now you have a million dollars.",
 
                                 Choices = {
                                     new Choice {
@@ -86,7 +119,7 @@ namespace LD50.Screens {
                                         Action = world => {
                                             world.PlayerMoney -= 1000000;
                                             
-                                            world.CurrentLevel?.Entities.Add(CreateUnit() with {
+                                            world.CurrentLevel?.Entities.Add(CreateUnit(world.CurrentLevel) with {
                                                 Team = Team.Enemy,
                                                 Color = Color.Red,
 
@@ -97,31 +130,31 @@ namespace LD50.Screens {
                                                 AttackDamage = 50,
                                             });
 
-                                            world.CurrentScenario = new Scenario {
-                                                Description = "Uh oh, the representative for the charity absorbs all the money\ninstead and powers up. Prepare for combat.",
-                                            };
+                                            ShowScenario(new Scenario {
+                                                Description = "Uh oh, the representative for the charity absorbs all the money instead and powers up. Prepare for combat.",
+                                            });
                                         },
                                     },
                                     new Choice {
                                         Label = "Keep the money.",
                                     },
                                 }
-                            };
+                            });
                         },
                     },
                     new Choice {
                         Label = "Say hi back.",
                         Action = world => {
                             for (int i = 0; i < 50; i++) {
-                                world.CurrentLevel?.Entities.Add(CreateUnit() with {
+                                world.CurrentLevel?.Entities.Add(CreateUnit(world.CurrentLevel) with {
                                     Team = Team.Enemy,
                                     Color = Color.Red,
                                 });
                             }
 
-                            world.CurrentScenario = new Scenario {
-                                Description = "Now you've gone and done it. The dude goes mental and\nhe splits into 50 dudes. They're all after you.",
-                            };
+                            ShowScenario(new Scenario {
+                                Description = "Now you've gone and done it. The dude goes mental and he splits into 50 dudes. They're all after you.",
+                            });
                         },
                     }
                 },
@@ -129,52 +162,52 @@ namespace LD50.Screens {
 
             Scenario guyScenario = null;
             guyScenario = new Scenario {
-                Description = "A guy comes up to you and asks to join your gang for $100.\nThe crowd of guys behind him watch with intrigue.",
+                Description = "A guy comes up to you and asks to join your gang for $100. The crowd of guys behind him watch with intrigue.",
                 Choices = {
                     new Choice {
                         Label = "Give him the money.",
                         Action = world => {
                             if (world.PlayerMoney < 100) {
-                                world.CurrentScenario = new Scenario {
+                                ShowScenario(new Scenario {
                                     Description = "It turns out you don't even have $100. He scoffs and walks away.",
-                                };
+                                });
                                 return;
                             }
                             
                             world.PlayerMoney -= 100;
 
-                            Entity recruit = CreateUnit() with {
+                            Entity recruit = CreateUnit(world.CurrentLevel) with {
                                 Team = Team.Player,
                             };
-                            world.CurrentLevel?.Entities.Add(recruit);
+                            world.CurrentLevel.Entities.Add(recruit);
 
-                            world.CurrentScenario = new Scenario {
+                            ShowScenario(new Scenario {
                                 Description = "He thanks you and mentions that one of his friends will be interested in joining too.",
                                 Choices = {
                                     new Choice {
-                                        Label = "Give the recruit the customary slap on the butt and tell him to be on his way.",
+                                        Label = "High five.",
                                         Action = world => {
                                             recruit.Health -= 10;
 
-                                            world.CurrentScenario = guyScenario;
+                                            ShowScenario(guyScenario);
                                         }
                                     },
                                     new Choice {
-                                        Label = "Grunt. You don't like this recruit.",
+                                        Label = "Grunt.",
                                         Action = world => {
-                                            world.CurrentScenario = guyScenario;
+                                            ShowScenario(guyScenario);
                                         }
                                     },
                                 }
-                            };
+                            });
                         },
                     },
                     new Choice {
                         Label = "Reject him.",
                         Action = world => {
-                            world.CurrentScenario = new Scenario {
+                            ShowScenario(new Scenario {
                                 Description = "Booing and expletives erupt from the crowd of guys and they all walk away.",
-                            };
+                            });
                         },
                     },
                 },
@@ -185,45 +218,38 @@ namespace LD50.Screens {
         public void Update(GameTime gameTime) {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (_world.CurrentScenario is not null) {
-                for (int i = 0; i < 4; i++) {
-                    if (_bindings.JustPressed(BindingId.Level1 + i)) {
-                        if (_world.CurrentScenario.Choices.Count == 0) {
-                            _world.CurrentScenario = null;
-                            break;
-                        }
-                        else if (i < _world.CurrentScenario.Choices.Count) {
-                            Choice choice = _world.CurrentScenario.Choices[i];
-                            _world.CurrentScenario = null;
-                            choice.Action(_world);
-                            break;
-                        }
+            if (_bindings.JustReleased(BindingId.Select)) {
+                for (int i = 0; i < _world.Elements.Count; i++) {
+                    Element element = _world.Elements[i];
+
+                    if (element.OnClick is not null && MouseIntersectsElement(element)) {
+                        element.OnClick.Invoke();
+                        break;
                     }
                 }
             }
-            else {
-                for (int i = 0; i < 4; i++) {
-                    if (_bindings.JustPressed(BindingId.Level1 + i)) {
-                        _world.CurrentLevel = _world.Levels[i];
-                    }
-                }
-                
+
+            if (_world.CurrentLevel is not null && _bindings.JustPressed(BindingId.Move)) {
+                _commander.TargetPosition = _world.CurrentLevel.Position + _mouse.Position;
+            }
+
+            if (_world.CurrentScenario is null) {
                 for (int i = 0; i < _world.Levels.Count; i++) {
                     UpdateLevel(_world.Levels[i], deltaTime);
                 }
 
                 _world.ScenarioTimer += deltaTime;
                 if (_world.ScenarioTimer >= 20f) {
-                    _world.CurrentScenario = _scenarios[_random.Next(_scenarios.Count)];
+                    ShowScenario(_scenarios[_random.Next(_scenarios.Count)]);
                     _world.ScenarioTimer = 0f;
                 }
             }
         }
 
         public void Draw(GameTime gameTime) {
-            _spriteBatch.Begin();
-
             if (_world.CurrentLevel is not null) {
+                _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(new Vector3(-_world.CurrentLevel.Position, 0f)));
+
                 for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
                     DrawEntityShadow(_world.CurrentLevel.Entities[i]);
                 }
@@ -237,54 +263,34 @@ namespace LD50.Screens {
                 for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
                     DrawEntityOverlay(_world.CurrentLevel.Entities[i]);
                 }
+
+                _spriteBatch.End();
             }
 
-            for (int i = 0; i < _world.Levels.Count; i++) {
-                Level level = _world.Levels[i];
-
-                _spriteBatch.DrawString(_font, level.Name, new Vector2(8f + 160f * i, 8f), level == _world.CurrentLevel ? Color.White : Color.Black);
-            }
+            _spriteBatch.Begin();
 
             string moneyString = $"${_world.PlayerMoney}";
             _spriteBatch.DrawString(_font, moneyString, new Vector2(8f, 600f - 8f - _font.MeasureString(moneyString).Y), Color.Black);
 
-            if (_world.CurrentScenario is not null) {
-                string text = _world.CurrentScenario.Description;
-                
-                if (_world.CurrentScenario.Choices.Count > 0) {
-                    text += "\n";
-                }
-
-                for (int i = 0; i < _world.CurrentScenario.Choices.Count; i++) {
-                    text += $"\n{i + 1}: {_world.CurrentScenario.Choices[i].Label}";
-                }
-
-                Vector2 textSize = _font.MeasureString(text);
-                _spriteBatch.Draw(
-                    _pixelTexture,
-                    new Vector2(400f - textSize.X / 2f - 8f, 300f - textSize.Y / 2f - 8f),
-                    null,
-                    Color.Black * 0.5f,
-                    0f,
-                    Vector2.Zero,
-                    new Vector2(textSize.X + 16f, textSize.Y + 16f),
-                    SpriteEffects.None,
-                    0f);
-                _spriteBatch.DrawString(_font, text, Vector2.Floor(new Vector2(400f - textSize.X / 2f, 300f - textSize.Y / 2f)), Color.White);
+            for (int i = 0; i < _world.Elements.Count; i++) {
+                DrawElement(_world.Elements[i]);
             }
 
             _spriteBatch.End();
         }
 
-        private Entity CreateUnit() {
-            return _random.Next(2) == 0
+        private Entity CreateUnit(Level level) {
+            Entity unit = _random.Next(2) == 0
                 ? CreateGunner()
                 : CreateBatter();
+
+            return unit with {
+                Position = level.Position + new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+            };
         }
 
         private Entity CreateGunner() {
             return new Entity {
-                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
                 Friction = 500f,
 
                 Texture = _gunnerTexture,
@@ -301,12 +307,13 @@ namespace LD50.Screens {
                 AttackCooldown = 2f,
 
                 AttackingAnimation = _animations.GunnerAttacking,
+
+                IsWanderer = true,
             };
         }
 
         private Entity CreateBatter() {
             return new Entity {
-                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
                 Friction = 500f,
 
                 Texture = _batterTexture,
@@ -323,6 +330,30 @@ namespace LD50.Screens {
                 AttackCooldown = 1f,
 
                 AttackingAnimation = _animations.BatterAttacking,
+
+                IsWanderer = true,
+            };
+        }
+
+        private Entity CreateMinigunLieutenant() {
+            return new Entity {
+                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                Friction = 500f,
+
+                Texture = _minigunLieutenantTexture,
+                Origin = new Vector2(_minigunLieutenantTexture.Width / 2, _minigunLieutenantTexture.Height),
+                Scale = new Vector2(0.75f),
+
+                DefaultTexture = _minigunLieutenantTexture,
+
+                MaxHealth = 300,
+                Health = 300,
+
+                AttackRange = 200f,
+                AttackDamage = 60,
+                AttackCooldown = 3f,
+
+                DrawPath = true,
             };
         }
 
@@ -336,6 +367,35 @@ namespace LD50.Screens {
 
                     if (entity.Team == Team.Enemy) {
                         _world.PlayerMoney += 50;
+                    }
+
+                    continue;
+                }
+
+                if (entity.Position.X < level.Position.X
+                    || entity.Position.Y < level.Position.Y
+                    || entity.Position.X > level.Position.X + _levelWidth
+                    || entity.Position.Y > level.Position.Y + _levelHeight) {
+                    
+                    for (int j = 0; j < _world.Levels.Count; j++) {
+                        Level otherLevel = _world.Levels[j];
+
+                        if (otherLevel == level) {
+                            continue;
+                        }
+
+                        if (entity.Position.X >= otherLevel.Position.X
+                            && entity.Position.Y >= otherLevel.Position.Y
+                            && entity.Position.X <= otherLevel.Position.X + _levelWidth
+                            && entity.Position.Y <= otherLevel.Position.Y + _levelHeight) {
+
+                            level.Entities.RemoveAt(i);
+                            i--;
+
+                            otherLevel.Entities.Add(entity);
+
+                            break;
+                        }
                     }
                 }
             }
@@ -410,8 +470,8 @@ namespace LD50.Screens {
                 }
             }
 
-            if (_random.Next(1000) == 0) {
-                entity.TargetPosition = new Vector2(_random.Next(0, 800), _random.Next(0, 600));
+            if (entity.IsWanderer && _random.Next(1000) == 0) {
+                entity.TargetPosition = level.Position + new Vector2(_random.Next(0, 800), _random.Next(0, 600));
             }
 
             Vector2? targetPosition = entity.TargetEntity?.Position ?? entity.TargetPosition;
@@ -508,6 +568,19 @@ namespace LD50.Screens {
                 new Vector2(0.5f, 0.25f),
                 SpriteEffects.None,
                 0f);
+
+            if (entity.DrawPath && entity.TargetPosition.HasValue) {
+                _spriteBatch.Draw(
+                    _pixelTexture,
+                    entity.Position,
+                    null,
+                    Color.Black,
+                    GetAngle(entity.TargetPosition.Value - entity.Position),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(Vector2.Distance(entity.Position, entity.TargetPosition.Value), 1f),
+                    SpriteEffects.None,
+                    0f);
+            }
         }
 
         private void DrawEntityOverlay(Entity entity) {
@@ -552,6 +625,119 @@ namespace LD50.Screens {
                 new Vector2(healthBarWidth * entity.Health / entity.MaxHealth, healthBarHeight),
                 SpriteEffects.None,
                 0f);
+        }
+
+        private void DrawElement(Element element) {
+            Color backgroundColor = Color.Black * 0.5f;
+            Color labelColor = Color.White;
+
+            if (element.OnClick is not null && MouseIntersectsElement(element)) {
+                backgroundColor = Color.White * 0.5f;
+                labelColor = Color.Black;
+                
+                if (_bindings.IsPressed(BindingId.Select)) {
+                    backgroundColor *= 0.5f;
+                    labelColor *= 0.5f;
+                }
+            }
+
+            _spriteBatch.Draw(
+                _pixelTexture,
+                element.Position,
+                null,
+                backgroundColor,
+                0f,
+                Vector2.Zero,
+                element.Size,
+                SpriteEffects.None,
+                0f);
+
+            if (element.IsTextBlock) {
+                _spriteBatch.DrawString(
+                    _font,
+                    WrapText(_font, element.Label, element.Size.X - element.Margin * 2f),
+                    Vector2.Floor(element.Position + new Vector2(element.Margin)),
+                    labelColor);
+            }
+            else {
+                _spriteBatch.DrawString(
+                    _font,
+                    element.Label,
+                    Vector2.Floor(element.Position + element.Size / 2f - _font.MeasureString(element.Label) / 2f),
+                    labelColor);
+            }
+        }
+
+        private bool MouseIntersectsElement(Element element) {
+            return _mouse.Position.X >= element.Position.X
+                && _mouse.Position.X <= element.Position.X + element.Size.X
+                && _mouse.Position.Y >= element.Position.Y
+                && _mouse.Position.Y <= element.Position.Y + element.Size.Y;
+        }
+
+        private void ShowScenario(Scenario scenario) {
+            _world.CurrentScenario = scenario;
+
+            Vector2 descriptionSize = _font.MeasureString(WrapText(_font, scenario.Description, 290f));
+            Vector2 descriptionPosition = new Vector2(400f - 150f, 300f - descriptionSize.Y / 2f);
+            
+            _world.ScenarioElements.Add(new Element {
+                Position = descriptionPosition,
+                Size = new Vector2(300f, descriptionSize.Y + 10f),
+                Label = scenario.Description,
+                IsTextBlock = true,
+                Margin = 5f,
+                OnClick = scenario.Choices.Count == 0 ? HideScenario : null,
+            });
+
+            for (int i = 0; i < scenario.Choices.Count; i++) {
+                Choice choice = scenario.Choices[i];
+
+                _world.ScenarioElements.Add(new Element {
+                    Position = descriptionPosition + new Vector2(0f, descriptionSize.Y + 10f + 8f + 28f * i),
+                    Size = new Vector2(300f, 20f),
+                    Label = choice.Label,
+                    OnClick = () => {
+                        HideScenario();
+                        choice.Action(_world);
+                    },
+                });
+            }
+
+            _world.Elements.AddRange(_world.ScenarioElements);
+        }
+
+        private void HideScenario() {
+            _world.CurrentScenario = null;
+
+            _world.Elements.RemoveAll(_world.ScenarioElements.Contains);
+            _world.ScenarioElements.Clear();
+        }
+
+        private static string WrapText(SpriteFont spriteFont, string text, float maxLineWidth) {
+            string[] words = text.Split(' ');
+            var sb = new StringBuilder();
+            float lineWidth = 0f;
+            float spaceWidth = spriteFont.MeasureString(" ").X;
+
+            foreach (string word in words) {
+                Vector2 size = spriteFont.MeasureString(word);
+
+                if (lineWidth + size.X < maxLineWidth) {
+                    sb.Append(word + " ");
+                    lineWidth += size.X + spaceWidth;
+                }
+                else {
+                    sb.Append("\n" + word + " ");
+                    lineWidth = size.X + spaceWidth;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        private static float GetAngle(Vector2 vector) {
+            return (float)Math.Atan2(vector.Y, vector.X);
         }
     }
 }

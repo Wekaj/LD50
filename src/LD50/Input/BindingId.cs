@@ -4,5 +4,7 @@
         Level2,
         Level3,
         Level4,
+        Select,
+        Move,
     }
 }
