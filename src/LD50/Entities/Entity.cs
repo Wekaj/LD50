@@ -35,9 +35,17 @@ namespace LD50.Entities {
 
         public float AttackRange { get; set; }
         public int AttackDamage { get; set; }
+        public float AttackStun { get; set; }
+        public int AttackTicks { get; set; } = 1;
         public float AttackCooldown { get; set; }
+
+        public float AttackTickTimer { get; set; }
+        public int RemainingTicks { get; set; }
+        public Entity? AttackingEntity { get; set; }
 
         public float CooldownTimer { get; set; }
         public Animation? AttackingAnimation { get; set; }
+
+        public Entity? Commander { get; set; }
     }
 }

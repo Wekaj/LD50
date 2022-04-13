@@ -39,6 +39,13 @@ namespace LD50.Screens {
 
         private readonly Entity _commander;
 
+        private readonly string[] _levelNames = new[] {
+            "Family Restaurant",
+            "Workrooms",
+            "Headquarters",
+            "Back Alleys"
+        };
+
         public GameScreen(
             ContentManager content,
             AnimationManager animations,
@@ -56,51 +63,88 @@ namespace LD50.Screens {
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
             _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
+
+            const int levels = 4;
             
-            for (int i = 0; i < 4; i++) {
+            float screenButtonWidth = (800f - 8f * (levels + 1)) / levels;
+            for (int i = 0; i < levels; i++) {
+                int x = i % 2;
+                int y = i / 2;
+
                 var level = new Level {
-                    Position = new Vector2((i % 2) * _levelWidth, (i / 2) * _levelHeight),
+                    Name = _levelNames[i],
+                    Position = new Vector2(x * _levelWidth, y * _levelHeight),
                 };
 
-                int units = _random.Next(2, 10);
-                for (int j = 0; j < units; j++) {
-                    level.Entities.Add(CreateUnit(level) with {
-                        Team = Team.Player,
-                    });
-                }
-
-                int enemies = _random.Next(2, 4);
-                for (int j = 0; j < enemies; j++) {
-                    level.Entities.Add(CreateUnit(level) with {
-                        Team = Team.Enemy,
-                        Color = Color.Red,
-                    });
-                }
+                //int units = _random.Next(2, 10);
+                //for (int j = 0; j < units; j++) {
+                //    level.Entities.Add(CreateUnit(level) with {
+                //        Team = Team.Player,
+                //    });
+                //}
 
                 _world.Levels.Add(level);
-            }
-
-            _commander = CreateMinigunLieutenant();
-            _world.Levels[0].Entities.Add(_commander);
-
-            _world.Levels[0].Name = "Family Restaurant";
-            _world.Levels[1].Name = "Back Alleys";
-            _world.Levels[2].Name = "Workrooms";
-            _world.Levels[3].Name = "Headquarters";
-
-            _world.CurrentLevel = _world.Levels[0];
-
-            float screenButtonWidth = (800f - 8f * (_world.Levels.Count + 1)) / _world.Levels.Count;
-            for (int i = 0; i < _world.Levels.Count; i++) {
-                Level level = _world.Levels[i];
 
                 _world.Elements.Add(new Element {
-                    Position = new Vector2(8f + (screenButtonWidth + 8f) * i, 8f),
+                    Position = new Vector2(8f + (screenButtonWidth + 8f) * x, 8f + (28f * y)),
                     Size = new Vector2(screenButtonWidth, 20f),
                     Label = level.Name,
                     OnClick = () => _world.CurrentLevel = level,
                 });
             }
+
+            _commander = CreateMinigunLieutenant();
+            _world.Levels[0].Entities.Add(_commander);
+
+            for (int i = 0; i < _world.Levels[0].Entities.Count; i++) {
+                Entity entity = _world.Levels[0].Entities[i];
+
+                if (entity.Team == Team.Enemy) {
+                    continue;
+                }
+
+                entity.Commander = _commander;
+            }
+
+            _world.Levels[0].SpawnPositions.Add(new Vector2(_levelWidth / 2f, -30f));
+            _world.Levels[0].SpawnPositions.Add(new Vector2(-30f, _levelHeight / 2f));
+
+            _world.CurrentLevel = _world.Levels[0];
+
+            _world.Elements.Add(new Element {
+                Position = new Vector2(8f, 600f - 8f - 50f),
+                Size = new Vector2(100f, 50f),
+                Label = "Buy Batter\nCost: $50",
+                OnClick = () => {
+                    if (_world.PlayerMoney < 50) {
+                        return;
+                    }
+
+                    _world.PlayerMoney -= 50;
+                    _world.CurrentLevel.Entities.Add(CreateBatter() with {
+                        Position = _commander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                        Team = Team.Player,
+                        Commander = _commander,
+                    });
+                },
+            });
+            _world.Elements.Add(new Element {
+                Position = new Vector2(8f + 100f + 8f, 600f - 8f - 50f),
+                Size = new Vector2(100f, 50f),
+                Label = "Buy Gunner\nCost: $100",
+                OnClick = () => {
+                    if (_world.PlayerMoney < 100) {
+                        return;
+                    }
+
+                    _world.PlayerMoney -= 100;
+                    _world.CurrentLevel.Entities.Add(CreateGunner() with {
+                        Position = _commander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                        Team = Team.Player,
+                        Commander = _commander,
+                    });
+                },
+            });
 
             _scenarios.Add(new Scenario {
                 Description = "There is a dude and he says \"Hi.\"",
@@ -231,6 +275,7 @@ namespace LD50.Screens {
 
             if (_world.CurrentLevel is not null && _bindings.JustPressed(BindingId.Move)) {
                 _commander.TargetPosition = _world.CurrentLevel.Position + _mouse.Position;
+                _commander.TargetEntity = null;
             }
 
             if (_world.CurrentScenario is null) {
@@ -239,7 +284,7 @@ namespace LD50.Screens {
                 }
 
                 _world.ScenarioTimer += deltaTime;
-                if (_world.ScenarioTimer >= 20f) {
+                if (_world.ScenarioTimer >= 120f) {
                     ShowScenario(_scenarios[_random.Next(_scenarios.Count)]);
                     _world.ScenarioTimer = 0f;
                 }
@@ -249,6 +294,14 @@ namespace LD50.Screens {
         public void Draw(GameTime gameTime) {
             if (_world.CurrentLevel is not null) {
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(new Vector3(-_world.CurrentLevel.Position, 0f)));
+
+                for (int i = 0; i < _world.Levels.Count; i++) {
+                    Level level = _world.Levels[i];
+
+                    for (int j = 0; j < level.Entities.Count; j++) {
+                        DrawEntityPath(level.Entities[j]);
+                    }
+                }
 
                 for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
                     DrawEntityShadow(_world.CurrentLevel.Entities[i]);
@@ -270,7 +323,7 @@ namespace LD50.Screens {
             _spriteBatch.Begin();
 
             string moneyString = $"${_world.PlayerMoney}";
-            _spriteBatch.DrawString(_font, moneyString, new Vector2(8f, 600f - 8f - _font.MeasureString(moneyString).Y), Color.Black);
+            _spriteBatch.DrawString(_font, moneyString, new Vector2(8f, 600f - 8f - 50f - 8f - _font.MeasureString(moneyString).Y), Color.Black);
 
             for (int i = 0; i < _world.Elements.Count; i++) {
                 DrawElement(_world.Elements[i]);
@@ -303,7 +356,9 @@ namespace LD50.Screens {
                 Health = 80,
 
                 AttackRange = 150f,
-                AttackDamage = 30,
+                AttackDamage = 10,
+                AttackStun = 0.025f,
+                AttackTicks = 3,
                 AttackCooldown = 2f,
 
                 AttackingAnimation = _animations.GunnerAttacking,
@@ -327,6 +382,7 @@ namespace LD50.Screens {
 
                 AttackRange = 50f,
                 AttackDamage = 10,
+                AttackStun = 0.25f,
                 AttackCooldown = 1f,
 
                 AttackingAnimation = _animations.BatterAttacking,
@@ -339,6 +395,7 @@ namespace LD50.Screens {
             return new Entity {
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
                 Friction = 500f,
+                Mass = 5f,
 
                 Texture = _minigunLieutenantTexture,
                 Origin = new Vector2(_minigunLieutenantTexture.Width / 2, _minigunLieutenantTexture.Height),
@@ -350,14 +407,38 @@ namespace LD50.Screens {
                 Health = 300,
 
                 AttackRange = 200f,
-                AttackDamage = 60,
+                AttackDamage = 15,
+                AttackStun = 0.025f,
+                AttackTicks = 5,
                 AttackCooldown = 3f,
+
+                AttackingAnimation = _animations.MinigunLieutenantAttacking,
 
                 DrawPath = true,
             };
         }
 
         private void UpdateLevel(Level level, float deltaTime) {
+            level.SpawnTimer -= deltaTime;
+            if (level.SpawnTimer <= 0f && level.SpawnPositions.Count > 0) {
+                Vector2 spawnPosition = level.SpawnPositions[_random.Next(level.SpawnPositions.Count)];
+                
+                int enemies = _random.Next(2, 5);
+                for (int i = 0; i < enemies; i++) {
+                    level.Entities.Add(CreateUnit(level) with {
+                        Team = Team.Enemy,
+                        Color = Color.Red,
+
+                        Position = spawnPosition + new Vector2(_random.Next(-10, 11), _random.Next(-10, 11)),
+                        TargetPosition = level.Position + new Vector2(_levelWidth / 2f, _levelHeight / 2f),
+
+                        AttackDamage = 5,
+                    });
+                }
+
+                level.SpawnTimer = _random.Next(5, 20);
+            }
+
             for (int i = 0; i < level.Entities.Count; i++) {
                 Entity entity = level.Entities[i];
 
@@ -445,7 +526,7 @@ namespace LD50.Screens {
                 entity.PreviousHealthTimer = 0f;
             }
 
-            if (entity.TargetEntity is null) {
+            if (entity.TargetEntity is null && (entity.IsWanderer || entity.TargetPosition is null)) {
                 for (int j = 0; j < level.Entities.Count; j++) {
                     Entity other = level.Entities[j];
 
@@ -456,22 +537,61 @@ namespace LD50.Screens {
                     entity.TargetEntity = other;
                 }
             }
-            else if (Vector2.DistanceSquared(entity.Position, entity.TargetEntity.Position) <= entity.AttackRange * entity.AttackRange) {
+
+            if (entity.TargetEntity is not null && Vector2.DistanceSquared(entity.Position, entity.TargetEntity.Position) <= entity.AttackRange * entity.AttackRange) {
                 if (entity.CooldownTimer <= 0f) {
                     entity.CooldownTimer = entity.AttackCooldown;
 
                     entity.TargetEntity.Health -= entity.AttackDamage;
                     entity.TargetEntity.PreviousHealthTimer = 0f;
-                    entity.TargetEntity.CooldownTimer += 0.25f;
+                    entity.TargetEntity.CooldownTimer += entity.AttackStun;
 
                     if (entity.AttackingAnimation is not null) {
                         entity.Animation = entity.AttackingAnimation.Play();
+
+                        if (entity.AttackTicks > 1) {
+                            entity.AttackTickTimer = entity.AttackingAnimation.Duration / (entity.AttackTicks - 1);
+                            entity.AttackingEntity = entity.TargetEntity;
+                            entity.RemainingTicks = entity.AttackTicks - 1;
+                        }
                     }
                 }
             }
 
+            if (entity.AttackingEntity is not null && entity.RemainingTicks > 0) {
+                entity.AttackTickTimer -= deltaTime;
+
+                if (entity.AttackTickTimer <= 0f) {
+                    entity.AttackingEntity.Health -= entity.AttackDamage;
+                    entity.AttackingEntity.PreviousHealthTimer = 0f;
+                    entity.AttackingEntity.CooldownTimer += entity.AttackStun;
+
+                    entity.AttackTickTimer += entity.AttackingAnimation.Duration / (entity.AttackTicks - 1);
+                    entity.RemainingTicks--;
+                }
+            }
+            else {
+                entity.AttackingEntity = null;
+            }
+
             if (entity.IsWanderer && _random.Next(1000) == 0) {
                 entity.TargetPosition = level.Position + new Vector2(_random.Next(0, 800), _random.Next(0, 600));
+            }
+
+            entity.TargetEntity ??= entity.Commander?.TargetEntity;
+
+            if (entity.Commander is not null) {
+                float allowedDistance = entity.TargetEntity is not null ? 250f : 150f;
+
+                Vector2 commanderPosition = entity.Commander.TargetPosition ?? entity.Commander.Position;
+
+                if (Vector2.DistanceSquared(entity.Position, commanderPosition) > allowedDistance * allowedDistance) {
+                    entity.TargetEntity = null;
+
+                    if (!entity.TargetPosition.HasValue || Vector2.DistanceSquared(entity.TargetPosition.Value, commanderPosition) > allowedDistance * allowedDistance) {
+                        entity.TargetPosition = commanderPosition + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 100f;
+                    }
+                }
             }
 
             Vector2? targetPosition = entity.TargetEntity?.Position ?? entity.TargetPosition;
@@ -482,6 +602,8 @@ namespace LD50.Screens {
                 float walkSpeed = 100f * deltaTime;
                 if (distance < walkSpeed) {
                     entity.Position = targetPosition.Value;
+
+                    entity.TargetPosition = null;
 
                     entity.WalkTimer = 0f;
                 }
@@ -524,7 +646,7 @@ namespace LD50.Screens {
         }
 
         private void DoEntityCollisions(Entity entity1, Entity entity2) {
-            const float entityDiameter = 30f;
+            const float entityDiameter = 50f;
 
             Vector2 delta = entity2.Position - entity1.Position;
             float distance = delta.Length();
@@ -568,19 +690,23 @@ namespace LD50.Screens {
                 new Vector2(0.5f, 0.25f),
                 SpriteEffects.None,
                 0f);
+        }
 
-            if (entity.DrawPath && entity.TargetPosition.HasValue) {
-                _spriteBatch.Draw(
-                    _pixelTexture,
-                    entity.Position,
-                    null,
-                    Color.Black,
-                    GetAngle(entity.TargetPosition.Value - entity.Position),
-                    new Vector2(0f, 0.5f),
-                    new Vector2(Vector2.Distance(entity.Position, entity.TargetPosition.Value), 1f),
-                    SpriteEffects.None,
-                    0f);
+        private void DrawEntityPath(Entity entity) {
+            if (!entity.DrawPath || !entity.TargetPosition.HasValue) {
+                return;
             }
+            
+            _spriteBatch.Draw(
+                _pixelTexture,
+                entity.Position,
+                null,
+                Color.Black,
+                GetAngle(entity.TargetPosition.Value - entity.Position),
+                new Vector2(0f, 0.5f),
+                new Vector2(Vector2.Distance(entity.Position, entity.TargetPosition.Value), 1f),
+                SpriteEffects.None,
+                0f);
         }
 
         private void DrawEntityOverlay(Entity entity) {
@@ -738,6 +864,10 @@ namespace LD50.Screens {
 
         private static float GetAngle(Vector2 vector) {
             return (float)Math.Atan2(vector.Y, vector.X);
+        }
+
+        private Vector2 AngleToVector(float angle) {
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
         }
     }
 }

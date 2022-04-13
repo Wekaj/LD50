@@ -17,9 +17,23 @@ namespace LD50.Graphics {
                 .AddFrame(content.Load<Texture2D>("Textures/Batter_Attack2 Test 1"), 0.075f)
                 .AddFrame(content.Load<Texture2D>("Textures/Batter_Attack3 Test 1"), 0.3f)
                 .AddFrame(content.Load<Texture2D>("Textures/Batter_Attack Test 1"), 0.075f);
+
+            MinigunLieutenantAttacking = new Animation()
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack2 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack3 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack2 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack3 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack2 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack3 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack2 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack3 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack2 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack3 Test 1"), 0.075f);
         }
 
         public Animation GunnerAttacking { get; }
         public Animation BatterAttacking { get; }
+        public Animation MinigunLieutenantAttacking { get; }
     }
 }
