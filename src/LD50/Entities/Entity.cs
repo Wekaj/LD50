@@ -1,6 +1,7 @@
 ﻿using LD50.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace LD50.Entities {
     public record Entity {
@@ -25,7 +26,6 @@ namespace LD50.Entities {
         public Vector2? TargetPosition { get; set; }
         public Entity? TargetEntity { get; set; }
         public float WalkTimer { get; set; }
-        public bool IsWanderer { get; set; }
         public bool DrawPath { get; set; }
 
         public Team Team { get; set; }
@@ -49,5 +49,7 @@ namespace LD50.Entities {
         public Animation? AttackingAnimation { get; set; }
 
         public Entity? Commander { get; set; }
+        public List<Entity> Minions { get; } = new();
+        public Formation Formation { get; set; }
     }
 }
