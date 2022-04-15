@@ -1,0 +1,23 @@
+The cold storage room nips at your fingers, the family of rats are your only company. You wonder where they could be, its been over 2 hours now.
+
+Right on cue, Three distinct characters saunter into the room. The stench of metal and sweat permeate the room. Their exhaustion is palpable. 
+
+'yo boss, sorry we're late,' the largest of the three groans.
+
+You nod in acknowledgement and invite them to gather around you. 'its quite alright L1.'
+
+The rats in the corner become increasingly audible. L3 pounces after them, laughing manically.
+
+L2 sighs in disapproval. 'someone put that nutjob on a leash...he almost blew up the bar on the way over here.'
+
+She is interrupted by L1. 'boss, i'll be straight with ya, we're running low on goods and we gotta make a choice.'
+
+You pause intentfully, you've been painfully aware of the issue for some time now.
+
+Your commanders put forward two choices, you can choose to send a team to the docks to grab more ammo, or you can recruit some fresh faces from the local bars.
+
+[RECRUIT OR AMMO]
+
+[AMMO CHOICE] 'MORE BOOM' screeches L3 from the corner.
+
+[RECRUIT CHOICE] L1 looks hopeful, 'we sure could use the manpower right about now' 
