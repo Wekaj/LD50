@@ -4,6 +4,7 @@ using LD50.Input;
 using LD50.Interface;
 using LD50.Levels;
 using LD50.Scenarios;
+using LD50.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -120,12 +121,15 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    _world.PlayerMoney -= 50;
-                    _world.CurrentLevel.Entities.Add(CreateBatter() with {
+                    Entity entity = CreateBatter() with {
                         Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
                         Team = Team.Player,
                         Commander = _world.SelectedCommander,
-                    });
+                    };
+
+                    _world.PlayerMoney -= 50;
+                    _world.CurrentLevel.Entities.Add(entity);
+                    _world.SelectedCommander.Minions.Add(entity);
                 },
             });
             _world.Elements.Add(new Element {
@@ -137,12 +141,15 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    _world.PlayerMoney -= 100;
-                    _world.CurrentLevel.Entities.Add(CreateGunner() with {
+                    Entity entity = CreateGunner() with {
                         Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
                         Team = Team.Player,
                         Commander = _world.SelectedCommander,
-                    });
+                    };
+
+                    _world.PlayerMoney -= 100;
+                    _world.CurrentLevel.Entities.Add(entity);
+                    _world.SelectedCommander.Minions.Add(entity);
                 },
             });
 
@@ -372,7 +379,7 @@ namespace LD50.Screens {
 
                 AttackingAnimation = _animations.GunnerAttacking,
 
-                IsWanderer = true,
+                Formation = Formation.Group,
             };
         }
 
@@ -396,7 +403,7 @@ namespace LD50.Screens {
 
                 AttackingAnimation = _animations.BatterAttacking,
 
-                IsWanderer = true,
+                Formation = Formation.FrontArc,
             };
         }
 
@@ -500,6 +507,8 @@ namespace LD50.Screens {
         }
 
         private void UpdateEntity(Entity entity, Level level, float deltaTime) {
+            entity.Minions.RemoveWhere(minion => minion.Health <= 0);
+
             if (entity.Animation is not null) {
                 entity.Animation.Update(deltaTime);
 
@@ -535,7 +544,7 @@ namespace LD50.Screens {
                 entity.PreviousHealthTimer = 0f;
             }
 
-            if (entity.TargetEntity is null && (entity.IsWanderer || entity.TargetPosition is null)) {
+            if (entity.TargetEntity is null && entity.TargetPosition is null) {
                 for (int j = 0; j < level.Entities.Count; j++) {
                     Entity other = level.Entities[j];
 
@@ -554,6 +563,10 @@ namespace LD50.Screens {
                     entity.TargetEntity.Health -= entity.AttackDamage;
                     entity.TargetEntity.PreviousHealthTimer = 0f;
                     entity.TargetEntity.CooldownTimer += entity.AttackStun;
+
+                    entity.Effects = entity.TargetEntity.Position.X < entity.Position.X
+                        ? SpriteEffects.FlipHorizontally
+                        : SpriteEffects.None;
 
                     if (entity.AttackingAnimation is not null) {
                         entity.Animation = entity.AttackingAnimation.Play();
@@ -583,10 +596,6 @@ namespace LD50.Screens {
                 entity.AttackingEntity = null;
             }
 
-            if (entity.IsWanderer && _random.Next(1000) == 0) {
-                entity.TargetPosition = level.Position + new Vector2(_random.Next(0, 800), _random.Next(0, 600));
-            }
-
             entity.TargetEntity ??= entity.Commander?.TargetEntity;
 
             if (entity.Commander is not null) {
@@ -597,8 +606,72 @@ namespace LD50.Screens {
                 if (Vector2.DistanceSquared(entity.Position, commanderPosition) > allowedDistance * allowedDistance) {
                     entity.TargetEntity = null;
 
-                    if (!entity.TargetPosition.HasValue || Vector2.DistanceSquared(entity.TargetPosition.Value, commanderPosition) > allowedDistance * allowedDistance) {
-                        entity.TargetPosition = commanderPosition + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 100f;
+                    //if (!entity.TargetPosition.HasValue || Vector2.DistanceSquared(entity.TargetPosition.Value, commanderPosition) > allowedDistance * allowedDistance) {
+                    //    entity.TargetPosition = commanderPosition + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 100f;
+                    //}
+                }
+            }
+
+            if (entity.Minions.Count > 0 && entity.TargetPosition.HasValue && entity.Position != entity.TargetPosition) {
+                int arcMinions = 0;
+                int groupMinions = 0;
+                
+                for (int i = 0; i < entity.Minions.Count; i++) {
+                    Entity minion = entity.Minions[i];
+
+                    switch (minion.Formation) {
+                        case Formation.FrontArc:
+                            arcMinions++;
+                            break;
+                        case Formation.Group:
+                            groupMinions++;
+                            break;
+                    }
+                }
+
+                // Position the arc units in an arc in front of the commander.
+                if (arcMinions > 0) {
+                    float angle = GetAngle(entity.TargetPosition.Value - entity.Position) - MathHelper.PiOver2;
+                    float angleStep = MathHelper.Pi / (arcMinions - 1);
+
+                    var arcPositions = new List<Vector2>();
+                    for (int i = 0; i < arcMinions; i++) {
+                        arcPositions.Add(entity.TargetPosition.Value + AngleToVector(angle) * 110f);
+                        angle += angleStep;
+                    }
+
+                    for (int i = 0; i < entity.Minions.Count; i++) {
+                        Entity minion = entity.Minions[i];
+
+                        if (minion.Formation == Formation.FrontArc) {
+                            Vector2 bestPosition = arcPositions.OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).First();
+                            arcPositions.Remove(bestPosition);
+
+                            minion.TargetPosition = bestPosition;
+                        }
+                    }
+                }
+
+                // Position the group units in a circle around the commander.
+                if (groupMinions > 0) {
+                    float angle = GetAngle(entity.TargetPosition.Value - entity.Position);
+                    float angleStep = MathHelper.Pi * 2f / groupMinions;
+
+                    var groupPositions = new List<Vector2>();
+                    for (int i = 0; i < groupMinions; i++) {
+                        groupPositions.Add(entity.TargetPosition.Value + AngleToVector(angle) * 60f);
+                        angle += angleStep;
+                    }
+
+                    for (int i = 0; i < entity.Minions.Count; i++) {
+                        Entity minion = entity.Minions[i];
+
+                        if (minion.Formation == Formation.Group) {
+                            Vector2 bestPosition = groupPositions.OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).First();
+                            groupPositions.Remove(bestPosition);
+
+                            minion.TargetPosition = bestPosition;
+                        }
                     }
                 }
             }
@@ -655,6 +728,10 @@ namespace LD50.Screens {
         }
 
         private void DoEntityCollisions(Entity entity1, Entity entity2) {
+            if (entity1.Team == entity2.Team) {
+                return;
+            }
+
             const float entityDiameter = 50f;
 
             Vector2 delta = entity2.Position - entity1.Position;

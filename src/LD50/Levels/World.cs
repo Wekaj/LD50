@@ -8,7 +8,7 @@ namespace LD50.Levels {
         public List<Level> Levels { get; } = new();
         public Level? CurrentLevel { get; set; }
 
-        public int PlayerMoney { get; set; }
+        public int PlayerMoney { get; set; } = 1000;
 
         public Scenario? CurrentScenario { get; set; }
         public float ScenarioTimer { get; set; }
