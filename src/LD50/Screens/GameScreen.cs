@@ -37,8 +37,6 @@ namespace LD50.Screens {
 
         private readonly List<Scenario> _scenarios = new();
 
-        private readonly Entity _commander;
-
         private readonly string[] _levelNames = new[] {
             "Family Restaurant",
             "Workrooms",
@@ -76,13 +74,6 @@ namespace LD50.Screens {
                     Position = new Vector2(x * _levelWidth, y * _levelHeight),
                 };
 
-                //int units = _random.Next(2, 10);
-                //for (int j = 0; j < units; j++) {
-                //    level.Entities.Add(CreateUnit(level) with {
-                //        Team = Team.Player,
-                //    });
-                //}
-
                 _world.Levels.Add(level);
 
                 _world.Elements.Add(new Element {
@@ -90,20 +81,29 @@ namespace LD50.Screens {
                     Size = new Vector2(screenButtonWidth, 20f),
                     Label = level.Name,
                     OnClick = () => _world.CurrentLevel = level,
+                    IsHighlighted = () => _world.CurrentLevel == level,
                 });
             }
 
-            _commander = CreateMinigunLieutenant();
-            _world.Levels[0].Entities.Add(_commander);
+            const float commanderButtonWidth = 100f;
+            const float commanderButtonHeight = 50f;
+            for (int i = 0; i < 3; i++) {
+                Entity commander = CreateMinigunLieutenant() with {
+                    Name = $"Bob {i + 1}.0",
+                };
 
-            for (int i = 0; i < _world.Levels[0].Entities.Count; i++) {
-                Entity entity = _world.Levels[0].Entities[i];
+                _world.Commanders.Add(commander);
+                _world.Levels[0].Entities.Add(commander);
 
-                if (entity.Team == Team.Enemy) {
-                    continue;
-                }
+                _world.SelectedCommander ??= commander;
 
-                entity.Commander = _commander;
+                _world.Elements.Add(new Element {
+                    Position = new Vector2(_levelWidth - 8f - commanderButtonWidth, 8f + (commanderButtonHeight + 8f) * i),
+                    Size = new Vector2(commanderButtonWidth, commanderButtonHeight),
+                    Label = commander.Name,
+                    OnClick = () => _world.SelectedCommander = commander,
+                    IsHighlighted = () => _world.SelectedCommander == commander,
+                });
             }
 
             _world.Levels[0].SpawnPositions.Add(new Vector2(_levelWidth / 2f, -30f));
@@ -116,15 +116,15 @@ namespace LD50.Screens {
                 Size = new Vector2(100f, 50f),
                 Label = "Buy Batter\nCost: $50",
                 OnClick = () => {
-                    if (_world.PlayerMoney < 50) {
+                    if (_world.SelectedCommander is null || _world.PlayerMoney < 50) {
                         return;
                     }
 
                     _world.PlayerMoney -= 50;
                     _world.CurrentLevel.Entities.Add(CreateBatter() with {
-                        Position = _commander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
                         Team = Team.Player,
-                        Commander = _commander,
+                        Commander = _world.SelectedCommander,
                     });
                 },
             });
@@ -133,15 +133,15 @@ namespace LD50.Screens {
                 Size = new Vector2(100f, 50f),
                 Label = "Buy Gunner\nCost: $100",
                 OnClick = () => {
-                    if (_world.PlayerMoney < 100) {
+                    if (_world.SelectedCommander is null || _world.PlayerMoney < 100) {
                         return;
                     }
 
                     _world.PlayerMoney -= 100;
                     _world.CurrentLevel.Entities.Add(CreateGunner() with {
-                        Position = _commander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
                         Team = Team.Player,
-                        Commander = _commander,
+                        Commander = _world.SelectedCommander,
                     });
                 },
             });
@@ -271,11 +271,20 @@ namespace LD50.Screens {
                         break;
                     }
                 }
+
+                Vector2 worldMousePosition = (_world.CurrentLevel?.Position ?? Vector2.Zero) + _mouse.Position;
+                for (int i = 0; i < _world.Commanders.Count; i++) {
+                    Entity commander = _world.Commanders[i];
+
+                    if (Vector2.DistanceSquared(worldMousePosition, commander.Position - new Vector2(0f, 30f)) < 30f * 30f) {
+                        _world.SelectedCommander = commander;
+                    }
+                }
             }
 
-            if (_world.CurrentLevel is not null && _bindings.JustPressed(BindingId.Move)) {
-                _commander.TargetPosition = _world.CurrentLevel.Position + _mouse.Position;
-                _commander.TargetEntity = null;
+            if (_world.SelectedCommander is not null && _world.CurrentLevel is not null && _bindings.JustPressed(BindingId.Move)) {
+                _world.SelectedCommander.TargetPosition = _world.CurrentLevel.Position + _mouse.Position;
+                _world.SelectedCommander.TargetEntity = null;
             }
 
             if (_world.CurrentScenario is null) {
@@ -756,6 +765,11 @@ namespace LD50.Screens {
         private void DrawElement(Element element) {
             Color backgroundColor = Color.Black * 0.5f;
             Color labelColor = Color.White;
+
+            if (element.IsHighlighted()) {
+                backgroundColor = Color.White * 0.5f;
+                labelColor = Color.Black;
+            }
 
             if (element.OnClick is not null && MouseIntersectsElement(element)) {
                 backgroundColor = Color.White * 0.5f;

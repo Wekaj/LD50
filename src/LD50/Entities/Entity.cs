@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace LD50.Entities {
     public record Entity {
+        public string Name { get; set; } = "";
+
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Mass { get; set; } = 1f;

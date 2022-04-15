@@ -1,4 +1,5 @@
-﻿using LD50.Interface;
+﻿using LD50.Entities;
+using LD50.Interface;
 using LD50.Scenarios;
 using System.Collections.Generic;
 
@@ -14,5 +15,8 @@ namespace LD50.Levels {
         public List<Element> ScenarioElements { get; } = new();
 
         public List<Element> Elements { get; } = new();
+
+        public List<Entity> Commanders { get; } = new();
+        public Entity? SelectedCommander { get; set; }
     }
 }

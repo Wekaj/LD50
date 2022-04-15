@@ -9,5 +9,6 @@ namespace LD50.Interface {
         public bool IsTextBlock { get; set; }
         public float Margin { get; set; }
         public Action? OnClick { get; set; }
+        public Func<bool> IsHighlighted { get; set; } = () => false;
     }
 }
