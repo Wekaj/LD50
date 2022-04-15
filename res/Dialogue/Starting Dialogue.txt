@@ -1,0 +1,42 @@
+The cold storage room nips at your fingers, the family of rats are your only company. You wonder where they could be, its been over 2 hours now.
+
+Right on cue, three distinct characters saunter into the room. 
+
+'yo boss, sorry we're late,' the largest of the three groans.
+
+You nod in acknowledgement and invite them to gather around you.
+
+Pirro crushes a rat under his boot, laughing manically.
+
+Marissa sighs in disapproval. 'someone put that nutjob on a leash...he almost blew up the bar on the way over here.'
+
+She is interrupted by Alphonso. 'boss, i'll be straight with ya, we're running low on goods and we gotta do something.'
+
+You pause. You've been painfully aware of this issue for some time now.
+
+*BAAAANG* 
+
+A foot soldier comes crashing through the storage door. 'we got 2 coppas pokin round out front boss!'
+
+Pirro says he'll handle it, marching out the door.
+
+...moments later, you hear gunshots.
+
+[Fight two street cops]
+
+````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+As the dust settles, you assess the damage done to the area.
+
+'WHAT WAS THAT YOU IDIOT,' Marissa cries. Everyone looks at Pirro but he doesnt notice the attention.
+
+It's only a matter of time before more police come.
+
+Your commanders put forward two choices, you can choose to send a team to the docks to grab more ammo, or you can recruit some fresh faces from the local bars.
+
+[RECRUIT OR AMMO]
+
+[AMMO CHOICE] 'MORE BOOM' screeches Pirro from the corner.
+
+[RECRUIT CHOICE] Alphonso looks hopeful, 'we sure could use the manpower right about now.' 
+
+````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
