@@ -14,6 +14,9 @@ namespace LD50.Entities {
         public Vector2 Force { get; set; }
         public float Friction { get; set; }
 
+        public float Direction { get; set; }
+        public bool PrioritisesTargetPosition { get; set; }
+
         public Texture2D? Texture { get; set; }
         public Color Color { get; set; } = Color.White;
         public Vector2 Origin { get; set; }
