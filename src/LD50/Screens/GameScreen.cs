@@ -45,6 +45,12 @@ namespace LD50.Screens {
             "Back Alleys"
         };
 
+        private readonly string[] _commanderNames = new[] {
+            "Alphonso",
+            "Marissa",
+            "Pirro",
+        };
+
         public GameScreen(
             ContentManager content,
             AnimationManager animations,
@@ -90,7 +96,7 @@ namespace LD50.Screens {
             const float commanderButtonHeight = 50f;
             for (int i = 0; i < 3; i++) {
                 Entity commander = CreateMinigunLieutenant() with {
-                    Name = $"Bob {i + 1}.0",
+                    Name = _commanderNames[i],
                 };
 
                 _world.Commanders.Add(commander);
@@ -150,6 +156,60 @@ namespace LD50.Screens {
                     _world.PlayerMoney -= 100;
                     _world.CurrentLevel.Entities.Add(entity);
                     _world.SelectedCommander.Minions.Add(entity);
+                },
+            });
+
+            ShowScenario(new Scenario {
+                Description = "The cold storage room nips at your fingers, the family of rats are your only company. You wonder where they could be, its been over 2 hours now.",
+                Action = world => {
+                    ShowScenario(new Scenario {
+                        Description = "Right on cue, three distinct characters saunter into the room.",
+                        Action = world => {
+                            ShowScenario(new Scenario {
+                                Description = "'Yo boss, sorry we're late,' the largest of the three groans.",
+                                Action = world => {
+                                    ShowScenario(new Scenario {
+                                        Description = "You nod in acknowledgement and invite them to gather around you.",
+                                        Action = world => {
+                                            ShowScenario(new Scenario {
+                                                Description = "Pirro crushes a rat under his boot, laughing manically.",
+                                                Action = world => {
+                                                    ShowScenario(new Scenario {
+                                                        Description = "Marissa sighs in disapproval. 'Someone put that nutjob on a leash... he almost blew up the bar on the way over here.'",
+                                                        Action = world => {
+                                                            ShowScenario(new Scenario {
+                                                                Description = "She is interrupted by Alphonso. 'Boss, I'll be straight with ya, we're running low on goods and we gotta do something.'",
+                                                                Action = world => {
+                                                                    ShowScenario(new Scenario {
+                                                                        Description = "You pause. You've been painfully aware of this issue for some time now.",
+                                                                        Action = world => {
+                                                                            ShowScenario(new Scenario {
+                                                                                Description = "*BAAAANG*",
+                                                                                Action = world => {
+                                                                                    ShowScenario(new Scenario {
+                                                                                        Description = "A foot soldier comes crashing through the storage door. 'We got 2 coppas pokin round out front boss!'",
+                                                                                        Action = world => {
+                                                                                            ShowScenario(new Scenario {
+                                                                                                Description = "Pirro says he'll handle it, marching out the door... Moments later, you hear gunshots.",
+                                                                                            });
+                                                                                        },
+                                                                                    });
+                                                                                },
+                                                                            });
+                                                                        },
+                                                                    });
+                                                                },
+                                                            });
+                                                        },
+                                                    });
+                                                },
+                                            });
+                                        },
+                                    });
+                                },
+                            });
+                        },
+                    });
                 },
             });
 
@@ -279,11 +339,10 @@ namespace LD50.Screens {
                     }
                 }
 
-                Vector2 worldMousePosition = (_world.CurrentLevel?.Position ?? Vector2.Zero) + _mouse.Position;
                 for (int i = 0; i < _world.Commanders.Count; i++) {
                     Entity commander = _world.Commanders[i];
 
-                    if (Vector2.DistanceSquared(worldMousePosition, commander.Position - new Vector2(0f, 30f)) < 30f * 30f) {
+                    if (MouseIntersectsEntity(commander)) {
                         _world.SelectedCommander = commander;
                     }
                 }
@@ -412,6 +471,8 @@ namespace LD50.Screens {
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
                 Friction = 500f,
                 Mass = 5f,
+
+                PrioritisesTargetPosition = true,
 
                 Texture = _minigunLieutenantTexture,
                 Origin = new Vector2(_minigunLieutenantTexture.Width / 2, _minigunLieutenantTexture.Height),
@@ -544,9 +605,9 @@ namespace LD50.Screens {
                 entity.PreviousHealthTimer = 0f;
             }
 
-            if (entity.TargetEntity is null && entity.TargetPosition is null) {
-                for (int j = 0; j < level.Entities.Count; j++) {
-                    Entity other = level.Entities[j];
+            if (entity.TargetEntity is null) {
+                for (int i = 0; i < level.Entities.Count; i++) {
+                    Entity other = level.Entities[i];
 
                     if (other.Team == entity.Team || Vector2.DistanceSquared(entity.Position, other.Position) > 200f * 200f) {
                         continue;
@@ -612,7 +673,11 @@ namespace LD50.Screens {
                 }
             }
 
-            if (entity.Minions.Count > 0 && entity.TargetPosition.HasValue && entity.Position != entity.TargetPosition) {
+            if (entity.TargetPosition.HasValue && entity.Position != entity.TargetPosition) {
+                entity.Direction = GetAngle(entity.TargetPosition.Value - entity.Position);
+            }
+
+            if (entity.Minions.Count > 0) {
                 int arcMinions = 0;
                 int groupMinions = 0;
                 
@@ -629,14 +694,16 @@ namespace LD50.Screens {
                     }
                 }
 
+                Vector2 minionTargetPosition = entity.TargetPosition ?? entity.Position;
+
                 // Position the arc units in an arc in front of the commander.
                 if (arcMinions > 0) {
-                    float angle = GetAngle(entity.TargetPosition.Value - entity.Position) - MathHelper.PiOver2;
+                    float angle = entity.Direction - MathHelper.PiOver2;
                     float angleStep = MathHelper.Pi / (arcMinions - 1);
 
                     var arcPositions = new List<Vector2>();
                     for (int i = 0; i < arcMinions; i++) {
-                        arcPositions.Add(entity.TargetPosition.Value + AngleToVector(angle) * 110f);
+                        arcPositions.Add(minionTargetPosition + AngleToVector(angle) * 110f);
                         angle += angleStep;
                     }
 
@@ -644,7 +711,7 @@ namespace LD50.Screens {
                         Entity minion = entity.Minions[i];
 
                         if (minion.Formation == Formation.FrontArc) {
-                            Vector2 bestPosition = arcPositions.OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).First();
+                            Vector2 bestPosition = arcPositions./*OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).*/First();
                             arcPositions.Remove(bestPosition);
 
                             minion.TargetPosition = bestPosition;
@@ -654,12 +721,12 @@ namespace LD50.Screens {
 
                 // Position the group units in a circle around the commander.
                 if (groupMinions > 0) {
-                    float angle = GetAngle(entity.TargetPosition.Value - entity.Position);
+                    float angle = entity.Direction;
                     float angleStep = MathHelper.Pi * 2f / groupMinions;
 
                     var groupPositions = new List<Vector2>();
                     for (int i = 0; i < groupMinions; i++) {
-                        groupPositions.Add(entity.TargetPosition.Value + AngleToVector(angle) * 60f);
+                        groupPositions.Add(minionTargetPosition + AngleToVector(angle) * 60f);
                         angle += angleStep;
                     }
 
@@ -667,7 +734,7 @@ namespace LD50.Screens {
                         Entity minion = entity.Minions[i];
 
                         if (minion.Formation == Formation.Group) {
-                            Vector2 bestPosition = groupPositions.OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).First();
+                            Vector2 bestPosition = groupPositions./*OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).*/First();
                             groupPositions.Remove(bestPosition);
 
                             minion.TargetPosition = bestPosition;
@@ -679,13 +746,19 @@ namespace LD50.Screens {
             Vector2? targetPosition = entity.TargetEntity?.Position ?? entity.TargetPosition;
             float? targetDistance = entity.TargetEntity is not null ? entity.AttackRange : null;
 
-            if (targetPosition.HasValue && entity.Animation is null) {
+            if (entity.PrioritisesTargetPosition) {
+                targetPosition = entity.TargetPosition ?? entity.TargetEntity?.Position;
+                targetDistance = entity.TargetPosition is null ? entity.AttackRange : null;
+            }
+
+            if (targetPosition.HasValue /*&& entity.Animation is null*/) {
+                float speedModifier = entity.Animation is null ? 1f : 0.75f;
+
                 float distance = Vector2.Distance(entity.Position, targetPosition.Value);
-                float walkSpeed = 100f * deltaTime;
+                float walkSpeed = 100f * speedModifier * deltaTime;
+                
                 if (distance < walkSpeed) {
                     entity.Position = targetPosition.Value;
-
-                    entity.TargetPosition = null;
 
                     entity.WalkTimer = 0f;
                 }
@@ -699,7 +772,7 @@ namespace LD50.Screens {
                         entity.Effects = SpriteEffects.FlipHorizontally;
                     }
 
-                    entity.WalkTimer += deltaTime;
+                    entity.WalkTimer += deltaTime * speedModifier;
                 }
                 else {
                     entity.WalkTimer = 0f;
@@ -707,6 +780,12 @@ namespace LD50.Screens {
             }
             else {
                 entity.WalkTimer = 0f;
+            }
+
+            if (entity.AttackingEntity is not null) {
+                entity.Effects = entity.AttackingEntity.Position.X < entity.Position.X
+                    ? SpriteEffects.FlipHorizontally
+                    : SpriteEffects.None;
             }
 
             // Apply force.
@@ -892,19 +971,37 @@ namespace LD50.Screens {
                 && _mouse.Position.Y <= element.Position.Y + element.Size.Y;
         }
 
+        private bool MouseIntersectsEntity(Entity entity) {
+            if (_world.CurrentLevel is null) {
+                return false;
+            }
+
+            Vector2 worldMousePosition = _world.CurrentLevel.Position + _mouse.Position;
+
+            return Vector2.DistanceSquared(worldMousePosition, entity.Position - new Vector2(0f, 30f)) < 30f * 30f;
+        }
+
         private void ShowScenario(Scenario scenario) {
             _world.CurrentScenario = scenario;
 
             Vector2 descriptionSize = _font.MeasureString(WrapText(_font, scenario.Description, 290f));
             Vector2 descriptionPosition = new Vector2(400f - 150f, 300f - descriptionSize.Y / 2f);
-            
+
+            Action? onClick = null;
+            if (scenario.Choices.Count == 0 || scenario.Action is not null) {
+                onClick = () => {
+                    HideScenario();
+                    scenario.Action?.Invoke(_world);
+                };
+            }
+
             _world.ScenarioElements.Add(new Element {
                 Position = descriptionPosition,
                 Size = new Vector2(300f, descriptionSize.Y + 10f),
                 Label = scenario.Description,
                 IsTextBlock = true,
                 Margin = 5f,
-                OnClick = scenario.Choices.Count == 0 ? HideScenario : null,
+                OnClick = onClick,
             });
 
             for (int i = 0; i < scenario.Choices.Count; i++) {

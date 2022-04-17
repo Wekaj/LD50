@@ -19,4 +19,5 @@ namespace LD50.Levels {
         public List<Entity> Commanders { get; } = new();
         public Entity? SelectedCommander { get; set; }
     }
+    
 }
