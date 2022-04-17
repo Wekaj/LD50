@@ -1,2 +1,46 @@
-Things aren't looking too hot. You've lost some good men.
+Things aren't looking too hot. You've lost some good men and the lieutenants look a little worn out.
+
+You send out some foot soldiers to the warehouse at the docks for supplies. They come back with a crate of money, imported weapons, and ammunition. Everyone starts unpacking.
+
+Marissa pulls out an old leather book from the bottom of the crate. It's barely holding together. 
+
+Some grunts offer to dispose of the book but your curosity is piqued.
+
+[TAKE THE BOOK OR DISPOSE OF IT]
+
+[TAKE THE BOOK] You place the book in a briefcase.  (NEED TO HIGHLIGHT THIS OPTION IN SOME WAY - PLAYERS NEED TO ACTIVELY MAKE AN EFFORT TO NOT CHOOSE THIS ONE)
+
+[DISPOSE OF IT] Two people take the book and scurry away.
+
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+[IF: TAKE THE BOOK]
+
+As you start to fall asleep in the storage room, you hear a noise. You choose to ignore it, closing your eyes and going back to sleep.
+Hours later you are awoken by a presence in the room. It glares at you from a dark corner.
+
+'not even you can beat the police,' it croaks.
+
+You try to move but your body is frozen in place. Words fail you at this moment.
+
+The unknown entity continue, 'only i can save this family now and i will return soon enough.' You do not doubt his words.
+
+Your exhaustion kicks in, sending you back into a deep slumber.
+
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+[IF: DISPOSE OF IT]
+
+The next morning Alphonso reports the two foot soldiers as missing.
+
+However, there are more pressing issues to deal with. In passing, you wonder whether the book contained something of value worth stealing.
+
+ 
+
+
+
+
+
+
+
+
+
 
