@@ -4,6 +4,7 @@ using LD50.Input;
 using LD50.Interface;
 using LD50.Levels;
 using LD50.Scenarios;
+using LD50.Skills;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -28,6 +29,7 @@ namespace LD50.Screens {
         private readonly Texture2D _gunnerTexture;
         private readonly Texture2D _batterTexture;
         private readonly Texture2D _minigunLieutenantTexture;
+        private readonly Texture2D _daggerLieutenantTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -45,11 +47,9 @@ namespace LD50.Screens {
             "Back Alleys"
         };
 
-        private readonly string[] _commanderNames = new[] {
-            "Alphonso",
-            "Marissa",
-            "Pirro",
-        };
+        private readonly Skill _bloodSpikes;
+
+        private Skill? _currentSkill;
 
         public GameScreen(
             ContentManager content,
@@ -67,6 +67,7 @@ namespace LD50.Screens {
             _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
             _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
+            _daggerLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant2 Test 1");
             _font = content.Load<SpriteFont>("Fonts/font");
 
             const int levels = 4;
@@ -92,12 +93,15 @@ namespace LD50.Screens {
                 });
             }
 
+            Entity[] commanders = new[] {
+                CreateMinigunLieutenant(),
+                CreateDaggerLieutenant(),
+            };
+
             const float commanderButtonWidth = 100f;
             const float commanderButtonHeight = 50f;
-            for (int i = 0; i < 3; i++) {
-                Entity commander = CreateMinigunLieutenant() with {
-                    Name = _commanderNames[i],
-                };
+            for (int i = 0; i < commanders.Length; i++) {
+                Entity commander = commanders[i];
 
                 _world.Commanders.Add(commander);
                 _world.Levels[0].Entities.Add(commander);
@@ -117,6 +121,24 @@ namespace LD50.Screens {
             _world.Levels[0].SpawnPositions.Add(new Vector2(-30f, _levelHeight / 2f));
 
             _world.CurrentLevel = _world.Levels[0];
+
+            _bloodSpikes = new Skill {
+                IsValidTarget = target => target.Team == Team.Player,
+                Use = target => {
+                    const float radius = 100f;
+
+                    // Reduce the unit's health and damage all nearby units.
+                    target.Health -= 30;
+
+                    for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
+                        Entity entity = _world.CurrentLevel.Entities[i];
+
+                        if (entity.Team != Team.Player && Vector2.DistanceSquared(entity.Position, target.Position) < radius * radius) {
+                            entity.Health -= 60;
+                        }
+                    }
+                },
+            };
 
             _world.Elements.Add(new Element {
                 Position = new Vector2(8f, 600f - 8f - 50f),
@@ -156,6 +178,20 @@ namespace LD50.Screens {
                     _world.PlayerMoney -= 100;
                     _world.CurrentLevel.Entities.Add(entity);
                     _world.SelectedCommander.Minions.Add(entity);
+                },
+            });
+            _world.Elements.Add(new Element {
+                Position = new Vector2(8f + (100f + 8f) * 2f, 600f - 8f - 50f),
+                Size = new Vector2(100f, 50f),
+                Label = "Blood Spikes",
+                IsHighlighted = () => _currentSkill == _bloodSpikes,
+                OnClick = () => {
+                    if (_currentSkill == _bloodSpikes) {
+                        _currentSkill = null;
+                    }
+                    else {
+                        _currentSkill = _bloodSpikes;
+                    }
                 },
             });
 
@@ -330,22 +366,7 @@ namespace LD50.Screens {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (_bindings.JustReleased(BindingId.Select)) {
-                for (int i = 0; i < _world.Elements.Count; i++) {
-                    Element element = _world.Elements[i];
-
-                    if (element.OnClick is not null && MouseIntersectsElement(element)) {
-                        element.OnClick.Invoke();
-                        break;
-                    }
-                }
-
-                for (int i = 0; i < _world.Commanders.Count; i++) {
-                    Entity commander = _world.Commanders[i];
-
-                    if (MouseIntersectsEntity(commander)) {
-                        _world.SelectedCommander = commander;
-                    }
-                }
+                DoSelection();
             }
 
             if (_world.SelectedCommander is not null && _world.CurrentLevel is not null && _bindings.JustPressed(BindingId.Move)) {
@@ -362,6 +383,40 @@ namespace LD50.Screens {
                 if (_world.ScenarioTimer >= 120f) {
                     ShowScenario(_scenarios[_random.Next(_scenarios.Count)]);
                     _world.ScenarioTimer = 0f;
+                }
+            }
+        }
+
+        private void DoSelection() {
+            for (int i = 0; i < _world.Elements.Count; i++) {
+                Element element = _world.Elements[i];
+
+                if (element.OnClick is not null && MouseIntersectsElement(element)) {
+                    element.OnClick.Invoke();
+                    return;
+                }
+            }
+
+            if (_currentSkill is not null && _world.CurrentLevel is not null) {
+                for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
+                    Entity entity = _world.CurrentLevel.Entities[i];
+
+                    if (MouseIntersectsEntity(entity) && _currentSkill.IsValidTarget(entity)) {
+                        _currentSkill.Use(entity);
+                        _currentSkill = null;
+                        return;
+                    }
+                }
+            }
+
+            _currentSkill = null;
+
+            for (int i = 0; i < _world.Commanders.Count; i++) {
+                Entity commander = _world.Commanders[i];
+
+                if (MouseIntersectsEntity(commander)) {
+                    _world.SelectedCommander = commander;
+                    return;
                 }
             }
         }
@@ -468,6 +523,8 @@ namespace LD50.Screens {
 
         private Entity CreateMinigunLieutenant() {
             return new Entity {
+                Name = "Alphonso",
+
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
                 Friction = 500f,
                 Mass = 5f,
@@ -490,6 +547,35 @@ namespace LD50.Screens {
                 AttackCooldown = 3f,
 
                 AttackingAnimation = _animations.MinigunLieutenantAttacking,
+
+                DrawPath = true,
+            };
+        }
+
+        private Entity CreateDaggerLieutenant() {
+            return new Entity {
+                Name = "Marissa",
+
+                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                Friction = 500f,
+                Mass = 5f,
+
+                PrioritisesTargetPosition = true,
+
+                Texture = _daggerLieutenantTexture,
+                Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _daggerLieutenantTexture.Height),
+                Scale = new Vector2(0.75f),
+
+                DefaultTexture = _daggerLieutenantTexture,
+
+                MaxHealth = 200,
+                Health = 200,
+
+                AttackRange = 50f,
+                AttackDamage = 10,
+                AttackStun = 0.025f,
+                AttackTicks = 2,
+                AttackCooldown = 0.5f,
 
                 DrawPath = true,
             };
