@@ -1,5 +1,6 @@
 ﻿using LD50.Graphics;
 using LD50.Input;
+using LD50.Interface;
 using LD50.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -68,6 +69,7 @@ namespace LD50 {
 
             container.RegisterSingleton<AnimationManager>();
             container.RegisterSingleton<XnaMouse>();
+            container.RegisterSingleton<InterfaceActions>();
 
             container.Register<GameScreen>();
             container.Register<ScreenManager>();

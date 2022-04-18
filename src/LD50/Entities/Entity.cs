@@ -6,6 +6,11 @@ using System.Collections.Generic;
 namespace LD50.Entities {
     public record Entity {
         public string Name { get; set; } = "";
+        public Texture2D? Portrait { get; set; }
+
+        public string? Dialogue { get; set; }
+        public float DialogueTimer { get; set; }
+        public List<string> StrongEnemyQuotes { get; } = new();
 
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }

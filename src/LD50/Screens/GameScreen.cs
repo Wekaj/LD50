@@ -12,7 +12,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace LD50.Screens {
     public class GameScreen : IScreen {
@@ -23,6 +22,7 @@ namespace LD50.Screens {
         private readonly SpriteBatch _spriteBatch;
         private readonly InputBindings _bindings;
         private readonly XnaMouse _mouse;
+        private readonly InterfaceActions _interfaceActions;
 
         private readonly Texture2D _pixelTexture;
         private readonly Texture2D _circleTexture;
@@ -30,6 +30,8 @@ namespace LD50.Screens {
         private readonly Texture2D _batterTexture;
         private readonly Texture2D _minigunLieutenantTexture;
         private readonly Texture2D _daggerLieutenantTexture;
+        private readonly Texture2D _portraitAlphonsoTexture;
+        private readonly Texture2D _portraitMarissaTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -48,7 +50,6 @@ namespace LD50.Screens {
         };
 
         private readonly Skill _bloodSpikes;
-
         private Skill? _currentSkill;
 
         public GameScreen(
@@ -56,18 +57,23 @@ namespace LD50.Screens {
             AnimationManager animations,
             SpriteBatch spriteBatch,
             InputBindings bindings,
-            XnaMouse mouse) {
+            XnaMouse mouse,
+            InterfaceActions interfaceActions) {
 
             _animations = animations;
             _spriteBatch = spriteBatch;
             _bindings = bindings;
             _mouse = mouse;
+            _interfaceActions = interfaceActions;
+            
             _pixelTexture = content.Load<Texture2D>("Textures/pixel");
             _circleTexture = content.Load<Texture2D>("Textures/circle");
             _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
             _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
             _daggerLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant2 Test 1");
+            _portraitAlphonsoTexture = content.Load<Texture2D>("Textures/portrait_alphonso");
+            _portraitMarissaTexture = content.Load<Texture2D>("Textures/portrait_marissa");
             _font = content.Load<SpriteFont>("Fonts/font");
 
             const int levels = 4;
@@ -99,7 +105,7 @@ namespace LD50.Screens {
             };
 
             const float commanderButtonWidth = 100f;
-            const float commanderButtonHeight = 50f;
+            const float commanderButtonHeight = 60f;
             for (int i = 0; i < commanders.Length; i++) {
                 Entity commander = commanders[i];
 
@@ -112,6 +118,7 @@ namespace LD50.Screens {
                     Position = new Vector2(_levelWidth - 8f - commanderButtonWidth, 8f + (commanderButtonHeight + 8f) * i),
                     Size = new Vector2(commanderButtonWidth, commanderButtonHeight),
                     Label = commander.Name,
+                    Image = commander.Portrait,
                     OnClick = () => _world.SelectedCommander = commander,
                     IsHighlighted = () => _world.SelectedCommander == commander,
                 });
@@ -388,13 +395,8 @@ namespace LD50.Screens {
         }
 
         private void DoSelection() {
-            for (int i = 0; i < _world.Elements.Count; i++) {
-                Element element = _world.Elements[i];
-
-                if (element.OnClick is not null && MouseIntersectsElement(element)) {
-                    element.OnClick.Invoke();
-                    return;
-                }
+            if (_interfaceActions.HandleMouseClick(_world)) {
+                return;
             }
 
             if (_currentSkill is not null && _world.CurrentLevel is not null) {
@@ -450,16 +452,7 @@ namespace LD50.Screens {
                 _spriteBatch.End();
             }
 
-            _spriteBatch.Begin();
-
-            string moneyString = $"${_world.PlayerMoney}";
-            _spriteBatch.DrawString(_font, moneyString, new Vector2(8f, 600f - 8f - 50f - 8f - _font.MeasureString(moneyString).Y), Color.Black);
-
-            for (int i = 0; i < _world.Elements.Count; i++) {
-                DrawElement(_world.Elements[i]);
-            }
-
-            _spriteBatch.End();
+            _interfaceActions.DrawInterface(_world);
         }
 
         private Entity CreateUnit(Level level) {
@@ -524,6 +517,13 @@ namespace LD50.Screens {
         private Entity CreateMinigunLieutenant() {
             return new Entity {
                 Name = "Alphonso",
+                Portrait = _portraitAlphonsoTexture,
+
+                StrongEnemyQuotes = {
+                    "Everyone, prepare yourself!",
+                    "We need all the firepower we can get for this one.",
+                    "This is gonna hurt.",
+                },
 
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
                 Friction = 500f,
@@ -555,6 +555,13 @@ namespace LD50.Screens {
         private Entity CreateDaggerLieutenant() {
             return new Entity {
                 Name = "Marissa",
+                Portrait = _portraitMarissaTexture,
+
+                StrongEnemyQuotes = {
+                    "No time for breaks, huh...",
+                    "This won't be easy.",
+                    "I'll need an extra sharp blade for this one...",
+                },
 
                 Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
                 Friction = 500f,
@@ -600,6 +607,13 @@ namespace LD50.Screens {
                 }
 
                 level.SpawnTimer = _random.Next(5, 20);
+
+                if (_world.Commanders.Count > 0) {
+                    Entity talker = _world.Commanders[_random.Next(_world.Commanders.Count)];
+
+                    talker.Dialogue = talker.StrongEnemyQuotes[_random.Next(talker.StrongEnemyQuotes.Count)];
+                    talker.DialogueTimer = 3f;
+                }
             }
 
             for (int i = 0; i < level.Entities.Count; i++) {
@@ -655,6 +669,14 @@ namespace LD50.Screens {
 
         private void UpdateEntity(Entity entity, Level level, float deltaTime) {
             entity.Minions.RemoveWhere(minion => minion.Health <= 0);
+
+            if (entity.DialogueTimer > deltaTime) {
+                entity.DialogueTimer -= deltaTime;
+            }
+            else {
+                entity.DialogueTimer = 0f;
+                entity.Dialogue = null;
+            }
 
             if (entity.Animation is not null) {
                 entity.Animation.Update(deltaTime);
@@ -1004,59 +1026,6 @@ namespace LD50.Screens {
                 0f);
         }
 
-        private void DrawElement(Element element) {
-            Color backgroundColor = Color.Black * 0.5f;
-            Color labelColor = Color.White;
-
-            if (element.IsHighlighted()) {
-                backgroundColor = Color.White * 0.5f;
-                labelColor = Color.Black;
-            }
-
-            if (element.OnClick is not null && MouseIntersectsElement(element)) {
-                backgroundColor = Color.White * 0.5f;
-                labelColor = Color.Black;
-                
-                if (_bindings.IsPressed(BindingId.Select)) {
-                    backgroundColor *= 0.5f;
-                    labelColor *= 0.5f;
-                }
-            }
-
-            _spriteBatch.Draw(
-                _pixelTexture,
-                element.Position,
-                null,
-                backgroundColor,
-                0f,
-                Vector2.Zero,
-                element.Size,
-                SpriteEffects.None,
-                0f);
-
-            if (element.IsTextBlock) {
-                _spriteBatch.DrawString(
-                    _font,
-                    WrapText(_font, element.Label, element.Size.X - element.Margin * 2f),
-                    Vector2.Floor(element.Position + new Vector2(element.Margin)),
-                    labelColor);
-            }
-            else {
-                _spriteBatch.DrawString(
-                    _font,
-                    element.Label,
-                    Vector2.Floor(element.Position + element.Size / 2f - _font.MeasureString(element.Label) / 2f),
-                    labelColor);
-            }
-        }
-
-        private bool MouseIntersectsElement(Element element) {
-            return _mouse.Position.X >= element.Position.X
-                && _mouse.Position.X <= element.Position.X + element.Size.X
-                && _mouse.Position.Y >= element.Position.Y
-                && _mouse.Position.Y <= element.Position.Y + element.Size.Y;
-        }
-
         private bool MouseIntersectsEntity(Entity entity) {
             if (_world.CurrentLevel is null) {
                 return false;
@@ -1070,7 +1039,7 @@ namespace LD50.Screens {
         private void ShowScenario(Scenario scenario) {
             _world.CurrentScenario = scenario;
 
-            Vector2 descriptionSize = _font.MeasureString(WrapText(_font, scenario.Description, 290f));
+            Vector2 descriptionSize = _font.MeasureString(scenario.Description.WrapText(_font, 290f));
             Vector2 descriptionPosition = new Vector2(400f - 150f, 300f - descriptionSize.Y / 2f);
 
             Action? onClick = null;
@@ -1112,28 +1081,6 @@ namespace LD50.Screens {
 
             _world.Elements.RemoveAll(_world.ScenarioElements.Contains);
             _world.ScenarioElements.Clear();
-        }
-
-        private static string WrapText(SpriteFont spriteFont, string text, float maxLineWidth) {
-            string[] words = text.Split(' ');
-            var sb = new StringBuilder();
-            float lineWidth = 0f;
-            float spaceWidth = spriteFont.MeasureString(" ").X;
-
-            foreach (string word in words) {
-                Vector2 size = spriteFont.MeasureString(word);
-
-                if (lineWidth + size.X < maxLineWidth) {
-                    sb.Append(word + " ");
-                    lineWidth += size.X + spaceWidth;
-                }
-                else {
-                    sb.Append("\n" + word + " ");
-                    lineWidth = size.X + spaceWidth;
-                }
-            }
-
-            return sb.ToString();
         }
 
         private static float GetAngle(Vector2 vector) {
