@@ -28,6 +28,7 @@ namespace LD50.Screens {
         private readonly Texture2D _circleTexture;
         private readonly Texture2D _gunnerTexture;
         private readonly Texture2D _batterTexture;
+        private readonly Texture2D _rifleWomanTexture;
         private readonly Texture2D _minigunLieutenantTexture;
         private readonly Texture2D _daggerLieutenantTexture;
         private readonly Texture2D _portraitAlphonsoTexture;
@@ -70,6 +71,7 @@ namespace LD50.Screens {
             _circleTexture = content.Load<Texture2D>("Textures/circle");
             _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
+            _rifleWomanTexture = content.Load<Texture2D>("Textures/RifleWoman Test 1");
             _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
             _daggerLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant2 Test 1");
             _portraitAlphonsoTexture = content.Load<Texture2D>("Textures/portrait_alphonso");
@@ -189,6 +191,26 @@ namespace LD50.Screens {
             });
             _world.Elements.Add(new Element {
                 Position = new Vector2(8f + (100f + 8f) * 2f, 600f - 8f - 50f),
+                Size = new Vector2(100f, 50f),
+                Label = "Buy Rifler\nCost: $125",
+                OnClick = () => {
+                    if (_world.SelectedCommander is null || _world.PlayerMoney < 125) {
+                        return;
+                    }
+
+                    Entity entity = CreateRifleWoman() with {
+                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                        Team = Team.Player,
+                        Commander = _world.SelectedCommander,
+                    };
+
+                    _world.PlayerMoney -= 125;
+                    _world.CurrentLevel.Entities.Add(entity);
+                    _world.SelectedCommander.Minions.Add(entity);
+                },
+            });
+            _world.Elements.Add(new Element {
+                Position = new Vector2(8f + (100f + 8f) * 3f, 600f - 8f - 50f),
                 Size = new Vector2(100f, 50f),
                 Label = "Blood Spikes",
                 IsHighlighted = () => _currentSkill == _bloodSpikes,
@@ -514,6 +536,30 @@ namespace LD50.Screens {
             };
         }
 
+        private Entity CreateRifleWoman() {
+            return new Entity {
+                Friction = 500f,
+
+                Texture = _rifleWomanTexture,
+                Origin = new Vector2(_rifleWomanTexture.Width / 2, _rifleWomanTexture.Height),
+                Scale = new Vector2(0.75f),
+
+                DefaultTexture = _rifleWomanTexture,
+
+                MaxHealth = 60,
+                Health = 60,
+
+                AttackRange = 250f,
+                AttackDamage = 60,
+                AttackStun = 0.5f,
+                AttackCooldown = 3f,
+
+                AttackingAnimation = _animations.RifleWomanAttacking,
+
+                Formation = Formation.Group,
+            };
+        }
+
         private Entity CreateMinigunLieutenant() {
             return new Entity {
                 Name = "Alphonso",
@@ -578,7 +624,7 @@ namespace LD50.Screens {
                 MaxHealth = 200,
                 Health = 200,
 
-                AttackRange = 50f,
+                AttackRange = 200f,
                 AttackDamage = 10,
                 AttackStun = 0.025f,
                 AttackTicks = 2,
