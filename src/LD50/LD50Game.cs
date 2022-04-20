@@ -82,11 +82,19 @@ namespace LD50 {
 
             bindings.CreateBinding(BindingId.Select, MouseButton.Left);
             bindings.CreateBinding(BindingId.Move, MouseButton.Right);
+            
+            bindings.CreateBinding(BindingId.Commander1, Keys.D1);
+            bindings.CreateBinding(BindingId.Commander2, Keys.D2);
+            bindings.CreateBinding(BindingId.Commander3, Keys.D3);
+            
+            bindings.CreateBinding(BindingId.Level1, Keys.Q);
+            bindings.CreateBinding(BindingId.Level2, Keys.W);
+            bindings.CreateBinding(BindingId.Level3, Keys.A);
+            bindings.CreateBinding(BindingId.Level4, Keys.S);
 
-            bindings.CreateBinding(BindingId.Level1, Keys.D1);
-            bindings.CreateBinding(BindingId.Level2, Keys.D2);
-            bindings.CreateBinding(BindingId.Level3, Keys.D3);
-            bindings.CreateBinding(BindingId.Level4, Keys.D4);
+            bindings.CreateBinding(BindingId.Action1, Keys.Z);
+            bindings.CreateBinding(BindingId.Action2, Keys.X);
+            bindings.CreateBinding(BindingId.Action3, Keys.C);
 
             return bindings;
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LD50.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
@@ -13,5 +14,6 @@ namespace LD50.Interface {
         public Action? OnClick { get; set; }
         public Func<bool> IsHighlighted { get; set; } = () => false;
         public Func<bool> IsVisible { get; set; } = () => true;
+        public BindingId? Binding { get; set; }
     }
 }

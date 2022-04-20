@@ -6,5 +6,11 @@
         Level4,
         Select,
         Move,
+        Commander1,
+        Commander2,
+        Commander3,
+        Action1,
+        Action2,
+        Action3,
     }
 }

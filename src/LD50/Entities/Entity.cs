@@ -1,4 +1,5 @@
 ﻿using LD50.Graphics;
+using LD50.Levels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -7,6 +8,8 @@ namespace LD50.Entities {
     public record Entity {
         public string Name { get; set; } = "";
         public Texture2D? Portrait { get; set; }
+        
+        public Level? CurrentLevel { get; set; }
 
         public string? Dialogue { get; set; }
         public float DialogueTimer { get; set; }

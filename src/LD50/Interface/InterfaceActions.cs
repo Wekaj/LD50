@@ -29,6 +29,16 @@ namespace LD50.Interface {
             _font = content.Load<SpriteFont>("Fonts/font");
         }
 
+        public void Update(World world) {
+            for (int i = 0; i < world.Elements.Count; i++) {
+                Element element = world.Elements[i];
+
+                if (element.IsVisible() && element.OnClick is not null && element.Binding.HasValue && _bindings.JustReleased(element.Binding.Value)) {
+                    element.OnClick.Invoke();
+                }
+            }
+        }
+
         public bool HandleMouseClick(World world) {
             for (int i = 0; i < world.Elements.Count; i++) {
                 Element element = world.Elements[i];
@@ -95,11 +105,15 @@ namespace LD50.Interface {
                 labelColor = Color.Black;
             }
 
-            if (element.OnClick is not null && MouseIntersectsElement(element)) {
-                backgroundColor = Color.White * 0.5f;
-                labelColor = Color.Black;
+            if (element.OnClick is not null) {
+                bool mouseIntersects = MouseIntersectsElement(element);
 
-                if (_bindings.IsPressed(BindingId.Select)) {
+                if (mouseIntersects) {
+                    backgroundColor = Color.White * 0.5f;
+                    labelColor = Color.Black;
+                }
+
+                if ((mouseIntersects && _bindings.IsPressed(BindingId.Select)) || (element.Binding.HasValue && _bindings.IsPressed(element.Binding.Value))) {
                     backgroundColor *= 0.5f;
                     labelColor *= 0.5f;
                 }

@@ -91,7 +91,7 @@ namespace LD50.Screens {
                     Name = _levelNames[i],
                     Position = new Vector2(x * _levelWidth, y * _levelHeight),
                 };
-
+                
                 _world.Levels.Add(level);
 
                 _world.Elements.Add(new Element {
@@ -100,6 +100,7 @@ namespace LD50.Screens {
                     Label = level.Name,
                     OnClick = () => _world.CurrentLevel = level,
                     IsHighlighted = () => _world.CurrentLevel == level,
+                    Binding = BindingId.Level1 + i,
                 });
             }
 
@@ -123,8 +124,16 @@ namespace LD50.Screens {
                     Size = new Vector2(commanderButtonWidth, commanderButtonHeight),
                     Label = commander.Name,
                     Image = commander.Portrait,
-                    OnClick = () => _world.SelectedCommander = commander,
+                    OnClick = () => {
+                        if (_world.SelectedCommander == commander) {
+                            _world.CurrentLevel = commander.CurrentLevel;
+                        }
+                        else {
+                            _world.SelectedCommander = commander;
+                        }
+                    },
                     IsHighlighted = () => _world.SelectedCommander == commander,
+                    Binding = BindingId.Commander1 + i,
                 });
             }
 
@@ -173,6 +182,7 @@ namespace LD50.Screens {
                     _world.CurrentLevel.Entities.Add(entity);
                     _world.SelectedCommander.Minions.Add(entity);
                 },
+                Binding = BindingId.Action1,
             });
             _world.Elements.Add(new Element {
                 Position = new Vector2(8f + (elementWidth + 8f) * 1f, 600f - 8f - 50f),
@@ -194,6 +204,7 @@ namespace LD50.Screens {
                     _world.CurrentLevel.Entities.Add(entity);
                     _world.SelectedCommander.Minions.Add(entity);
                 },
+                Binding = BindingId.Action2,
             });
             _world.Elements.Add(new Element {
                 Position = new Vector2(8f + (elementWidth + 8f) * 0f, 600f - 8f - 50f),
@@ -215,6 +226,7 @@ namespace LD50.Screens {
                     _world.CurrentLevel.Entities.Add(entity);
                     _world.SelectedCommander.Minions.Add(entity);
                 },
+                Binding = BindingId.Action1,
             });
             _world.Elements.Add(new Element {
                 Position = new Vector2(8f + (elementWidth + 8f) * 1f, 600f - 8f - 50f),
@@ -236,6 +248,7 @@ namespace LD50.Screens {
                     _world.CurrentLevel.Entities.Add(entity);
                     _world.SelectedCommander.Minions.Add(entity);
                 },
+                Binding = BindingId.Action2,
             });
             _world.Elements.Add(new Element {
                 Position = new Vector2(8f + (elementWidth + 8f) * 2f, 600f - 8f - 50f),
@@ -250,6 +263,7 @@ namespace LD50.Screens {
                         _currentSkill = _bloodSpikes;
                     }
                 },
+                Binding = BindingId.Action3,
             });
 
             ShowScenario(new Scenario {
@@ -372,6 +386,8 @@ namespace LD50.Screens {
                 _world.SelectedCommander.TargetPosition = _world.CurrentLevel.Position + _mouse.Position;
                 _world.SelectedCommander.TargetEntity = null;
             }
+
+            _interfaceActions.Update(_world);
 
             if (_world.CurrentScenario is null) {
                 for (int i = 0; i < _world.Levels.Count; i++) {
@@ -716,6 +732,8 @@ namespace LD50.Screens {
         }
 
         private void UpdateEntity(Entity entity, Level level, float deltaTime) {
+            entity.CurrentLevel = level;
+
             entity.Minions.RemoveWhere(minion => minion.Health <= 0);
 
             if (entity.DialogueTimer > deltaTime) {
