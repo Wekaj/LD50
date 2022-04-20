@@ -52,7 +52,7 @@ namespace LD50 {
         }
 
         protected override void Draw(GameTime gameTime) {
-            GraphicsDevice.Clear(Color.LightGray);
+            GraphicsDevice.Clear(Color.DimGray);
 
             _screenManager!.Draw(gameTime);
 

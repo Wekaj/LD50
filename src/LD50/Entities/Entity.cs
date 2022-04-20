@@ -43,6 +43,7 @@ namespace LD50.Entities {
         public float PreviousHealth { get; set; }
         public float PreviousHealthTimer { get; set; }
 
+        public float VisionRange { get; set; }
         public float AttackRange { get; set; }
         public int AttackDamage { get; set; }
         public float AttackStun { get; set; }

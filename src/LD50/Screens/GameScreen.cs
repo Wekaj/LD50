@@ -151,9 +151,11 @@ namespace LD50.Screens {
                 },
             };
 
+            const float elementWidth = 150f;
+
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + (100f + 8f) * 0f, 600f - 8f - 50f),
-                Size = new Vector2(100f, 50f),
+                Position = new Vector2(8f + (elementWidth + 8f) * 0f, 600f - 8f - 50f),
+                Size = new Vector2(elementWidth, 50f),
                 Label = "Buy Batter\nCost: $50",
                 IsVisible = () => _world.SelectedCommander?.Name == "Alphonso",
                 OnClick = () => {
@@ -173,8 +175,8 @@ namespace LD50.Screens {
                 },
             });
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + (100f + 8f) * 1f, 600f - 8f - 50f),
-                Size = new Vector2(100f, 50f),
+                Position = new Vector2(8f + (elementWidth + 8f) * 1f, 600f - 8f - 50f),
+                Size = new Vector2(elementWidth, 50f),
                 Label = "Buy Gunner\nCost: $100",
                 IsVisible = () => _world.SelectedCommander?.Name == "Alphonso",
                 OnClick = () => {
@@ -194,8 +196,8 @@ namespace LD50.Screens {
                 },
             });
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + (100f + 8f) * 0f, 600f - 8f - 50f),
-                Size = new Vector2(100f, 50f),
+                Position = new Vector2(8f + (elementWidth + 8f) * 0f, 600f - 8f - 50f),
+                Size = new Vector2(elementWidth, 50f),
                 Label = "Buy Pistolier\nCost: $100",
                 IsVisible = () => _world.SelectedCommander?.Name == "Marissa",
                 OnClick = () => {
@@ -215,8 +217,8 @@ namespace LD50.Screens {
                 },
             });
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + (100f + 8f) * 1f, 600f - 8f - 50f),
-                Size = new Vector2(100f, 50f),
+                Position = new Vector2(8f + (elementWidth + 8f) * 1f, 600f - 8f - 50f),
+                Size = new Vector2(elementWidth, 50f),
                 Label = "Buy Rifler\nCost: $125",
                 IsVisible = () => _world.SelectedCommander?.Name == "Marissa",
                 OnClick = () => {
@@ -236,8 +238,8 @@ namespace LD50.Screens {
                 },
             });
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + (100f + 8f) * 2f, 600f - 8f - 50f),
-                Size = new Vector2(100f, 50f),
+                Position = new Vector2(8f + (elementWidth + 8f) * 2f, 600f - 8f - 50f),
+                Size = new Vector2(elementWidth, 50f),
                 Label = "Blood Spikes",
                 IsHighlighted = () => _currentSkill == _bloodSpikes,
                 OnClick = () => {
@@ -301,64 +303,6 @@ namespace LD50.Screens {
                             });
                         },
                     });
-                },
-            });
-
-            _scenarios.Add(new Scenario {
-                Description = "There is a dude and he says \"Hi.\"",
-                Choices = {
-                    new Choice {
-                        Label = "Punch him.",
-                        Action = world => {
-                            world.PlayerMoney += 1000000;
-
-                            ShowScenario(new Scenario {
-                                Description = "You punch the dude and it turns out he bleeds money. You and the boys beat him up and now you have a million dollars.",
-
-                                Choices = {
-                                    new Choice {
-                                        Label = "Give the money to charity.",
-                                        Action = world => {
-                                            world.PlayerMoney -= 1000000;
-                                            
-                                            world.CurrentLevel?.Entities.Add(CreateUnit(world.CurrentLevel) with {
-                                                Team = Team.Enemy,
-                                                Color = Color.Red,
-
-                                                Scale = new Vector2(3f),
-                                                
-                                                MaxHealth = 1000,
-                                                Health = 1000,
-                                                AttackDamage = 50,
-                                            });
-
-                                            ShowScenario(new Scenario {
-                                                Description = "Uh oh, the representative for the charity absorbs all the money instead and powers up. Prepare for combat.",
-                                            });
-                                        },
-                                    },
-                                    new Choice {
-                                        Label = "Keep the money.",
-                                    },
-                                }
-                            });
-                        },
-                    },
-                    new Choice {
-                        Label = "Say hi back.",
-                        Action = world => {
-                            for (int i = 0; i < 50; i++) {
-                                world.CurrentLevel?.Entities.Add(CreateUnit(world.CurrentLevel) with {
-                                    Team = Team.Enemy,
-                                    Color = Color.Red,
-                                });
-                            }
-
-                            ShowScenario(new Scenario {
-                                Description = "Now you've gone and done it. The dude goes mental and he splits into 50 dudes. They're all after you.",
-                            });
-                        },
-                    }
                 },
             });
 
@@ -526,6 +470,7 @@ namespace LD50.Screens {
                 MaxHealth = 80,
                 Health = 80,
 
+                VisionRange = 200f,
                 AttackRange = 150f,
                 AttackDamage = 10,
                 AttackStun = 0.025f,
@@ -551,6 +496,7 @@ namespace LD50.Screens {
                 MaxHealth = 100,
                 Health = 100,
 
+                VisionRange = 200f,
                 AttackRange = 50f,
                 AttackDamage = 10,
                 AttackStun = 0.25f,
@@ -575,6 +521,7 @@ namespace LD50.Screens {
                 MaxHealth = 60,
                 Health = 60,
 
+                VisionRange = 250f,
                 AttackRange = 250f,
                 AttackDamage = 60,
                 AttackStun = 0.5f,
@@ -599,6 +546,7 @@ namespace LD50.Screens {
                 MaxHealth = 70,
                 Health = 70,
 
+                VisionRange = 200f,
                 AttackRange = 100f,
                 AttackDamage = 3,
                 AttackStun = 0.025f,
@@ -637,7 +585,8 @@ namespace LD50.Screens {
                 MaxHealth = 300,
                 Health = 300,
 
-                AttackRange = 200f,
+                VisionRange = 300f,
+                AttackRange = 300f,
                 AttackDamage = 15,
                 AttackStun = 0.025f,
                 AttackTicks = 5,
@@ -675,7 +624,8 @@ namespace LD50.Screens {
                 MaxHealth = 200,
                 Health = 200,
 
-                AttackRange = 200f,
+                VisionRange = 300f,
+                AttackRange = 300f,
                 AttackDamage = 20,
                 AttackStun = 0.025f,
                 AttackCooldown = 0.5f,
@@ -697,7 +647,7 @@ namespace LD50.Screens {
                         Team = Team.Enemy,
                         Color = Color.Red,
 
-                        Position = spawnPosition + new Vector2(_random.Next(-10, 11), _random.Next(-10, 11)),
+                        Position = spawnPosition + new Vector2(_random.Next(-50, 51), _random.Next(-50, 51)),
                         TargetPosition = level.Position + new Vector2(_levelWidth / 2f, _levelHeight / 2f),
 
                         AttackDamage = 5,
@@ -710,7 +660,7 @@ namespace LD50.Screens {
                     Entity talker = _world.Commanders[_random.Next(_world.Commanders.Count)];
 
                     talker.Dialogue = talker.StrongEnemyQuotes[_random.Next(talker.StrongEnemyQuotes.Count)];
-                    talker.DialogueTimer = 3f;
+                    talker.DialogueTimer = 5f;
                 }
             }
 
@@ -815,7 +765,10 @@ namespace LD50.Screens {
                 for (int i = 0; i < level.Entities.Count; i++) {
                     Entity other = level.Entities[i];
 
-                    if (other.Team == entity.Team || Vector2.DistanceSquared(entity.Position, other.Position) > 200f * 200f) {
+                    if (other.Team == entity.Team
+                        || Vector2.DistanceSquared(entity.Position, other.Position) > entity.VisionRange * entity.VisionRange
+                        || (entity.Commander is not null && Vector2.DistanceSquared(entity.Commander.Position, other.Position) > (200f + entity.AttackRange) * (200f + entity.AttackRange))) {
+
                         continue;
                     }
 
@@ -865,7 +818,7 @@ namespace LD50.Screens {
 
             entity.TargetEntity ??= entity.Commander?.TargetEntity;
 
-            if (entity.Commander is not null) {
+            if (entity.Commander is not null && entity.TargetEntity != entity.Commander.TargetEntity) {
                 float allowedDistance = entity.TargetEntity is not null ? 250f : 150f;
 
                 Vector2 commanderPosition = entity.Commander.TargetPosition ?? entity.Commander.Position;
@@ -1137,8 +1090,8 @@ namespace LD50.Screens {
         private void ShowScenario(Scenario scenario) {
             _world.CurrentScenario = scenario;
 
-            Vector2 descriptionSize = _font.MeasureString(scenario.Description.WrapText(_font, 290f));
-            Vector2 descriptionPosition = new Vector2(400f - 150f, 300f - descriptionSize.Y / 2f);
+            Vector2 descriptionSize = _font.MeasureString(scenario.Description.WrapText(_font, 490f));
+            Vector2 descriptionPosition = new Vector2(400f - 250f, 300f - descriptionSize.Y / 2f);
 
             Action? onClick = null;
             if (scenario.Choices.Count == 0 || scenario.Action is not null) {
@@ -1150,7 +1103,7 @@ namespace LD50.Screens {
 
             _world.ScenarioElements.Add(new Element {
                 Position = descriptionPosition,
-                Size = new Vector2(300f, descriptionSize.Y + 10f),
+                Size = new Vector2(500f, descriptionSize.Y + 10f),
                 Label = scenario.Description,
                 IsTextBlock = true,
                 Margin = 5f,
@@ -1162,7 +1115,7 @@ namespace LD50.Screens {
 
                 _world.ScenarioElements.Add(new Element {
                     Position = descriptionPosition + new Vector2(0f, descriptionSize.Y + 10f + 8f + 28f * i),
-                    Size = new Vector2(300f, 20f),
+                    Size = new Vector2(500f, 20f),
                     Label = choice.Label,
                     OnClick = () => {
                         HideScenario();
