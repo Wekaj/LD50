@@ -24,6 +24,19 @@ namespace LD50.Graphics {
                 .AddFrame(content.Load<Texture2D>("Textures/RifleWoman_Attack3 Test 1"), 0.2f)
                 .AddFrame(content.Load<Texture2D>("Textures/RifleWoman_Attack4 Test 1"), 0.2f);
 
+            PistolWomanAttacking = new Animation()
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack2 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack3 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack2 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack3 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack2 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack3 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack2 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack3 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack2 Test 1"), 0.1f)
+                .AddFrame(content.Load<Texture2D>("Textures/PistolWoman_Attack3 Test 1"), 0.1f);
+
             MinigunLieutenantAttacking = new Animation()
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack Test 1"), 0.075f)
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack2 Test 1"), 0.075f)
@@ -36,11 +49,18 @@ namespace LD50.Graphics {
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack3 Test 1"), 0.075f)
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack2 Test 1"), 0.075f)
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant_Attack3 Test 1"), 0.075f);
+
+            DaggerLieutenantAttacking = new Animation()
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant2_Attack Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant2_Attack2 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant2_Attack3 Test 1"), 0.075f);
         }
 
         public Animation GunnerAttacking { get; }
         public Animation BatterAttacking { get; }
         public Animation RifleWomanAttacking { get; }
+        public Animation PistolWomanAttacking { get; }
         public Animation MinigunLieutenantAttacking { get; }
+        public Animation DaggerLieutenantAttacking { get; }
     }
 }

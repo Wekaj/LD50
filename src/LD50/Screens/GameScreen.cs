@@ -28,6 +28,7 @@ namespace LD50.Screens {
         private readonly Texture2D _circleTexture;
         private readonly Texture2D _gunnerTexture;
         private readonly Texture2D _batterTexture;
+        private readonly Texture2D _pistolWomanTexture;
         private readonly Texture2D _rifleWomanTexture;
         private readonly Texture2D _minigunLieutenantTexture;
         private readonly Texture2D _daggerLieutenantTexture;
@@ -71,6 +72,7 @@ namespace LD50.Screens {
             _circleTexture = content.Load<Texture2D>("Textures/circle");
             _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
             _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
+            _pistolWomanTexture = content.Load<Texture2D>("Textures/PistolWoman Test 1");
             _rifleWomanTexture = content.Load<Texture2D>("Textures/RifleWoman Test 1");
             _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
             _daggerLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant2 Test 1");
@@ -150,9 +152,10 @@ namespace LD50.Screens {
             };
 
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f, 600f - 8f - 50f),
+                Position = new Vector2(8f + (100f + 8f) * 0f, 600f - 8f - 50f),
                 Size = new Vector2(100f, 50f),
                 Label = "Buy Batter\nCost: $50",
+                IsVisible = () => _world.SelectedCommander?.Name == "Alphonso",
                 OnClick = () => {
                     if (_world.SelectedCommander is null || _world.PlayerMoney < 50) {
                         return;
@@ -170,9 +173,10 @@ namespace LD50.Screens {
                 },
             });
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + 100f + 8f, 600f - 8f - 50f),
+                Position = new Vector2(8f + (100f + 8f) * 1f, 600f - 8f - 50f),
                 Size = new Vector2(100f, 50f),
                 Label = "Buy Gunner\nCost: $100",
+                IsVisible = () => _world.SelectedCommander?.Name == "Alphonso",
                 OnClick = () => {
                     if (_world.SelectedCommander is null || _world.PlayerMoney < 100) {
                         return;
@@ -190,9 +194,31 @@ namespace LD50.Screens {
                 },
             });
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + (100f + 8f) * 2f, 600f - 8f - 50f),
+                Position = new Vector2(8f + (100f + 8f) * 0f, 600f - 8f - 50f),
+                Size = new Vector2(100f, 50f),
+                Label = "Buy Pistolier\nCost: $100",
+                IsVisible = () => _world.SelectedCommander?.Name == "Marissa",
+                OnClick = () => {
+                    if (_world.SelectedCommander is null || _world.PlayerMoney < 100) {
+                        return;
+                    }
+
+                    Entity entity = CreatePistolWoman() with {
+                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                        Team = Team.Player,
+                        Commander = _world.SelectedCommander,
+                    };
+
+                    _world.PlayerMoney -= 100;
+                    _world.CurrentLevel.Entities.Add(entity);
+                    _world.SelectedCommander.Minions.Add(entity);
+                },
+            });
+            _world.Elements.Add(new Element {
+                Position = new Vector2(8f + (100f + 8f) * 1f, 600f - 8f - 50f),
                 Size = new Vector2(100f, 50f),
                 Label = "Buy Rifler\nCost: $125",
+                IsVisible = () => _world.SelectedCommander?.Name == "Marissa",
                 OnClick = () => {
                     if (_world.SelectedCommander is null || _world.PlayerMoney < 125) {
                         return;
@@ -210,7 +236,7 @@ namespace LD50.Screens {
                 },
             });
             _world.Elements.Add(new Element {
-                Position = new Vector2(8f + (100f + 8f) * 3f, 600f - 8f - 50f),
+                Position = new Vector2(8f + (100f + 8f) * 2f, 600f - 8f - 50f),
                 Size = new Vector2(100f, 50f),
                 Label = "Blood Spikes",
                 IsHighlighted = () => _currentSkill == _bloodSpikes,
@@ -560,6 +586,31 @@ namespace LD50.Screens {
             };
         }
 
+        private Entity CreatePistolWoman() {
+            return new Entity {
+                Friction = 500f,
+
+                Texture = _pistolWomanTexture,
+                Origin = new Vector2(_pistolWomanTexture.Width / 2, _pistolWomanTexture.Height),
+                Scale = new Vector2(0.75f),
+
+                DefaultTexture = _pistolWomanTexture,
+
+                MaxHealth = 70,
+                Health = 70,
+
+                AttackRange = 100f,
+                AttackDamage = 3,
+                AttackStun = 0.025f,
+                AttackTicks = 10,
+                AttackCooldown = 2f,
+
+                AttackingAnimation = _animations.PistolWomanAttacking,
+
+                Formation = Formation.FrontArc,
+            };
+        }
+
         private Entity CreateMinigunLieutenant() {
             return new Entity {
                 Name = "Alphonso",
@@ -625,10 +676,11 @@ namespace LD50.Screens {
                 Health = 200,
 
                 AttackRange = 200f,
-                AttackDamage = 10,
+                AttackDamage = 20,
                 AttackStun = 0.025f,
-                AttackTicks = 2,
                 AttackCooldown = 0.5f,
+
+                AttackingAnimation = _animations.DaggerLieutenantAttacking,
 
                 DrawPath = true,
             };

@@ -12,5 +12,6 @@ namespace LD50.Interface {
         public float Margin { get; set; }
         public Action? OnClick { get; set; }
         public Func<bool> IsHighlighted { get; set; } = () => false;
+        public Func<bool> IsVisible { get; set; } = () => true;
     }
 }

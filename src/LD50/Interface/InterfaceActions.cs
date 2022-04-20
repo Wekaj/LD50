@@ -33,7 +33,7 @@ namespace LD50.Interface {
             for (int i = 0; i < world.Elements.Count; i++) {
                 Element element = world.Elements[i];
 
-                if (element.OnClick is not null && MouseIntersectsElement(element)) {
+                if (element.IsVisible() && element.OnClick is not null && MouseIntersectsElement(element)) {
                     element.OnClick.Invoke();
                     return true;
                 }
@@ -83,6 +83,10 @@ namespace LD50.Interface {
         }
 
         private void DrawElement(Element element) {
+            if (!element.IsVisible()) {
+                return;
+            }
+            
             Color backgroundColor = Color.Black * 0.5f;
             Color labelColor = Color.White;
 
