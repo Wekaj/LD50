@@ -36,6 +36,7 @@ namespace LD50.Screens {
         private readonly Texture2D _portraitAlphonsoTexture;
         private readonly Texture2D _portraitMarissaTexture;
         private readonly Texture2D _portraitPirroTexture;
+        private readonly Texture2D _molotovTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -82,6 +83,7 @@ namespace LD50.Screens {
             _portraitAlphonsoTexture = content.Load<Texture2D>("Textures/portrait_alphonso");
             _portraitMarissaTexture = content.Load<Texture2D>("Textures/portrait_marissa");
             _portraitPirroTexture = content.Load<Texture2D>("Textures/portrait_pirro");
+            _molotovTexture = content.Load<Texture2D>("Textures/Molo");
             _font = content.Load<SpriteFont>("Fonts/font");
 
             const int levels = 4;
@@ -451,8 +453,17 @@ namespace LD50.Screens {
                 for (int i = 0; i < _world.CurrentLevel.Units.Count; i++) {
                     DrawEntityShadow(_world.CurrentLevel.Units[i].Entity);
                 }
+                for (int i = 0; i < _world.CurrentLevel.Projectiles.Count; i++) {
+                    DrawEntityShadow(_world.CurrentLevel.Projectiles[i].Entity);
+                }
+                for (int i = 0; i < _world.CurrentLevel.Fields.Count; i++) {
+                    DrawField(_world.CurrentLevel.Fields[i]);
+                }
 
-                _drawingEntities.AddRange(_world.CurrentLevel.Units.Select(unit => unit.Entity).OrderBy(entity => entity.Position.Y));
+                _drawingEntities.AddRange(_world.CurrentLevel.Units
+                    .Select(unit => unit.Entity)
+                    .Concat(_world.CurrentLevel.Projectiles.Select(projectile => projectile.Entity))
+                    .OrderBy(entity => entity.Position.Y));
                 for (int i = 0; i < _drawingEntities.Count; i++) {
                     DrawEntity(_drawingEntities[i]);
                 }
@@ -699,9 +710,11 @@ namespace LD50.Screens {
 
                 VisionRange = 300f,
                 AttackRange = 300f,
-                AttackDamage = 50,
-                AttackStun = 1f,
-                AttackCooldown = 2f,
+                AttackDamage = 0,
+                AttackStun = 0f,
+                AttackTicks = 2,
+                AttackCooldown = 5f,
+                ThrowsMolotovs = true,
 
                 AttackingAnimation = _animations.MolotovLieutenantAttacking,
 
@@ -713,7 +726,7 @@ namespace LD50.Screens {
             level.SpawnTimer -= deltaTime;
             if (level.SpawnTimer <= 0f && level.SpawnPositions.Count > 0) {
                 Vector2 spawnPosition = level.SpawnPositions[_random.Next(level.SpawnPositions.Count)];
-                
+
                 int enemies = _random.Next(2, 5);
                 for (int i = 0; i < enemies; i++) {
                     Unit enemy = CreateUnit(level) with {
@@ -739,6 +752,12 @@ namespace LD50.Screens {
                 }
             }
 
+            UpdateFields(level, deltaTime);
+            UpdateUnits(level, deltaTime);
+            UpdateProjectiles(level, deltaTime);
+        }
+
+        private void UpdateUnits(Level level, float deltaTime) {
             for (int i = 0; i < level.Units.Count; i++) {
                 Unit unit = level.Units[i];
 
@@ -757,7 +776,7 @@ namespace LD50.Screens {
                     || unit.Entity.Position.Y < level.Position.Y
                     || unit.Entity.Position.X > level.Position.X + _levelWidth
                     || unit.Entity.Position.Y > level.Position.Y + _levelHeight) {
-                    
+
                     for (int j = 0; j < _world.Levels.Count; j++) {
                         Level otherLevel = _world.Levels[j];
 
@@ -786,6 +805,39 @@ namespace LD50.Screens {
 
                 for (int j = i + 1; j < level.Units.Count; j++) {
                     DoUnitCollisions(level.Units[i], level.Units[j]);
+                }
+            }
+        }
+
+        private void UpdateProjectiles(Level level, float deltaTime) {
+            for (int i = 0; i < level.Projectiles.Count; i++) {
+                Projectile projectile = level.Projectiles[i];
+
+                UpdateProjectile(projectile, level, deltaTime);
+
+                if (projectile.TravelTimer >= projectile.TravelDuration) {
+                    level.Projectiles.RemoveAt(i);
+                    i--;
+
+                    if (projectile.Field is not null) {
+                        projectile.Field.Entity.Position = projectile.Entity.Position;
+                        projectile.Field.Source = projectile.Source;
+
+                        level.Fields.Add(projectile.Field);
+                    }
+                }
+            }
+        }
+
+        private void UpdateFields(Level level, float deltaTime) {
+            for (int i = 0; i < level.Fields.Count; i++) {
+                Field field = level.Fields[i];
+
+                UpdateField(field, level, deltaTime);
+
+                if (field.Life <= 0f) {
+                    level.Fields.RemoveAt(i);
+                    i--;
                 }
             }
         }
@@ -857,9 +909,7 @@ namespace LD50.Screens {
                 if (unit.CooldownTimer <= 0f) {
                     unit.CooldownTimer = unit.AttackCooldown;
 
-                    unit.TargetUnit.Health -= unit.AttackDamage;
-                    unit.TargetUnit.PreviousHealthTimer = 0f;
-                    unit.TargetUnit.CooldownTimer += unit.AttackStun;
+                    Attack(unit, unit.TargetUnit, level);
 
                     unit.Entity.Effects = unit.TargetUnit.Entity.Position.X < unit.Entity.Position.X
                         ? SpriteEffects.FlipHorizontally
@@ -870,27 +920,25 @@ namespace LD50.Screens {
 
                         if (unit.AttackTicks > 1) {
                             unit.AttackTickTimer = unit.AttackingAnimation.Duration / (unit.AttackTicks - 1);
-                            unit.AttackingEntity = unit.TargetUnit;
+                            unit.AttackingUnit = unit.TargetUnit;
                             unit.RemainingTicks = unit.AttackTicks - 1;
                         }
                     }
                 }
             }
 
-            if (unit.AttackingEntity is not null && unit.RemainingTicks > 0) {
+            if (unit.AttackingUnit is not null && unit.RemainingTicks > 0) {
                 unit.AttackTickTimer -= deltaTime;
 
                 if (unit.AttackTickTimer <= 0f) {
-                    unit.AttackingEntity.Health -= unit.AttackDamage;
-                    unit.AttackingEntity.PreviousHealthTimer = 0f;
-                    unit.AttackingEntity.CooldownTimer += unit.AttackStun;
+                    Attack(unit, unit.AttackingUnit, level);
 
                     unit.AttackTickTimer += unit.AttackingAnimation.Duration / (unit.AttackTicks - 1);
                     unit.RemainingTicks--;
                 }
             }
             else {
-                unit.AttackingEntity = null;
+                unit.AttackingUnit = null;
             }
 
             unit.TargetUnit ??= unit.Commander?.TargetUnit;
@@ -1018,8 +1066,8 @@ namespace LD50.Screens {
                 unit.WalkTimer = 0f;
             }
 
-            if (unit.AttackingEntity is not null) {
-                unit.Entity.Effects = unit.AttackingEntity.Entity.Position.X < unit.Entity.Position.X
+            if (unit.AttackingUnit is not null) {
+                unit.Entity.Effects = unit.AttackingUnit.Entity.Position.X < unit.Entity.Position.X
                     ? SpriteEffects.FlipHorizontally
                     : SpriteEffects.None;
             }
@@ -1028,6 +1076,81 @@ namespace LD50.Screens {
             unit.Entity.Rotation = (float)Math.Sin(unit.WalkTimer * 15f) * 0.05f;
 
             UpdateEntity(unit.Entity, deltaTime);
+        }
+
+        private void Attack(Unit attacker, Unit target, Level level) {
+            target.Health -= attacker.AttackDamage;
+            target.PreviousHealthTimer = 0f;
+            target.CooldownTimer += attacker.AttackStun;
+
+            if (attacker.ThrowsMolotovs) {
+                level.Projectiles.Add(CreateMolotov(
+                    attacker.Entity.Position,
+                    target.Entity.Position
+                        + target.Entity.Velocity * 1f
+                        + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * _random.NextSingle() * 100f,
+                    attacker));
+            }
+        }
+
+        private Projectile CreateMolotov(Vector2 start, Vector2 end, Unit? source = null) {
+            return new Projectile {
+                Entity = {
+                    Texture = _molotovTexture,
+                    Origin = _molotovTexture.Bounds.Center.ToVector2(),
+                },
+
+                Source = source,
+
+                Start = start,
+                End = end,
+                Peak = 100f,
+                TravelDuration = 1f,
+
+                RotationSpeed = -5f + _random.NextSingle() * 10f,
+                Field = new Field {
+                    Life = 2f,
+                    Radius = 100f,
+                    DamagePerTick = 10,
+                    TickInterval = 2f / 5f,
+                },
+            };
+        }
+
+        private void UpdateProjectile(Projectile projectile, Level level, float deltaTime) {
+            projectile.TravelTimer += deltaTime;
+
+            float p = projectile.TravelTimer / projectile.TravelDuration;
+            
+            projectile.Entity.Position = Vector2.Lerp(projectile.Start, projectile.End, p);
+            projectile.Entity.Depth = projectile.Peak * (float)Math.Sin(MathHelper.Pi * p);
+
+            projectile.Entity.Rotation += projectile.RotationSpeed * deltaTime;
+
+            UpdateEntity(projectile.Entity, deltaTime);
+        }
+
+        private void UpdateField(Field field, Level level, float deltaTime) {
+            field.TickTimer += deltaTime;
+            if (field.TickTimer >= field.TickInterval) {
+                field.TickTimer -= field.TickInterval;
+
+                for (int i = 0; i < level.Units.Count; i++) {
+                    Unit unit = level.Units[i];
+
+                    if (unit.Team == field.Source?.Team
+                        || Vector2.DistanceSquared(unit.Entity.Position, field.Entity.Position) > field.Radius * field.Radius) {
+
+                        continue;
+                    }
+
+                    unit.Health -= field.DamagePerTick;
+                }
+            }
+
+            field.Life -= deltaTime;
+
+            UpdateEntity(field.Entity, deltaTime);
         }
 
         private static void UpdateEntity(Entity entity, float deltaTime) {
@@ -1096,6 +1219,19 @@ namespace LD50.Screens {
                 0f,
                 new Vector2(_circleTexture.Width / 2f, _circleTexture.Height / 2f),
                 new Vector2(0.5f, 0.25f),
+                SpriteEffects.None,
+                0f);
+        }
+
+        private void DrawField(Field field) {
+            _spriteBatch.Draw(
+                _circleTexture,
+                field.Entity.Position,
+                null,
+                Color.Red * 0.5f,
+                0f,
+                new Vector2(_circleTexture.Width / 2f, _circleTexture.Height / 2f),
+                new Vector2(field.Radius * 2f / _circleTexture.Width, field.Radius * 2f / _circleTexture.Height),
                 SpriteEffects.None,
                 0f);
         }

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 namespace LD50.Entities {
     public record Unit {
+        public Entity Entity { get; } = new();
+
         public string Name { get; set; } = "";
         public Texture2D? Portrait { get; set; }
         
@@ -14,8 +16,6 @@ namespace LD50.Entities {
         public string? Dialogue { get; set; }
         public float DialogueTimer { get; set; }
         public List<string> StrongEnemyQuotes { get; } = new();
-
-        public Entity Entity { get; } = new();
 
         public float Direction { get; set; }
         public bool PrioritisesTargetPosition { get; set; }
@@ -41,10 +41,11 @@ namespace LD50.Entities {
         public float AttackStun { get; set; }
         public int AttackTicks { get; set; } = 1;
         public float AttackCooldown { get; set; }
+        public bool ThrowsMolotovs { get; set; }
 
         public float AttackTickTimer { get; set; }
         public int RemainingTicks { get; set; }
-        public Unit? AttackingEntity { get; set; }
+        public Unit? AttackingUnit { get; set; }
 
         public float CooldownTimer { get; set; }
         public Animation? AttackingAnimation { get; set; }
