@@ -16,8 +16,8 @@ namespace LD50.Levels {
 
         public List<Element> Elements { get; } = new();
 
-        public List<Entity> Commanders { get; } = new();
-        public Entity? SelectedCommander { get; set; }
+        public List<Unit> Commanders { get; } = new();
+        public Unit? SelectedCommander { get; set; }
     }
     
 }

@@ -63,7 +63,7 @@ namespace LD50.Interface {
             }
             
             for (int i = 0; i < world.Commanders.Count; i++) {
-                Entity commander = world.Commanders[i];
+                Unit commander = world.Commanders[i];
 
                 if (commander.Dialogue is null) {
                     continue;

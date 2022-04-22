@@ -108,7 +108,7 @@ namespace LD50.Screens {
                 });
             }
 
-            Entity[] commanders = new[] {
+            Unit[] commanders = new[] {
                 CreateMinigunLieutenant(),
                 CreateDaggerLieutenant(),
                 CreateMolotovLieutenant(),
@@ -117,10 +117,10 @@ namespace LD50.Screens {
             const float commanderButtonWidth = 100f;
             const float commanderButtonHeight = 60f;
             for (int i = 0; i < commanders.Length; i++) {
-                Entity commander = commanders[i];
+                Unit commander = commanders[i];
 
                 _world.Commanders.Add(commander);
-                _world.Levels[0].Entities.Add(commander);
+                _world.Levels[0].Units.Add(commander);
 
                 _world.SelectedCommander ??= commander;
 
@@ -155,11 +155,11 @@ namespace LD50.Screens {
                     // Reduce the unit's health and damage all nearby units.
                     target.Health -= 30;
 
-                    for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
-                        Entity entity = _world.CurrentLevel.Entities[i];
+                    for (int i = 0; i < _world.CurrentLevel.Units.Count; i++) {
+                        Unit unit = _world.CurrentLevel.Units[i];
 
-                        if (entity.Team != Team.Player && Vector2.DistanceSquared(entity.Position, target.Position) < radius * radius) {
-                            entity.Health -= 60;
+                        if (unit.Team != Team.Player && Vector2.DistanceSquared(unit.Entity.Position, target.Entity.Position) < radius * radius) {
+                            unit.Health -= 60;
                         }
                     }
                 },
@@ -177,15 +177,15 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Entity entity = CreateBatter() with {
-                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                    Unit unit = CreateBatter() with {
                         Team = Team.Player,
                         Commander = _world.SelectedCommander,
                     };
+                    unit.Entity.Position = _world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
 
                     _world.PlayerMoney -= 50;
-                    _world.CurrentLevel.Entities.Add(entity);
-                    _world.SelectedCommander.Minions.Add(entity);
+                    _world.CurrentLevel.Units.Add(unit);
+                    _world.SelectedCommander.Minions.Add(unit);
                 },
                 Binding = BindingId.Action1,
             });
@@ -199,15 +199,15 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Entity entity = CreateGunner() with {
-                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                    Unit unit = CreateGunner() with {
                         Team = Team.Player,
                         Commander = _world.SelectedCommander,
                     };
+                    unit.Entity.Position = _world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
 
                     _world.PlayerMoney -= 100;
-                    _world.CurrentLevel.Entities.Add(entity);
-                    _world.SelectedCommander.Minions.Add(entity);
+                    _world.CurrentLevel.Units.Add(unit);
+                    _world.SelectedCommander.Minions.Add(unit);
                 },
                 Binding = BindingId.Action2,
             });
@@ -221,15 +221,15 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Entity entity = CreatePistolWoman() with {
-                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                    Unit unit = CreatePistolWoman() with {
                         Team = Team.Player,
                         Commander = _world.SelectedCommander,
                     };
+                    unit.Entity.Position = _world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
 
                     _world.PlayerMoney -= 100;
-                    _world.CurrentLevel.Entities.Add(entity);
-                    _world.SelectedCommander.Minions.Add(entity);
+                    _world.CurrentLevel.Units.Add(unit);
+                    _world.SelectedCommander.Minions.Add(unit);
                 },
                 Binding = BindingId.Action1,
             });
@@ -243,15 +243,15 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Entity entity = CreateRifleWoman() with {
-                        Position = _world.SelectedCommander.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f,
+                    Unit unit = CreateRifleWoman() with {
                         Team = Team.Player,
                         Commander = _world.SelectedCommander,
                     };
+                    unit.Entity.Position = _world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
 
                     _world.PlayerMoney -= 125;
-                    _world.CurrentLevel.Entities.Add(entity);
-                    _world.SelectedCommander.Minions.Add(entity);
+                    _world.CurrentLevel.Units.Add(unit);
+                    _world.SelectedCommander.Minions.Add(unit);
                 },
                 Binding = BindingId.Action2,
             });
@@ -341,10 +341,10 @@ namespace LD50.Screens {
                             
                             world.PlayerMoney -= 100;
 
-                            Entity recruit = CreateUnit(world.CurrentLevel) with {
+                            Unit recruit = CreateUnit(world.CurrentLevel) with {
                                 Team = Team.Player,
                             };
-                            world.CurrentLevel.Entities.Add(recruit);
+                            world.CurrentLevel.Units.Add(recruit);
 
                             ShowScenario(new Scenario {
                                 Description = "He thanks you and mentions that one of his friends will be interested in joining too.",
@@ -389,7 +389,7 @@ namespace LD50.Screens {
 
             if (_world.SelectedCommander is not null && _world.CurrentLevel is not null && _bindings.JustPressed(BindingId.Move)) {
                 _world.SelectedCommander.TargetPosition = _world.CurrentLevel.Position + _mouse.Position;
-                _world.SelectedCommander.TargetEntity = null;
+                _world.SelectedCommander.TargetUnit = null;
             }
 
             _interfaceActions.Update(_world);
@@ -413,10 +413,10 @@ namespace LD50.Screens {
             }
 
             if (_currentSkill is not null && _world.CurrentLevel is not null) {
-                for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
-                    Entity entity = _world.CurrentLevel.Entities[i];
+                for (int i = 0; i < _world.CurrentLevel.Units.Count; i++) {
+                    Unit entity = _world.CurrentLevel.Units[i];
 
-                    if (MouseIntersectsEntity(entity) && _currentSkill.IsValidTarget(entity)) {
+                    if (MouseIntersectsUnit(entity) && _currentSkill.IsValidTarget(entity)) {
                         _currentSkill.Use(entity);
                         _currentSkill = null;
                         return;
@@ -427,9 +427,9 @@ namespace LD50.Screens {
             _currentSkill = null;
 
             for (int i = 0; i < _world.Commanders.Count; i++) {
-                Entity commander = _world.Commanders[i];
+                Unit commander = _world.Commanders[i];
 
-                if (MouseIntersectsEntity(commander)) {
+                if (MouseIntersectsUnit(commander)) {
                     _world.SelectedCommander = commander;
                     return;
                 }
@@ -443,23 +443,23 @@ namespace LD50.Screens {
                 for (int i = 0; i < _world.Levels.Count; i++) {
                     Level level = _world.Levels[i];
 
-                    for (int j = 0; j < level.Entities.Count; j++) {
-                        DrawEntityPath(level.Entities[j]);
+                    for (int j = 0; j < level.Units.Count; j++) {
+                        DrawUnitPath(level.Units[j]);
                     }
                 }
 
-                for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
-                    DrawEntityShadow(_world.CurrentLevel.Entities[i]);
+                for (int i = 0; i < _world.CurrentLevel.Units.Count; i++) {
+                    DrawEntityShadow(_world.CurrentLevel.Units[i].Entity);
                 }
 
-                _drawingEntities.AddRange(_world.CurrentLevel.Entities.OrderBy(entity => entity.Position.Y));
+                _drawingEntities.AddRange(_world.CurrentLevel.Units.Select(unit => unit.Entity).OrderBy(entity => entity.Position.Y));
                 for (int i = 0; i < _drawingEntities.Count; i++) {
                     DrawEntity(_drawingEntities[i]);
                 }
                 _drawingEntities.Clear();
 
-                for (int i = 0; i < _world.CurrentLevel.Entities.Count; i++) {
-                    DrawEntityOverlay(_world.CurrentLevel.Entities[i]);
+                for (int i = 0; i < _world.CurrentLevel.Units.Count; i++) {
+                    DrawUnitOverlay(_world.CurrentLevel.Units[i]);
                 }
 
                 _spriteBatch.End();
@@ -468,23 +468,25 @@ namespace LD50.Screens {
             _interfaceActions.DrawInterface(_world);
         }
 
-        private Entity CreateUnit(Level level) {
-            Entity unit = _random.Next(2) == 0
+        private Unit CreateUnit(Level level) {
+            Unit unit = _random.Next(2) == 0
                 ? CreateGunner()
                 : CreateBatter();
 
-            return unit with {
-                Position = level.Position + new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
-            };
+            unit.Entity.Position = level.Position + new Vector2(_random.Next(0, 800), _random.Next(0, 600));
+            
+            return unit;
         }
 
-        private Entity CreateGunner() {
-            return new Entity {
-                Friction = 500f,
+        private Unit CreateGunner() {
+            return new Unit {
+                Entity = {
+                    Friction = 500f,
 
-                Texture = _gunnerTexture,
-                Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
-                Scale = new Vector2(0.75f),
+                    Texture = _gunnerTexture,
+                    Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
+                    Scale = new Vector2(0.75f),
+                },
 
                 DefaultTexture = _gunnerTexture,
 
@@ -504,13 +506,15 @@ namespace LD50.Screens {
             };
         }
 
-        private Entity CreateBatter() {
-            return new Entity {
-                Friction = 500f,
+        private Unit CreateBatter() {
+            return new Unit {
+                Entity = {
+                    Friction = 500f,
 
-                Texture = _batterTexture,
-                Origin = new Vector2(_batterTexture.Width / 2, _batterTexture.Height),
-                Scale = new Vector2(0.75f),
+                    Texture = _batterTexture,
+                    Origin = new Vector2(_batterTexture.Width / 2, _batterTexture.Height),
+                    Scale = new Vector2(0.75f),
+                },
 
                 DefaultTexture = _batterTexture,
 
@@ -529,13 +533,15 @@ namespace LD50.Screens {
             };
         }
 
-        private Entity CreateRifleWoman() {
-            return new Entity {
-                Friction = 500f,
+        private Unit CreateRifleWoman() {
+            return new Unit {
+                Entity = {
+                    Friction = 500f,
 
-                Texture = _rifleWomanTexture,
-                Origin = new Vector2(_rifleWomanTexture.Width / 2, _rifleWomanTexture.Height),
-                Scale = new Vector2(0.75f),
+                    Texture = _rifleWomanTexture,
+                    Origin = new Vector2(_rifleWomanTexture.Width / 2, _rifleWomanTexture.Height),
+                    Scale = new Vector2(0.75f),
+                },
 
                 DefaultTexture = _rifleWomanTexture,
 
@@ -554,13 +560,15 @@ namespace LD50.Screens {
             };
         }
 
-        private Entity CreatePistolWoman() {
-            return new Entity {
-                Friction = 500f,
+        private Unit CreatePistolWoman() {
+            return new Unit {
+                Entity = {
+                    Friction = 500f,
 
-                Texture = _pistolWomanTexture,
-                Origin = new Vector2(_pistolWomanTexture.Width / 2, _pistolWomanTexture.Height),
-                Scale = new Vector2(0.75f),
+                    Texture = _pistolWomanTexture,
+                    Origin = new Vector2(_pistolWomanTexture.Width / 2, _pistolWomanTexture.Height),
+                    Scale = new Vector2(0.75f),
+                },
 
                 DefaultTexture = _pistolWomanTexture,
 
@@ -580,8 +588,8 @@ namespace LD50.Screens {
             };
         }
 
-        private Entity CreateMinigunLieutenant() {
-            return new Entity {
+        private Unit CreateMinigunLieutenant() {
+            return new Unit {
                 Name = "Alphonso",
                 Portrait = _portraitAlphonsoTexture,
 
@@ -591,15 +599,17 @@ namespace LD50.Screens {
                     "This is gonna hurt.",
                 },
 
-                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
-                Friction = 500f,
-                Mass = 5f,
+                Entity = {
+                    Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                    Friction = 500f,
+                    Mass = 5f,
+
+                    Texture = _minigunLieutenantTexture,
+                    Origin = new Vector2(_minigunLieutenantTexture.Width / 2, _minigunLieutenantTexture.Height),
+                    Scale = new Vector2(0.75f),
+                },
 
                 PrioritisesTargetPosition = true,
-
-                Texture = _minigunLieutenantTexture,
-                Origin = new Vector2(_minigunLieutenantTexture.Width / 2, _minigunLieutenantTexture.Height),
-                Scale = new Vector2(0.75f),
 
                 DefaultTexture = _minigunLieutenantTexture,
 
@@ -619,8 +629,8 @@ namespace LD50.Screens {
             };
         }
 
-        private Entity CreateDaggerLieutenant() {
-            return new Entity {
+        private Unit CreateDaggerLieutenant() {
+            return new Unit {
                 Name = "Marissa",
                 Portrait = _portraitMarissaTexture,
 
@@ -630,15 +640,17 @@ namespace LD50.Screens {
                     "I'll need an extra sharp blade for this one...",
                 },
 
-                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
-                Friction = 500f,
-                Mass = 5f,
+                Entity = {
+                    Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                    Friction = 500f,
+                    Mass = 5f,
+
+                    Texture = _daggerLieutenantTexture,
+                    Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _daggerLieutenantTexture.Height),
+                    Scale = new Vector2(0.75f),
+                },
 
                 PrioritisesTargetPosition = true,
-
-                Texture = _daggerLieutenantTexture,
-                Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _daggerLieutenantTexture.Height),
-                Scale = new Vector2(0.75f),
 
                 DefaultTexture = _daggerLieutenantTexture,
 
@@ -657,8 +669,8 @@ namespace LD50.Screens {
             };
         }
 
-        private Entity CreateMolotovLieutenant() {
-            return new Entity {
+        private Unit CreateMolotovLieutenant() {
+            return new Unit {
                 Name = "Pirro",
                 Portrait = _portraitPirroTexture,
 
@@ -667,16 +679,18 @@ namespace LD50.Screens {
                     "Imma need more bombs for this one!",
                     "It's party time!",
                 },
+                
+                Entity = {
+                    Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                    Friction = 500f,
+                    Mass = 5f,
 
-                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
-                Friction = 500f,
-                Mass = 5f,
+                    Texture = _molotovLieutenantTexture,
+                    Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _molotovLieutenantTexture.Height),
+                    Scale = new Vector2(0.75f),
+                },
 
                 PrioritisesTargetPosition = true,
-
-                Texture = _molotovLieutenantTexture,
-                Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _molotovLieutenantTexture.Height),
-                Scale = new Vector2(0.75f),
 
                 DefaultTexture = _molotovLieutenantTexture,
 
@@ -702,45 +716,47 @@ namespace LD50.Screens {
                 
                 int enemies = _random.Next(2, 5);
                 for (int i = 0; i < enemies; i++) {
-                    level.Entities.Add(CreateUnit(level) with {
+                    Unit enemy = CreateUnit(level) with {
                         Team = Team.Enemy,
-                        Color = Color.Red,
 
-                        Position = spawnPosition + new Vector2(_random.Next(-50, 51), _random.Next(-50, 51)),
                         TargetPosition = level.Position + new Vector2(_levelWidth / 2f, _levelHeight / 2f),
 
                         AttackDamage = 5,
-                    });
+                    };
+                    enemy.Entity.Color = Color.Red;
+                    enemy.Entity.Position = spawnPosition + new Vector2(_random.Next(-50, 51), _random.Next(-50, 51));
+
+                    level.Units.Add(enemy);
                 }
 
                 level.SpawnTimer = _random.Next(5, 20);
 
                 if (_world.Commanders.Count > 0) {
-                    Entity talker = _world.Commanders[_random.Next(_world.Commanders.Count)];
+                    Unit talker = _world.Commanders[_random.Next(_world.Commanders.Count)];
 
                     talker.Dialogue = talker.StrongEnemyQuotes[_random.Next(talker.StrongEnemyQuotes.Count)];
                     talker.DialogueTimer = 5f;
                 }
             }
 
-            for (int i = 0; i < level.Entities.Count; i++) {
-                Entity entity = level.Entities[i];
+            for (int i = 0; i < level.Units.Count; i++) {
+                Unit unit = level.Units[i];
 
-                if (entity.Health <= 0) {
-                    level.Entities.RemoveAt(i);
+                if (unit.Health <= 0) {
+                    level.Units.RemoveAt(i);
                     i--;
 
-                    if (entity.Team == Team.Enemy) {
+                    if (unit.Team == Team.Enemy) {
                         _world.PlayerMoney += 50;
                     }
 
                     continue;
                 }
 
-                if (entity.Position.X < level.Position.X
-                    || entity.Position.Y < level.Position.Y
-                    || entity.Position.X > level.Position.X + _levelWidth
-                    || entity.Position.Y > level.Position.Y + _levelHeight) {
+                if (unit.Entity.Position.X < level.Position.X
+                    || unit.Entity.Position.Y < level.Position.Y
+                    || unit.Entity.Position.X > level.Position.X + _levelWidth
+                    || unit.Entity.Position.Y > level.Position.Y + _levelHeight) {
                     
                     for (int j = 0; j < _world.Levels.Count; j++) {
                         Level otherLevel = _world.Levels[j];
@@ -749,15 +765,15 @@ namespace LD50.Screens {
                             continue;
                         }
 
-                        if (entity.Position.X >= otherLevel.Position.X
-                            && entity.Position.Y >= otherLevel.Position.Y
-                            && entity.Position.X <= otherLevel.Position.X + _levelWidth
-                            && entity.Position.Y <= otherLevel.Position.Y + _levelHeight) {
+                        if (unit.Entity.Position.X >= otherLevel.Position.X
+                            && unit.Entity.Position.Y >= otherLevel.Position.Y
+                            && unit.Entity.Position.X <= otherLevel.Position.X + _levelWidth
+                            && unit.Entity.Position.Y <= otherLevel.Position.Y + _levelHeight) {
 
-                            level.Entities.RemoveAt(i);
+                            level.Units.RemoveAt(i);
                             i--;
 
-                            otherLevel.Entities.Add(entity);
+                            otherLevel.Units.Add(unit);
 
                             break;
                         }
@@ -765,127 +781,127 @@ namespace LD50.Screens {
                 }
             }
 
-            for (int i = 0; i < level.Entities.Count; i++) {
-                UpdateEntity(level.Entities[i], level, deltaTime);
+            for (int i = 0; i < level.Units.Count; i++) {
+                UpdateUnit(level.Units[i], level, deltaTime);
 
-                for (int j = i + 1; j < level.Entities.Count; j++) {
-                    DoEntityCollisions(level.Entities[i], level.Entities[j]);
+                for (int j = i + 1; j < level.Units.Count; j++) {
+                    DoUnitCollisions(level.Units[i], level.Units[j]);
                 }
             }
         }
 
-        private void UpdateEntity(Entity entity, Level level, float deltaTime) {
-            entity.CurrentLevel = level;
+        private void UpdateUnit(Unit unit, Level level, float deltaTime) {
+            unit.CurrentLevel = level;
 
-            entity.Minions.RemoveWhere(minion => minion.Health <= 0);
+            unit.Minions.RemoveWhere(minion => minion.Health <= 0);
 
-            if (entity.DialogueTimer > deltaTime) {
-                entity.DialogueTimer -= deltaTime;
+            if (unit.DialogueTimer > deltaTime) {
+                unit.DialogueTimer -= deltaTime;
             }
             else {
-                entity.DialogueTimer = 0f;
-                entity.Dialogue = null;
+                unit.DialogueTimer = 0f;
+                unit.Dialogue = null;
             }
 
-            if (entity.Animation is not null) {
-                entity.Animation.Update(deltaTime);
+            if (unit.Animation is not null) {
+                unit.Animation.Update(deltaTime);
 
-                if (entity.Animation.IsFinished) {
-                    entity.Animation = null;
-                    entity.Texture = entity.DefaultTexture;
+                if (unit.Animation.IsFinished) {
+                    unit.Animation = null;
+                    unit.Entity.Texture = unit.DefaultTexture;
                 }
                 else {
-                    entity.Animation.Apply(entity);
+                    unit.Animation.Apply(unit.Entity);
                 }
             }
 
-            if (entity.TargetEntity is not null && entity.TargetEntity.Health <= 0) {
-                entity.TargetEntity = null;
+            if (unit.TargetUnit is not null && unit.TargetUnit.Health <= 0) {
+                unit.TargetUnit = null;
             }
 
-            if (entity.CooldownTimer > 0f) {
-                entity.CooldownTimer -= deltaTime;
+            if (unit.CooldownTimer > 0f) {
+                unit.CooldownTimer -= deltaTime;
             }
 
-            if (entity.PreviousHealth < entity.Health) {
-                entity.PreviousHealth = entity.Health;
-                entity.PreviousHealthTimer = 0f;
+            if (unit.PreviousHealth < unit.Health) {
+                unit.PreviousHealth = unit.Health;
+                unit.PreviousHealthTimer = 0f;
             }
-            else if (entity.PreviousHealth > entity.Health) {
-                entity.PreviousHealthTimer += deltaTime;
+            else if (unit.PreviousHealth > unit.Health) {
+                unit.PreviousHealthTimer += deltaTime;
 
-                if (entity.PreviousHealthTimer > 0.5f) {
-                    entity.PreviousHealth -= 200f * deltaTime;
+                if (unit.PreviousHealthTimer > 0.5f) {
+                    unit.PreviousHealth -= 200f * deltaTime;
                 }
             }
             else {
-                entity.PreviousHealthTimer = 0f;
+                unit.PreviousHealthTimer = 0f;
             }
 
-            if (entity.TargetEntity is null) {
-                for (int i = 0; i < level.Entities.Count; i++) {
-                    Entity other = level.Entities[i];
+            if (unit.TargetUnit is null) {
+                for (int i = 0; i < level.Units.Count; i++) {
+                    Unit other = level.Units[i];
 
-                    if (other.Team == entity.Team
-                        || Vector2.DistanceSquared(entity.Position, other.Position) > entity.VisionRange * entity.VisionRange
-                        || (entity.Commander is not null && Vector2.DistanceSquared(entity.Commander.Position, other.Position) > (200f + entity.AttackRange) * (200f + entity.AttackRange))) {
+                    if (other.Team == unit.Team
+                        || Vector2.DistanceSquared(unit.Entity.Position, other.Entity.Position) > unit.VisionRange * unit.VisionRange
+                        || (unit.Commander is not null && Vector2.DistanceSquared(unit.Commander.Entity.Position, other.Entity.Position) > (200f + unit.AttackRange) * (200f + unit.AttackRange))) {
 
                         continue;
                     }
 
-                    entity.TargetEntity = other;
+                    unit.TargetUnit = other;
                 }
             }
 
-            if (entity.TargetEntity is not null && Vector2.DistanceSquared(entity.Position, entity.TargetEntity.Position) <= entity.AttackRange * entity.AttackRange) {
-                if (entity.CooldownTimer <= 0f) {
-                    entity.CooldownTimer = entity.AttackCooldown;
+            if (unit.TargetUnit is not null && Vector2.DistanceSquared(unit.Entity.Position, unit.TargetUnit.Entity.Position) <= unit.AttackRange * unit.AttackRange) {
+                if (unit.CooldownTimer <= 0f) {
+                    unit.CooldownTimer = unit.AttackCooldown;
 
-                    entity.TargetEntity.Health -= entity.AttackDamage;
-                    entity.TargetEntity.PreviousHealthTimer = 0f;
-                    entity.TargetEntity.CooldownTimer += entity.AttackStun;
+                    unit.TargetUnit.Health -= unit.AttackDamage;
+                    unit.TargetUnit.PreviousHealthTimer = 0f;
+                    unit.TargetUnit.CooldownTimer += unit.AttackStun;
 
-                    entity.Effects = entity.TargetEntity.Position.X < entity.Position.X
+                    unit.Entity.Effects = unit.TargetUnit.Entity.Position.X < unit.Entity.Position.X
                         ? SpriteEffects.FlipHorizontally
                         : SpriteEffects.None;
 
-                    if (entity.AttackingAnimation is not null) {
-                        entity.Animation = entity.AttackingAnimation.Play();
+                    if (unit.AttackingAnimation is not null) {
+                        unit.Animation = unit.AttackingAnimation.Play();
 
-                        if (entity.AttackTicks > 1) {
-                            entity.AttackTickTimer = entity.AttackingAnimation.Duration / (entity.AttackTicks - 1);
-                            entity.AttackingEntity = entity.TargetEntity;
-                            entity.RemainingTicks = entity.AttackTicks - 1;
+                        if (unit.AttackTicks > 1) {
+                            unit.AttackTickTimer = unit.AttackingAnimation.Duration / (unit.AttackTicks - 1);
+                            unit.AttackingEntity = unit.TargetUnit;
+                            unit.RemainingTicks = unit.AttackTicks - 1;
                         }
                     }
                 }
             }
 
-            if (entity.AttackingEntity is not null && entity.RemainingTicks > 0) {
-                entity.AttackTickTimer -= deltaTime;
+            if (unit.AttackingEntity is not null && unit.RemainingTicks > 0) {
+                unit.AttackTickTimer -= deltaTime;
 
-                if (entity.AttackTickTimer <= 0f) {
-                    entity.AttackingEntity.Health -= entity.AttackDamage;
-                    entity.AttackingEntity.PreviousHealthTimer = 0f;
-                    entity.AttackingEntity.CooldownTimer += entity.AttackStun;
+                if (unit.AttackTickTimer <= 0f) {
+                    unit.AttackingEntity.Health -= unit.AttackDamage;
+                    unit.AttackingEntity.PreviousHealthTimer = 0f;
+                    unit.AttackingEntity.CooldownTimer += unit.AttackStun;
 
-                    entity.AttackTickTimer += entity.AttackingAnimation.Duration / (entity.AttackTicks - 1);
-                    entity.RemainingTicks--;
+                    unit.AttackTickTimer += unit.AttackingAnimation.Duration / (unit.AttackTicks - 1);
+                    unit.RemainingTicks--;
                 }
             }
             else {
-                entity.AttackingEntity = null;
+                unit.AttackingEntity = null;
             }
 
-            entity.TargetEntity ??= entity.Commander?.TargetEntity;
+            unit.TargetUnit ??= unit.Commander?.TargetUnit;
 
-            if (entity.Commander is not null && entity.TargetEntity != entity.Commander.TargetEntity) {
-                float allowedDistance = entity.TargetEntity is not null ? 250f : 150f;
+            if (unit.Commander is not null && unit.TargetUnit != unit.Commander.TargetUnit) {
+                float allowedDistance = unit.TargetUnit is not null ? 250f : 150f;
 
-                Vector2 commanderPosition = entity.Commander.TargetPosition ?? entity.Commander.Position;
+                Vector2 commanderPosition = unit.Commander.TargetPosition ?? unit.Commander.Entity.Position;
 
-                if (Vector2.DistanceSquared(entity.Position, commanderPosition) > allowedDistance * allowedDistance) {
-                    entity.TargetEntity = null;
+                if (Vector2.DistanceSquared(unit.Entity.Position, commanderPosition) > allowedDistance * allowedDistance) {
+                    unit.TargetUnit = null;
 
                     //if (!entity.TargetPosition.HasValue || Vector2.DistanceSquared(entity.TargetPosition.Value, commanderPosition) > allowedDistance * allowedDistance) {
                     //    entity.TargetPosition = commanderPosition + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 100f;
@@ -893,16 +909,16 @@ namespace LD50.Screens {
                 }
             }
 
-            if (entity.TargetPosition.HasValue && entity.Position != entity.TargetPosition) {
-                entity.Direction = GetAngle(entity.TargetPosition.Value - entity.Position);
+            if (unit.TargetPosition.HasValue && unit.Entity.Position != unit.TargetPosition) {
+                unit.Direction = GetAngle(unit.TargetPosition.Value - unit.Entity.Position);
             }
 
-            if (entity.Minions.Count > 0) {
+            if (unit.Minions.Count > 0) {
                 int arcMinions = 0;
                 int groupMinions = 0;
-                
-                for (int i = 0; i < entity.Minions.Count; i++) {
-                    Entity minion = entity.Minions[i];
+
+                for (int i = 0; i < unit.Minions.Count; i++) {
+                    Unit minion = unit.Minions[i];
 
                     switch (minion.Formation) {
                         case Formation.FrontArc:
@@ -914,11 +930,11 @@ namespace LD50.Screens {
                     }
                 }
 
-                Vector2 minionTargetPosition = entity.TargetPosition ?? entity.Position;
+                Vector2 minionTargetPosition = unit.TargetPosition ?? unit.Entity.Position;
 
                 // Position the arc units in an arc in front of the commander.
                 if (arcMinions > 0) {
-                    float angle = entity.Direction - MathHelper.PiOver2;
+                    float angle = unit.Direction - MathHelper.PiOver2;
                     float angleStep = MathHelper.Pi / (arcMinions - 1);
 
                     var arcPositions = new List<Vector2>();
@@ -927,8 +943,8 @@ namespace LD50.Screens {
                         angle += angleStep;
                     }
 
-                    for (int i = 0; i < entity.Minions.Count; i++) {
-                        Entity minion = entity.Minions[i];
+                    for (int i = 0; i < unit.Minions.Count; i++) {
+                        Unit minion = unit.Minions[i];
 
                         if (minion.Formation == Formation.FrontArc) {
                             Vector2 bestPosition = arcPositions./*OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).*/First();
@@ -941,7 +957,7 @@ namespace LD50.Screens {
 
                 // Position the group units in a circle around the commander.
                 if (groupMinions > 0) {
-                    float angle = entity.Direction;
+                    float angle = unit.Direction;
                     float angleStep = MathHelper.Pi * 2f / groupMinions;
 
                     var groupPositions = new List<Vector2>();
@@ -950,8 +966,8 @@ namespace LD50.Screens {
                         angle += angleStep;
                     }
 
-                    for (int i = 0; i < entity.Minions.Count; i++) {
-                        Entity minion = entity.Minions[i];
+                    for (int i = 0; i < unit.Minions.Count; i++) {
+                        Unit minion = unit.Minions[i];
 
                         if (minion.Formation == Formation.Group) {
                             Vector2 bestPosition = groupPositions./*OrderBy(position => Vector2.DistanceSquared(minion.Position, position)).*/First();
@@ -963,51 +979,58 @@ namespace LD50.Screens {
                 }
             }
 
-            Vector2? targetPosition = entity.TargetEntity?.Position ?? entity.TargetPosition;
-            float? targetDistance = entity.TargetEntity is not null ? entity.AttackRange : null;
+            Vector2? targetPosition = unit.TargetUnit?.Entity.Position ?? unit.TargetPosition;
+            float? targetDistance = unit.TargetUnit is not null ? unit.AttackRange : null;
 
-            if (entity.PrioritisesTargetPosition) {
-                targetPosition = entity.TargetPosition ?? entity.TargetEntity?.Position;
-                targetDistance = entity.TargetPosition is null ? entity.AttackRange : null;
+            if (unit.PrioritisesTargetPosition) {
+                targetPosition = unit.TargetPosition ?? unit.TargetUnit?.Entity.Position;
+                targetDistance = unit.TargetPosition is null ? unit.AttackRange : null;
             }
 
             if (targetPosition.HasValue /*&& entity.Animation is null*/) {
-                float speedModifier = entity.Animation is null ? 1f : 0.75f;
+                float speedModifier = unit.Animation is null ? 1f : 0.75f;
 
-                float distance = Vector2.Distance(entity.Position, targetPosition.Value);
+                float distance = Vector2.Distance(unit.Entity.Position, targetPosition.Value);
                 float walkSpeed = 100f * speedModifier * deltaTime;
-                
-                if (distance < walkSpeed) {
-                    entity.Position = targetPosition.Value;
 
-                    entity.WalkTimer = 0f;
+                if (distance < walkSpeed) {
+                    unit.Entity.Position = targetPosition.Value;
+
+                    unit.WalkTimer = 0f;
                 }
                 else if (targetDistance is null || distance > targetDistance.Value) {
-                    entity.Position += (targetPosition.Value - entity.Position) * (walkSpeed / distance);
+                    unit.Entity.Position += (targetPosition.Value - unit.Entity.Position) * (walkSpeed / distance);
 
-                    if (targetPosition.Value.X > entity.Position.X) {
-                        entity.Effects = SpriteEffects.None;
+                    if (targetPosition.Value.X > unit.Entity.Position.X) {
+                        unit.Entity.Effects = SpriteEffects.None;
                     }
                     else {
-                        entity.Effects = SpriteEffects.FlipHorizontally;
+                        unit.Entity.Effects = SpriteEffects.FlipHorizontally;
                     }
 
-                    entity.WalkTimer += deltaTime * speedModifier;
+                    unit.WalkTimer += deltaTime * speedModifier;
                 }
                 else {
-                    entity.WalkTimer = 0f;
+                    unit.WalkTimer = 0f;
                 }
             }
             else {
-                entity.WalkTimer = 0f;
+                unit.WalkTimer = 0f;
             }
 
-            if (entity.AttackingEntity is not null) {
-                entity.Effects = entity.AttackingEntity.Position.X < entity.Position.X
+            if (unit.AttackingEntity is not null) {
+                unit.Entity.Effects = unit.AttackingEntity.Entity.Position.X < unit.Entity.Position.X
                     ? SpriteEffects.FlipHorizontally
                     : SpriteEffects.None;
             }
 
+            unit.Entity.Depth = (float)Math.Abs(Math.Sin(unit.WalkTimer * 15f)) * 10f;
+            unit.Entity.Rotation = (float)Math.Sin(unit.WalkTimer * 15f) * 0.05f;
+
+            UpdateEntity(unit.Entity, deltaTime);
+        }
+
+        private static void UpdateEntity(Entity entity, float deltaTime) {
             // Apply force.
             entity.Velocity += (entity.Impulse + entity.Force * deltaTime) / entity.Mass;
             entity.Impulse = Vector2.Zero;
@@ -1026,14 +1049,14 @@ namespace LD50.Screens {
             entity.Position += entity.Velocity * deltaTime;
         }
 
-        private void DoEntityCollisions(Entity entity1, Entity entity2) {
-            if (entity1.Team == entity2.Team) {
+        private void DoUnitCollisions(Unit unit1, Unit unit2) {
+            if (unit1.Team == unit2.Team) {
                 return;
             }
 
             const float entityDiameter = 50f;
 
-            Vector2 delta = entity2.Position - entity1.Position;
+            Vector2 delta = unit2.Entity.Position - unit1.Entity.Position;
             float distance = delta.Length();
             
             if (distance >= entityDiameter) {
@@ -1043,8 +1066,8 @@ namespace LD50.Screens {
             float overlap = entityDiameter - distance;
             Vector2 normal = delta / distance;
 
-            entity1.Force -= normal * overlap * 50f;
-            entity2.Force += normal * overlap * 50f;
+            unit1.Entity.Force -= normal * overlap * 50f;
+            unit2.Entity.Force += normal * overlap * 50f;
         }
 
         private void DrawEntity(Entity entity) {
@@ -1054,10 +1077,10 @@ namespace LD50.Screens {
 
             _spriteBatch.Draw(
                 entity.Texture,
-                entity.Position + new Vector2(0f, -(float)Math.Abs(Math.Sin(entity.WalkTimer * 15f)) * 10f),
+                entity.Position + new Vector2(0f, -entity.Depth),
                 null,
                 entity.Color,
-                (float)Math.Sin(entity.WalkTimer * 15f) * 0.05f,
+                entity.Rotation,
                 entity.Origin,
                 entity.Scale,
                 entity.Effects,
@@ -1077,32 +1100,32 @@ namespace LD50.Screens {
                 0f);
         }
 
-        private void DrawEntityPath(Entity entity) {
-            if (!entity.DrawPath || !entity.TargetPosition.HasValue) {
+        private void DrawUnitPath(Unit unit) {
+            if (!unit.DrawPath || !unit.TargetPosition.HasValue) {
                 return;
             }
             
             _spriteBatch.Draw(
                 _pixelTexture,
-                entity.Position,
+                unit.Entity.Position,
                 null,
                 Color.Black,
-                GetAngle(entity.TargetPosition.Value - entity.Position),
+                GetAngle(unit.TargetPosition.Value - unit.Entity.Position),
                 new Vector2(0f, 0.5f),
-                new Vector2(Vector2.Distance(entity.Position, entity.TargetPosition.Value), 1f),
+                new Vector2(Vector2.Distance(unit.Entity.Position, unit.TargetPosition.Value), 1f),
                 SpriteEffects.None,
                 0f);
         }
 
-        private void DrawEntityOverlay(Entity entity) {
-            if (entity.Health >= entity.MaxHealth) {
+        private void DrawUnitOverlay(Unit unit) {
+            if (unit.Health >= unit.MaxHealth) {
                 return;
             }
 
             const float healthBarWidth = 40f;
             const float healthBarHeight = 2f;
             
-            Vector2 healthBarPosition = entity.Position + new Vector2(-healthBarWidth / 2f, -70f);
+            Vector2 healthBarPosition = unit.Entity.Position + new Vector2(-healthBarWidth / 2f, -70f);
 
             _spriteBatch.Draw(
                 _pixelTexture,
@@ -1122,7 +1145,7 @@ namespace LD50.Screens {
                 Color.White,
                 0f,
                 Vector2.Zero,
-                new Vector2(healthBarWidth * entity.PreviousHealth / entity.MaxHealth, healthBarHeight),
+                new Vector2(healthBarWidth * unit.PreviousHealth / unit.MaxHealth, healthBarHeight),
                 SpriteEffects.None,
                 0f);
 
@@ -1133,19 +1156,19 @@ namespace LD50.Screens {
                 Color.Red,
                 0f,
                 Vector2.Zero,
-                new Vector2(healthBarWidth * entity.Health / entity.MaxHealth, healthBarHeight),
+                new Vector2(healthBarWidth * unit.Health / unit.MaxHealth, healthBarHeight),
                 SpriteEffects.None,
                 0f);
         }
 
-        private bool MouseIntersectsEntity(Entity entity) {
+        private bool MouseIntersectsUnit(Unit unit) {
             if (_world.CurrentLevel is null) {
                 return false;
             }
 
             Vector2 worldMousePosition = _world.CurrentLevel.Position + _mouse.Position;
 
-            return Vector2.DistanceSquared(worldMousePosition, entity.Position - new Vector2(0f, 30f)) < 30f * 30f;
+            return Vector2.DistanceSquared(worldMousePosition, unit.Entity.Position - new Vector2(0f, 30f)) < 30f * 30f;
         }
 
         private void ShowScenario(Scenario scenario) {

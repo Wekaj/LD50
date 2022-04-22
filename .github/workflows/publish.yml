@@ -1,4 +1,4 @@
-name: Publish LD50 release
+name: publish
 
 on:
   push:

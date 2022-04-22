@@ -1,4 +1,4 @@
-name: Build LD50
+name: build
 
 on: [push]
 
