@@ -32,8 +32,10 @@ namespace LD50.Screens {
         private readonly Texture2D _rifleWomanTexture;
         private readonly Texture2D _minigunLieutenantTexture;
         private readonly Texture2D _daggerLieutenantTexture;
+        private readonly Texture2D _molotovLieutenantTexture;
         private readonly Texture2D _portraitAlphonsoTexture;
         private readonly Texture2D _portraitMarissaTexture;
+        private readonly Texture2D _portraitPirroTexture;
         private readonly SpriteFont _font;
 
         private readonly Random _random = new();
@@ -76,8 +78,10 @@ namespace LD50.Screens {
             _rifleWomanTexture = content.Load<Texture2D>("Textures/RifleWoman Test 1");
             _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
             _daggerLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant2 Test 1");
+            _molotovLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant3 Test 1");
             _portraitAlphonsoTexture = content.Load<Texture2D>("Textures/portrait_alphonso");
             _portraitMarissaTexture = content.Load<Texture2D>("Textures/portrait_marissa");
+            _portraitPirroTexture = content.Load<Texture2D>("Textures/portrait_pirro");
             _font = content.Load<SpriteFont>("Fonts/font");
 
             const int levels = 4;
@@ -107,6 +111,7 @@ namespace LD50.Screens {
             Entity[] commanders = new[] {
                 CreateMinigunLieutenant(),
                 CreateDaggerLieutenant(),
+                CreateMolotovLieutenant(),
             };
 
             const float commanderButtonWidth = 100f;
@@ -647,6 +652,44 @@ namespace LD50.Screens {
                 AttackCooldown = 0.5f,
 
                 AttackingAnimation = _animations.DaggerLieutenantAttacking,
+
+                DrawPath = true,
+            };
+        }
+
+        private Entity CreateMolotovLieutenant() {
+            return new Entity {
+                Name = "Pirro",
+                Portrait = _portraitPirroTexture,
+
+                StrongEnemyQuotes = {
+                    "Uh oh, this can't be good!",
+                    "Imma need more bombs for this one!",
+                    "It's party time!",
+                },
+
+                Position = new Vector2(_random.Next(0, 800), _random.Next(0, 600)),
+                Friction = 500f,
+                Mass = 5f,
+
+                PrioritisesTargetPosition = true,
+
+                Texture = _molotovLieutenantTexture,
+                Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _molotovLieutenantTexture.Height),
+                Scale = new Vector2(0.75f),
+
+                DefaultTexture = _molotovLieutenantTexture,
+
+                MaxHealth = 250,
+                Health = 250,
+
+                VisionRange = 300f,
+                AttackRange = 300f,
+                AttackDamage = 50,
+                AttackStun = 1f,
+                AttackCooldown = 2f,
+
+                AttackingAnimation = _animations.MolotovLieutenantAttacking,
 
                 DrawPath = true,
             };

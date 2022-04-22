@@ -54,6 +54,13 @@ namespace LD50.Graphics {
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant2_Attack Test 1"), 0.075f)
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant2_Attack2 Test 1"), 0.075f)
                 .AddFrame(content.Load<Texture2D>("Textures/Lieutenant2_Attack3 Test 1"), 0.075f);
+
+            MolotovLieutenantAttacking = new Animation()
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant3_Attack Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant3_Attack2 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant3_Attack3 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant3_Attack4 Test 1"), 0.075f)
+                .AddFrame(content.Load<Texture2D>("Textures/Lieutenant3_Attack5 Test 1"), 0.075f);
         }
 
         public Animation GunnerAttacking { get; }
@@ -62,5 +69,6 @@ namespace LD50.Graphics {
         public Animation PistolWomanAttacking { get; }
         public Animation MinigunLieutenantAttacking { get; }
         public Animation DaggerLieutenantAttacking { get; }
+        public Animation MolotovLieutenantAttacking { get; }
     }
 }
