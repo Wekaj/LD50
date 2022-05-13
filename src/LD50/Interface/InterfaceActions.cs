@@ -73,7 +73,7 @@ namespace LD50.Interface {
 
                 _spriteBatch.Draw(
                     _pixelTexture,
-                    new Vector2(800f - 8f - 100f - dialogueSize.X, 8f + (60f + 8f) * i),
+                    new Vector2(960f - 8f - 120f - dialogueSize.X, 8f + (120f + 8f) * i),
                     null,
                     Color.Black * 0.5f,
                     0f,
@@ -85,7 +85,7 @@ namespace LD50.Interface {
                 _spriteBatch.DrawString(
                     _font,
                     commander.Dialogue,
-                    new Vector2(800f - 8f - 100f - dialogueSize.X, 8f + (60f + 8f) * i),
+                    new Vector2(960f - 8f - 120f - dialogueSize.X, 8f + (120f + 8f) * i),
                     Color.White);
             }
 
@@ -143,7 +143,7 @@ namespace LD50.Interface {
                 float height = labelSize.Y;
 
                 if (element.Image is not null) {
-                    height += element.Image.Height;
+                    height += element.Image.Height * element.ImageScale.Y;
                 }
 
                 Vector2 position = element.Position + element.Size / 2f - new Vector2(0f, height / 2f);
@@ -151,16 +151,16 @@ namespace LD50.Interface {
                 if (element.Image is not null) {
                     _spriteBatch.Draw(
                         element.Image,
-                        Vector2.Floor(position - new Vector2(element.Image.Width / 2f, 0f)),
+                        Vector2.Floor(position - new Vector2(element.Image.Width * element.ImageScale.X / 2f, 0f)),
                         null,
                         Color.White,
                         0f,
                         Vector2.Zero,
-                        1f,
+                        element.ImageScale,
                         SpriteEffects.None,
                         0f);
-
-                    position.Y += element.Image.Height;
+                    
+                    position.Y += element.Image.Height * element.ImageScale.Y;
                 }
                 
                 _spriteBatch.DrawString(

@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace LD50.Screens {
     public class GameScreen : IScreen {
-        private const float _levelWidth = 800f;
+        private const float _levelWidth = 960f;
         private const float _levelHeight = 600f;
 
         private readonly AnimationManager _animations;
@@ -81,7 +81,7 @@ namespace LD50.Screens {
             _daggerLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant2 Test 1");
             _molotovLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant3 Test 1");
             _portraitAlphonsoTexture = content.Load<Texture2D>("Textures/portrait_alphonso");
-            _portraitMarissaTexture = content.Load<Texture2D>("Textures/portrait_marissa");
+            _portraitMarissaTexture = content.Load<Texture2D>("Textures/Lieutenant2_Portrait2 Test 1");
             _portraitPirroTexture = content.Load<Texture2D>("Textures/portrait_pirro");
             _molotovTexture = content.Load<Texture2D>("Textures/Molo");
             _font = content.Load<SpriteFont>("Fonts/font");
@@ -116,8 +116,8 @@ namespace LD50.Screens {
                 CreateMolotovLieutenant(),
             };
 
-            const float commanderButtonWidth = 100f;
-            const float commanderButtonHeight = 60f;
+            const float commanderButtonWidth = 120f;
+            const float commanderButtonHeight = 120f;
             for (int i = 0; i < commanders.Length; i++) {
                 Unit commander = commanders[i];
 
@@ -131,6 +131,7 @@ namespace LD50.Screens {
                     Size = new Vector2(commanderButtonWidth, commanderButtonHeight),
                     Label = commander.Name,
                     Image = commander.Portrait,
+                    ImageScale = commander.Portrait?.Width > 120 ? new Vector2(0.5f) : Vector2.One,
                     OnClick = () => {
                         if (_world.SelectedCommander == commander) {
                             _world.CurrentLevel = commander.CurrentLevel;
@@ -713,7 +714,7 @@ namespace LD50.Screens {
                 AttackDamage = 0,
                 AttackStun = 0f,
                 AttackTicks = 2,
-                AttackCooldown = 5f,
+                AttackCooldown = 4f,
                 ThrowsMolotovs = true,
 
                 AttackingAnimation = _animations.MolotovLieutenantAttacking,
@@ -1087,7 +1088,7 @@ namespace LD50.Screens {
                 level.Projectiles.Add(CreateMolotov(
                     attacker.Entity.Position,
                     target.Entity.Position
-                        + target.Entity.Velocity * 1f
+                        + target.Entity.Velocity * 1f // TODO: make leading actually work (unit velocity usually isn't set)
                         + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * _random.NextSingle() * 100f,
                     attacker));
             }

@@ -25,7 +25,7 @@ namespace LD50 {
         }
 
         protected override void Initialize() {
-            _graphics.PreferredBackBufferWidth = 800;
+            _graphics.PreferredBackBufferWidth = 960;
             _graphics.PreferredBackBufferHeight = 600;
             _graphics.ApplyChanges();
 
