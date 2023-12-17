@@ -1,4 +1,5 @@
-﻿using LD50.Entities;
+﻿using LD50.Content;
+using LD50.Entities;
 using LD50.Graphics;
 using LD50.Input;
 using LD50.Interface;
@@ -7,84 +8,71 @@ using LD50.Scenarios;
 using LD50.Skills;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace LD50.Screens {
-    public class GameScreen : IScreen {
+    public class GameScreen : IScreen, IInitializable {
         private const float _levelWidth = 960f;
         private const float _levelHeight = 600f;
-
+        private readonly IContentManager _content;
         private readonly AnimationManager _animations;
-        private readonly SpriteBatch _spriteBatch;
+        private readonly IGraphicsDeviceSource _graphicsDeviceSource;
         private readonly InputBindings _bindings;
         private readonly XnaMouse _mouse;
         private readonly InterfaceActions _interfaceActions;
 
-        private readonly Texture2D _pixelTexture;
-        private readonly Texture2D _circleTexture;
-        private readonly Texture2D _gunnerTexture;
-        private readonly Texture2D _batterTexture;
-        private readonly Texture2D _pistolWomanTexture;
-        private readonly Texture2D _rifleWomanTexture;
-        private readonly Texture2D _minigunLieutenantTexture;
-        private readonly Texture2D _daggerLieutenantTexture;
-        private readonly Texture2D _molotovLieutenantTexture;
-        private readonly Texture2D _portraitAlphonsoTexture;
-        private readonly Texture2D _portraitMarissaTexture;
-        private readonly Texture2D _portraitPirroTexture;
-        private readonly Texture2D _molotovTexture;
-        private readonly SpriteFont _font;
+        private SpriteBatch _spriteBatch;
+
+        private Texture2D _pixelTexture;
+        private Texture2D _circleTexture;
+        private Texture2D _gunnerTexture;
+        private Texture2D _batterTexture;
+        private Texture2D _pistolWomanTexture;
+        private Texture2D _rifleWomanTexture;
+        private Texture2D _minigunLieutenantTexture;
+        private Texture2D _daggerLieutenantTexture;
+        private Texture2D _molotovLieutenantTexture;
+        private Texture2D _portraitAlphonsoTexture;
+        private Texture2D _portraitMarissaTexture;
+        private Texture2D _portraitPirroTexture;
+        private Texture2D _molotovTexture;
+        private SpriteFont _font;
 
         private readonly Random _random = new();
 
         private readonly World _world = new();
 
-        private readonly List<Entity> _drawingEntities = new();
+        private readonly List<Entity> _drawingEntities = [];
 
-        private readonly List<Scenario> _scenarios = new();
+        private readonly List<Scenario> _scenarios = [];
 
-        private readonly string[] _levelNames = new[] {
+        private readonly string[] _levelNames = [
             "Family Restaurant",
             "Workrooms",
             "Headquarters",
             "Back Alleys"
-        };
+        ];
 
         private readonly Skill _bloodSpikes;
         private Skill? _currentSkill;
 
         public GameScreen(
-            ContentManager content,
+            IContentManager content,
             AnimationManager animations,
-            SpriteBatch spriteBatch,
+            IGraphicsDeviceSource graphicsDeviceSource,
             InputBindings bindings,
             XnaMouse mouse,
             InterfaceActions interfaceActions) {
 
+            _content = content;
             _animations = animations;
-            _spriteBatch = spriteBatch;
+            _graphicsDeviceSource = graphicsDeviceSource;
             _bindings = bindings;
             _mouse = mouse;
             _interfaceActions = interfaceActions;
-            
-            _pixelTexture = content.Load<Texture2D>("Textures/pixel");
-            _circleTexture = content.Load<Texture2D>("Textures/circle");
-            _gunnerTexture = content.Load<Texture2D>("Textures/Gunner Test 1");
-            _batterTexture = content.Load<Texture2D>("Textures/Batter Test 1");
-            _pistolWomanTexture = content.Load<Texture2D>("Textures/PistolWoman Test 1");
-            _rifleWomanTexture = content.Load<Texture2D>("Textures/RifleWoman Test 1");
-            _minigunLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant Test 1");
-            _daggerLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant2 Test 1");
-            _molotovLieutenantTexture = content.Load<Texture2D>("Textures/Lieutenant3 Test 1");
-            _portraitAlphonsoTexture = content.Load<Texture2D>("Textures/portrait_alphonso");
-            _portraitMarissaTexture = content.Load<Texture2D>("Textures/Lieutenant2_Portrait2 Test 1");
-            _portraitPirroTexture = content.Load<Texture2D>("Textures/portrait_pirro");
-            _molotovTexture = content.Load<Texture2D>("Textures/Molo");
-            _font = content.Load<SpriteFont>("Fonts/font");
 
             const int levels = 4;
             
@@ -131,7 +119,7 @@ namespace LD50.Screens {
                     Size = new Vector2(commanderButtonWidth, commanderButtonHeight),
                     Label = commander.Name,
                     Image = commander.Portrait,
-                    ImageScale = commander.Portrait?.Width > 120 ? new Vector2(0.5f) : Vector2.One,
+                    ImageScale = new Vector2(0.5f),
                     OnClick = () => {
                         if (_world.SelectedCommander == commander) {
                             _world.CurrentLevel = commander.CurrentLevel;
@@ -274,60 +262,6 @@ namespace LD50.Screens {
                 Binding = BindingId.Action3,
             });
 
-            ShowScenario(new Scenario {
-                Description = "The cold storage room nips at your fingers, the family of rats are your only company. You wonder where they could be, its been over 2 hours now.",
-                Action = world => {
-                    ShowScenario(new Scenario {
-                        Description = "Right on cue, three distinct characters saunter into the room.",
-                        Action = world => {
-                            ShowScenario(new Scenario {
-                                Description = "'Yo boss, sorry we're late,' the largest of the three groans.",
-                                Action = world => {
-                                    ShowScenario(new Scenario {
-                                        Description = "You nod in acknowledgement and invite them to gather around you.",
-                                        Action = world => {
-                                            ShowScenario(new Scenario {
-                                                Description = "Pirro crushes a rat under his boot, laughing manically.",
-                                                Action = world => {
-                                                    ShowScenario(new Scenario {
-                                                        Description = "Marissa sighs in disapproval. 'Someone put that nutjob on a leash... he almost blew up the bar on the way over here.'",
-                                                        Action = world => {
-                                                            ShowScenario(new Scenario {
-                                                                Description = "She is interrupted by Alphonso. 'Boss, I'll be straight with ya, we're running low on goods and we gotta do something.'",
-                                                                Action = world => {
-                                                                    ShowScenario(new Scenario {
-                                                                        Description = "You pause. You've been painfully aware of this issue for some time now.",
-                                                                        Action = world => {
-                                                                            ShowScenario(new Scenario {
-                                                                                Description = "*BAAAANG*",
-                                                                                Action = world => {
-                                                                                    ShowScenario(new Scenario {
-                                                                                        Description = "A foot soldier comes crashing through the storage door. 'We got 2 coppas pokin round out front boss!'",
-                                                                                        Action = world => {
-                                                                                            ShowScenario(new Scenario {
-                                                                                                Description = "Pirro says he'll handle it, marching out the door... Moments later, you hear gunshots.",
-                                                                                            });
-                                                                                        },
-                                                                                    });
-                                                                                },
-                                                                            });
-                                                                        },
-                                                                    });
-                                                                },
-                                                            });
-                                                        },
-                                                    });
-                                                },
-                                            });
-                                        },
-                                    });
-                                },
-                            });
-                        },
-                    });
-                },
-            });
-
             Scenario guyScenario = null;
             guyScenario = new Scenario {
                 Description = "A guy comes up to you and asks to join your gang for $100. The crowd of guys behind him watch with intrigue.",
@@ -381,6 +315,68 @@ namespace LD50.Screens {
                 },
             };
             _scenarios.Add(guyScenario);
+        }
+
+        public void Initialize() {
+            _spriteBatch = new SpriteBatch(_graphicsDeviceSource.GraphicsDevice);
+
+            _pixelTexture = _content.Load<Texture2D>("Textures/pixel");
+            _circleTexture = _content.Load<Texture2D>("Textures/circle");
+            _font = _content.Load<SpriteFont>("Fonts/font");
+
+            ShowScenario(new Scenario {
+                Description = "The cold storage room nips at your fingers, the family of rats are your only company. You wonder where they could be, its been over 2 hours now.",
+                Action = world => {
+                    ShowScenario(new Scenario {
+                        Description = "Right on cue, three distinct characters saunter into the room.",
+                        Action = world => {
+                            ShowScenario(new Scenario {
+                                Description = "'Yo boss, sorry we're late,' the largest of the three groans.",
+                                Action = world => {
+                                    ShowScenario(new Scenario {
+                                        Description = "You nod in acknowledgement and invite them to gather around you.",
+                                        Action = world => {
+                                            ShowScenario(new Scenario {
+                                                Description = "Pirro crushes a rat under his boot, laughing manically.",
+                                                Action = world => {
+                                                    ShowScenario(new Scenario {
+                                                        Description = "Marissa sighs in disapproval. 'Someone put that nutjob on a leash... he almost blew up the bar on the way over here.'",
+                                                        Action = world => {
+                                                            ShowScenario(new Scenario {
+                                                                Description = "She is interrupted by Alphonso. 'Boss, I'll be straight with ya, we're running low on goods and we gotta do something.'",
+                                                                Action = world => {
+                                                                    ShowScenario(new Scenario {
+                                                                        Description = "You pause. You've been painfully aware of this issue for some time now.",
+                                                                        Action = world => {
+                                                                            ShowScenario(new Scenario {
+                                                                                Description = "*BAAAANG*",
+                                                                                Action = world => {
+                                                                                    ShowScenario(new Scenario {
+                                                                                        Description = "A foot soldier comes crashing through the storage door. 'We got 2 coppas pokin round out front boss!'",
+                                                                                        Action = world => {
+                                                                                            ShowScenario(new Scenario {
+                                                                                                Description = "Pirro says he'll handle it, marching out the door... Moments later, you hear gunshots.",
+                                                                                            });
+                                                                                        },
+                                                                                    });
+                                                                                },
+                                                                            });
+                                                                        },
+                                                                    });
+                                                                },
+                                                            });
+                                                        },
+                                                    });
+                                                },
+                                            });
+                                        },
+                                    });
+                                },
+                            });
+                        },
+                    });
+                },
+            });
         }
 
         public void Update(GameTime gameTime) {
@@ -495,12 +491,12 @@ namespace LD50.Screens {
                 Entity = {
                     Friction = 500f,
 
-                    Texture = _gunnerTexture,
-                    Origin = new Vector2(_gunnerTexture.Width / 2, _gunnerTexture.Height),
+                    Texture = "Textures/Gunner Test 1",
+                    Origin = new Vector2(0.5f, 1f),
                     Scale = new Vector2(0.75f),
                 },
 
-                DefaultTexture = _gunnerTexture,
+                DefaultTexture = "Textures/Gunner Test 1",
 
                 MaxHealth = 80,
                 Health = 80,
@@ -523,12 +519,12 @@ namespace LD50.Screens {
                 Entity = {
                     Friction = 500f,
 
-                    Texture = _batterTexture,
-                    Origin = new Vector2(_batterTexture.Width / 2, _batterTexture.Height),
+                    Texture = "Textures/Batter Test 1",
+                    Origin = new Vector2(0.5f, 1f),
                     Scale = new Vector2(0.75f),
                 },
 
-                DefaultTexture = _batterTexture,
+                DefaultTexture = "Textures/Batter Test 1",
 
                 MaxHealth = 100,
                 Health = 100,
@@ -550,12 +546,12 @@ namespace LD50.Screens {
                 Entity = {
                     Friction = 500f,
 
-                    Texture = _rifleWomanTexture,
-                    Origin = new Vector2(_rifleWomanTexture.Width / 2, _rifleWomanTexture.Height),
+                    Texture = "Textures/RifleWoman Test 1",
+                    Origin = new Vector2(0.5f, 1f),
                     Scale = new Vector2(0.75f),
                 },
 
-                DefaultTexture = _rifleWomanTexture,
+                DefaultTexture = "Textures/RifleWoman Test 1",
 
                 MaxHealth = 60,
                 Health = 60,
@@ -577,12 +573,12 @@ namespace LD50.Screens {
                 Entity = {
                     Friction = 500f,
 
-                    Texture = _pistolWomanTexture,
-                    Origin = new Vector2(_pistolWomanTexture.Width / 2, _pistolWomanTexture.Height),
+                    Texture = "Textures/PistolWoman Test 1",
+                    Origin = new Vector2(0.5f, 1f),
                     Scale = new Vector2(0.75f),
                 },
 
-                DefaultTexture = _pistolWomanTexture,
+                DefaultTexture = "Textures/PistolWoman Test 1",
 
                 MaxHealth = 70,
                 Health = 70,
@@ -603,7 +599,7 @@ namespace LD50.Screens {
         private Unit CreateMinigunLieutenant() {
             return new Unit {
                 Name = "Alphonso",
-                Portrait = _portraitAlphonsoTexture,
+                Portrait = "Textures/portrait_alphonso",
 
                 StrongEnemyQuotes = {
                     "Everyone, prepare yourself!",
@@ -616,14 +612,14 @@ namespace LD50.Screens {
                     Friction = 500f,
                     Mass = 5f,
 
-                    Texture = _minigunLieutenantTexture,
-                    Origin = new Vector2(_minigunLieutenantTexture.Width / 2, _minigunLieutenantTexture.Height),
+                    Texture = "Textures/Lieutenant Test 1",
+                    Origin = new Vector2(0.5f, 1f),
                     Scale = new Vector2(0.75f),
                 },
 
                 PrioritisesTargetPosition = true,
 
-                DefaultTexture = _minigunLieutenantTexture,
+                DefaultTexture = "Textures/Lieutenant Test 1",
 
                 MaxHealth = 300,
                 Health = 300,
@@ -644,7 +640,7 @@ namespace LD50.Screens {
         private Unit CreateDaggerLieutenant() {
             return new Unit {
                 Name = "Marissa",
-                Portrait = _portraitMarissaTexture,
+                Portrait = "Textures/Lieutenant2_Portrait2 Test 1",
 
                 StrongEnemyQuotes = {
                     "No time for breaks, huh...",
@@ -657,14 +653,14 @@ namespace LD50.Screens {
                     Friction = 500f,
                     Mass = 5f,
 
-                    Texture = _daggerLieutenantTexture,
-                    Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _daggerLieutenantTexture.Height),
+                    Texture = "Textures/Lieutenant2 Test 1",
+                    Origin = new Vector2(0.5f, 1f),
                     Scale = new Vector2(0.75f),
                 },
 
                 PrioritisesTargetPosition = true,
 
-                DefaultTexture = _daggerLieutenantTexture,
+                DefaultTexture = "Textures/Lieutenant2 Test 1",
 
                 MaxHealth = 200,
                 Health = 200,
@@ -684,7 +680,7 @@ namespace LD50.Screens {
         private Unit CreateMolotovLieutenant() {
             return new Unit {
                 Name = "Pirro",
-                Portrait = _portraitPirroTexture,
+                Portrait = "Textures/portrait_pirro",
 
                 StrongEnemyQuotes = {
                     "Uh oh, this can't be good!",
@@ -697,14 +693,14 @@ namespace LD50.Screens {
                     Friction = 500f,
                     Mass = 5f,
 
-                    Texture = _molotovLieutenantTexture,
-                    Origin = new Vector2(_daggerLieutenantTexture.Width / 2, _molotovLieutenantTexture.Height),
+                    Texture = "Textures/Lieutenant3 Test 1",
+                    Origin = new Vector2(0.5f, 1f),
                     Scale = new Vector2(0.75f),
                 },
 
                 PrioritisesTargetPosition = true,
 
-                DefaultTexture = _molotovLieutenantTexture,
+                DefaultTexture = "Textures/Lieutenant3 Test 1",
 
                 MaxHealth = 250,
                 Health = 250,
@@ -1097,8 +1093,8 @@ namespace LD50.Screens {
         private Projectile CreateMolotov(Vector2 start, Vector2 end, Unit? source = null) {
             return new Projectile {
                 Entity = {
-                    Texture = _molotovTexture,
-                    Origin = _molotovTexture.Bounds.Center.ToVector2(),
+                    Texture = "Textures/Molo",
+                    Origin = new Vector2(0.5f),
                 },
 
                 Source = source,
@@ -1199,13 +1195,15 @@ namespace LD50.Screens {
                 return;
             }
 
+            var texture = _content.Load<Texture2D>(entity.Texture);
+
             _spriteBatch.Draw(
-                entity.Texture,
+                texture,
                 entity.Position + new Vector2(0f, -entity.Depth),
                 null,
                 entity.Color,
                 entity.Rotation,
-                entity.Origin,
+                texture.Bounds.Size.ToVector2() * entity.Origin,
                 entity.Scale,
                 entity.Effects,
                 0f);

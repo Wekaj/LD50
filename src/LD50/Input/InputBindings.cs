@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace LD50.Input {
-    public class InputBindings {
+    public class InputBindings : IFixedUpdateable {
         private readonly Dictionary<BindingId, Keys> _keyboardBindings = new();
         private readonly Dictionary<BindingId, MouseButton> _mouseBindings = new();
 
@@ -12,6 +12,24 @@ namespace LD50.Input {
         private MouseState _previousMouseState;
         private MouseState _currentMouseState;
 
+        public InputBindings() {
+            CreateBinding(BindingId.Select, MouseButton.Left);
+            CreateBinding(BindingId.Move, MouseButton.Right);
+
+            CreateBinding(BindingId.Commander1, Keys.D1);
+            CreateBinding(BindingId.Commander2, Keys.D2);
+            CreateBinding(BindingId.Commander3, Keys.D3);
+
+            CreateBinding(BindingId.Level1, Keys.Q);
+            CreateBinding(BindingId.Level2, Keys.W);
+            CreateBinding(BindingId.Level3, Keys.A);
+            CreateBinding(BindingId.Level4, Keys.S);
+
+            CreateBinding(BindingId.Action1, Keys.Z);
+            CreateBinding(BindingId.Action2, Keys.X);
+            CreateBinding(BindingId.Action3, Keys.C);
+        }
+
         public void CreateBinding(BindingId binding, Keys key) {
             _keyboardBindings[binding] = key;
         }
@@ -20,7 +38,7 @@ namespace LD50.Input {
             _mouseBindings[binding] = button;
         }
         
-        public void Update() {
+        public void FixedUpdate() {
             _previousKeyboardState = _currentKeyboardState;
             _currentKeyboardState = Keyboard.GetState();
 

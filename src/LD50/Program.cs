@@ -1,5 +1,7 @@
 ﻿using LD50;
+using SimpleInjector;
 
-using var game = new LD50Game();
+using Container container = CompositionRoot.CreateContainer();
 
-game.Run();
+var startupHandler = container.GetInstance<IStartupHandler>();
+startupHandler.OnStartup();

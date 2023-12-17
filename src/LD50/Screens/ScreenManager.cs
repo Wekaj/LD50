@@ -1,23 +1,25 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LD50.Utilities;
 
 namespace LD50.Screens {
-    public class ScreenManager {
+    public class ScreenManager : IFixedUpdateable, IDrawable {
         private readonly GameScreen _gameScreen;
+        private readonly IGameTimeSource _gameTimeSource;
 
         private IScreen _currentScreen;
 
-        public ScreenManager(GameScreen gameScreen) {
+        public ScreenManager(GameScreen gameScreen, IGameTimeSource gameTimeSource) {
             _gameScreen = gameScreen;
+            _gameTimeSource = gameTimeSource;
 
             _currentScreen = _gameScreen;
         }
 
-        public void Update(GameTime gameTime) {
-            _currentScreen.Update(gameTime);
+        public void FixedUpdate() {
+            _currentScreen.Update(_gameTimeSource.Latest);
         }
 
-        public void Draw(GameTime gameTime) {
-            _currentScreen.Draw(gameTime);
+        public void Draw() {
+            _currentScreen.Draw(_gameTimeSource.Latest);
         }
     }
 }

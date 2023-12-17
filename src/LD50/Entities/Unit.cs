@@ -1,7 +1,6 @@
 ﻿using LD50.Graphics;
 using LD50.Levels;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
 namespace LD50.Entities {
@@ -9,7 +8,7 @@ namespace LD50.Entities {
         public Entity Entity { get; } = new();
 
         public string Name { get; set; } = "";
-        public Texture2D? Portrait { get; set; }
+        public string? Portrait { get; set; }
         
         public Level? CurrentLevel { get; set; }
 
@@ -21,7 +20,7 @@ namespace LD50.Entities {
         public bool PrioritisesTargetPosition { get; set; }
 
         public ActiveAnimation? Animation { get; set; }
-        public Texture2D? DefaultTexture { get; set; }
+        public string? DefaultTexture { get; set; }
 
         public Vector2? TargetPosition { get; set; }
         public Unit? TargetUnit { get; set; }

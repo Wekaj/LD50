@@ -1,9 +1,8 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace LD50.Graphics {
     public class Animation {
-        private record Frame(Texture2D Texture, float Duration);
+        private record Frame(string Texture, float Duration);
 
         private readonly List<Frame> _frames = new();
 
@@ -11,13 +10,13 @@ namespace LD50.Graphics {
 
         public bool IsLooping { get; set; }
 
-        public Animation AddFrame(Texture2D texture, float duration) {
+        public Animation AddFrame(string texture, float duration) {
             _frames.Add(new Frame(texture, duration));
             Duration += duration;
             return this;
         }
 
-        public Texture2D? GetFrame(float time) {
+        public string? GetFrame(float time) {
             if (_frames.Count == 0) {
                 return null;
             }

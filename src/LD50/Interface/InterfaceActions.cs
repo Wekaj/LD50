@@ -1,32 +1,41 @@
-﻿using LD50.Entities;
+﻿using LD50.Content;
+using LD50.Entities;
+using LD50.Graphics;
 using LD50.Input;
 using LD50.Levels;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace LD50.Interface {
-    public class InterfaceActions {
+    public class InterfaceActions : IInitializable {
         private readonly XnaMouse _mouse;
         private readonly InputBindings _bindings;
-        private readonly SpriteBatch _spriteBatch;
+        private readonly IGraphicsDeviceSource _graphicsDeviceSource;
+        private readonly IContentManager _content;
 
-        private readonly Texture2D _pixelTexture;
-        private readonly SpriteFont _font;
+        private SpriteBatch _spriteBatch;
+
+        private Texture2D _pixelTexture;
+        private SpriteFont _font;
 
         public InterfaceActions(
             XnaMouse mouse,
             InputBindings bindings,
-            SpriteBatch spriteBatch,
-            ContentManager content) {
+            IGraphicsDeviceSource graphicsDeviceSource,
+            IContentManager content) {
 
             _mouse = mouse;
             _bindings = bindings;
-            _spriteBatch = spriteBatch;
+            _graphicsDeviceSource = graphicsDeviceSource;
+            _content = content;
+        }
 
-            _pixelTexture = content.Load<Texture2D>("Textures/pixel");
-            _font = content.Load<SpriteFont>("Fonts/font");
+        public void Initialize() {
+            _spriteBatch = new SpriteBatch(_graphicsDeviceSource.GraphicsDevice);
+
+            _pixelTexture = _content.Load<Texture2D>("Textures/pixel");
+            _font = _content.Load<SpriteFont>("Fonts/font");
         }
 
         public void Update(World world) {
@@ -142,16 +151,17 @@ namespace LD50.Interface {
 
                 float height = labelSize.Y;
 
-                if (element.Image is not null) {
-                    height += element.Image.Height * element.ImageScale.Y;
+                Texture2D? image = element.Image is not null ? _content.Load<Texture2D>(element.Image) : null;
+                if (image is not null) {
+                    height += image.Height * element.ImageScale.Y;
                 }
 
                 Vector2 position = element.Position + element.Size / 2f - new Vector2(0f, height / 2f);
 
-                if (element.Image is not null) {
+                if (image is not null) {
                     _spriteBatch.Draw(
-                        element.Image,
-                        Vector2.Floor(position - new Vector2(element.Image.Width * element.ImageScale.X / 2f, 0f)),
+                        image,
+                        Vector2.Floor(position - new Vector2(image.Width * element.ImageScale.X / 2f, 0f)),
                         null,
                         Color.White,
                         0f,
@@ -160,7 +170,7 @@ namespace LD50.Interface {
                         SpriteEffects.None,
                         0f);
                     
-                    position.Y += element.Image.Height * element.ImageScale.Y;
+                    position.Y += image.Height * element.ImageScale.Y;
                 }
                 
                 _spriteBatch.DrawString(

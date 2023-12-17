@@ -11,7 +11,7 @@ namespace LD50.Entities {
         public Vector2 Force { get; set; }
         public float Friction { get; set; }
 
-        public Texture2D? Texture { get; set; }
+        public string? Texture { get; set; }
         public Color Color { get; set; } = Color.White;
         public Vector2 Origin { get; set; }
         public Vector2 Scale { get; set; } = Vector2.One;
