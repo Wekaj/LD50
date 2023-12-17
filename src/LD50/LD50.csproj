@@ -2,9 +2,13 @@
 	
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ApplicationIcon>Icon.ico</ApplicationIcon>
+		<AssemblyName>LD50</AssemblyName>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<TieredCompilation>false</TieredCompilation>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -12,10 +16,10 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
-		<PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
-		<PackageReference Include="Nopipeline.Task" Version="2.1.5" />
-		<PackageReference Include="SimpleInjector" Version="5.3.3" />
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.*" />
+		<PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.*" />
+		<PackageReference Include="Nopipeline.Task" Version="2.2.0" />
+		<PackageReference Include="SimpleInjector" Version="5.4.0" />
 	</ItemGroup>
 	
 </Project>
