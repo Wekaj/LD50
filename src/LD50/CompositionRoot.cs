@@ -1,7 +1,9 @@
 ﻿using LD50.Content;
+using LD50.Entities;
 using LD50.Graphics;
 using LD50.Input;
 using LD50.Interface;
+using LD50.Levels;
 using LD50.Screens;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
@@ -32,6 +34,7 @@ namespace LD50 {
                     typeof(XnaMouse),
                     typeof(InputBindings),
                     typeof(ScreenManager),
+                    typeof(WorldUpdater),
                 },
                 Lifestyle.Singleton);
             container.RegisterSingleton<IFixedUpdateable, CompositeFixedUpdateable>();
@@ -39,7 +42,13 @@ namespace LD50 {
             container.Collection.Register<IVariableUpdateable>(new[] { Assembly.GetExecutingAssembly() }, Lifestyle.Singleton);
             container.RegisterSingleton<IVariableUpdateable, CompositeVariableUpdateable>();
 
-            container.RegisterSingleton<IDrawable, ScreenManager>();
+            container.Collection.Register<IDrawable>(
+                new[] {
+                    typeof(ScreenManager),
+                    typeof(WorldDrawer),
+                },
+                Lifestyle.Singleton);
+            container.RegisterSingleton<IDrawable, CompositeDrawable>();
 
             container.RegisterSingleton<InputBindings>();
 
@@ -55,6 +64,10 @@ namespace LD50 {
             container.RegisterSingleton<IDeltaTimeSource, UpdateInfo>();
             container.RegisterSingleton<SlowUpdateMarker>();
             container.RegisterSingleton<ISlowUpdateMarker, SlowUpdateMarker>();
+
+            container.RegisterSingleton<World>();
+            container.RegisterSingleton<ScenarioShower>();
+            container.RegisterSingleton<UnitFactory>();
 
             return container;
         }

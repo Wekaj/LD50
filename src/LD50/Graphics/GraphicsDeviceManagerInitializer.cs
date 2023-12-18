@@ -5,8 +5,8 @@ namespace LD50.Graphics {
         : IInitializable {
         
         public void Initialize() {
-            graphicsDeviceManager.PreferredBackBufferWidth = 960;
-            graphicsDeviceManager.PreferredBackBufferHeight = 600;
+            graphicsDeviceManager.PreferredBackBufferWidth = GameProperties.ScreenWidth;
+            graphicsDeviceManager.PreferredBackBufferHeight = GameProperties.ScreenHeight;
             graphicsDeviceManager.SynchronizeWithVerticalRetrace = true;
             graphicsDeviceManager.ApplyChanges();
         }

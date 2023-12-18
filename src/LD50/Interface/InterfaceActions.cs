@@ -8,41 +8,30 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace LD50.Interface {
-    public class InterfaceActions : IInitializable {
-        private readonly XnaMouse _mouse;
-        private readonly InputBindings _bindings;
-        private readonly IGraphicsDeviceSource _graphicsDeviceSource;
-        private readonly IContentManager _content;
+    public class InterfaceActions(
+        XnaMouse mouse,
+        InputBindings bindings,
+        IGraphicsDeviceSource graphicsDeviceSource,
+        IContentManager content)
+        : IInitializable {
 
         private SpriteBatch _spriteBatch;
 
         private Texture2D _pixelTexture;
         private SpriteFont _font;
 
-        public InterfaceActions(
-            XnaMouse mouse,
-            InputBindings bindings,
-            IGraphicsDeviceSource graphicsDeviceSource,
-            IContentManager content) {
-
-            _mouse = mouse;
-            _bindings = bindings;
-            _graphicsDeviceSource = graphicsDeviceSource;
-            _content = content;
-        }
-
         public void Initialize() {
-            _spriteBatch = new SpriteBatch(_graphicsDeviceSource.GraphicsDevice);
+            _spriteBatch = new SpriteBatch(graphicsDeviceSource.GraphicsDevice);
 
-            _pixelTexture = _content.Load<Texture2D>("Textures/pixel");
-            _font = _content.Load<SpriteFont>("Fonts/font");
+            _pixelTexture = content.Load<Texture2D>("Textures/pixel");
+            _font = content.Load<SpriteFont>("Fonts/font");
         }
 
         public void Update(World world) {
             for (int i = 0; i < world.Elements.Count; i++) {
                 Element element = world.Elements[i];
 
-                if (element.IsVisible() && element.OnClick is not null && element.Binding.HasValue && _bindings.JustReleased(element.Binding.Value)) {
+                if (element.IsVisible() && element.OnClick is not null && element.Binding.HasValue && bindings.JustReleased(element.Binding.Value)) {
                     element.OnClick.Invoke();
                 }
             }
@@ -122,7 +111,7 @@ namespace LD50.Interface {
                     labelColor = Color.Black;
                 }
 
-                if ((mouseIntersects && _bindings.IsPressed(BindingId.Select)) || (element.Binding.HasValue && _bindings.IsPressed(element.Binding.Value))) {
+                if ((mouseIntersects && bindings.IsPressed(BindingId.Select)) || (element.Binding.HasValue && bindings.IsPressed(element.Binding.Value))) {
                     backgroundColor *= 0.5f;
                     labelColor *= 0.5f;
                 }
@@ -151,7 +140,7 @@ namespace LD50.Interface {
 
                 float height = labelSize.Y;
 
-                Texture2D? image = element.Image is not null ? _content.Load<Texture2D>(element.Image) : null;
+                Texture2D? image = element.Image is not null ? content.Load<Texture2D>(element.Image) : null;
                 if (image is not null) {
                     height += image.Height * element.ImageScale.Y;
                 }
@@ -182,10 +171,10 @@ namespace LD50.Interface {
         }
 
         private bool MouseIntersectsElement(Element element) {
-            return _mouse.Position.X >= element.Position.X
-                && _mouse.Position.X <= element.Position.X + element.Size.X
-                && _mouse.Position.Y >= element.Position.Y
-                && _mouse.Position.Y <= element.Position.Y + element.Size.Y;
+            return mouse.Position.X >= element.Position.X
+                && mouse.Position.X <= element.Position.X + element.Size.X
+                && mouse.Position.Y >= element.Position.Y
+                && mouse.Position.Y <= element.Position.Y + element.Size.Y;
         }
     }
 }
