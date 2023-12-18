@@ -19,6 +19,6 @@
   "AttackTicks": 1,
   "AttackCooldown": 0.5,
   "ThrowsMolotovs": false,
-  "AttackingAnimation": "DaggerLieutenantAttacking",
+  "AttackingAnimation": "Animations/lieutenant_dagger_attack.json",
   "Formation": "FrontArc"
 }

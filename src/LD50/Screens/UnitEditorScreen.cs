@@ -27,7 +27,7 @@ namespace LD50.Screens {
 
         private string? _selectedUnit;
         
-        public void Show() {
+        public void Show(ScreenArgs args) {
             world.Elements.Add(new Element {
                 Position = new Vector2(GameProperties.ScreenWidth - 200f - 8f, 8f),
                 Size = new Vector2(200f, 20f),
@@ -89,14 +89,27 @@ namespace LD50.Screens {
                 });
             _selectionElements.Add(textureButton);
 
-            _selectionElements.Add(new Element {
+            var attackButton = new Element {
                 Position = position + new Vector2(122f, 0f),
                 Size = new Vector2(120f, 120f),
-                Animation = new ActiveAnimation(animationManager.Animations[unitProfile.AttackingAnimation]) {
-                    IsLooping = true,
-                },
                 Label = "Attack",
-            });
+            };
+            if (unitProfile.AttackingAnimation is not null) {
+                attackButton.Animation = new ActiveAnimation(animationManager.GetAnimation(unitProfile.AttackingAnimation)) {
+                    IsLooping = true,
+                };
+            }
+            attackButton.OnClick = () => contentBrowserShower.ShowAnimationBrowser(
+                animation => {
+                    unitProfile.AttackingAnimation = animation;
+
+                    if (animation is not null) {
+                        attackButton.Animation = new ActiveAnimation(animationManager.GetAnimation(animation)) {
+                            IsLooping = true,
+                        };
+                    }
+                });
+            _selectionElements.Add(attackButton);
 
             var portraitButton = new Element {
                 Position = position + new Vector2(122f * 2f, 0f),

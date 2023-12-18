@@ -44,7 +44,7 @@ namespace LD50.Screens {
             },
         };
 
-        public void Show() {
+        public void Show(ScreenArgs args) {
             const int levels = 4;
 
             float screenButtonWidth = (800f - 8f * (levels + 1)) / levels;
@@ -127,6 +127,10 @@ namespace LD50.Screens {
                 },
                 Binding = BindingId.Action3,
             });
+
+            if (args.SkipIntro) {
+                return;
+            }
 
             scenarioShower.ShowScenario(new Scenario {
                 Description = "The cold storage room nips at your fingers, the family of rats are your only company. You wonder where they could be, its been over 2 hours now.",

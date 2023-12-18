@@ -25,7 +25,7 @@ namespace LD50.Screens {
         public void ChangeScreen(ScreenArgs args) {
             _currentScreen?.Hide();
             _currentScreen = screens[args.ScreenType];
-            _currentScreen.Show();
+            _currentScreen.Show(args);
         }
 
         private void OnTransitioned(object? sender, ScreenArgs e) {

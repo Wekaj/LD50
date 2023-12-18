@@ -13,6 +13,6 @@
   "AttackTicks": 10,
   "AttackCooldown": 2,
   "ThrowsMolotovs": false,
-  "AttackingAnimation": "PistolWomanAttacking",
+  "AttackingAnimation": "Animations/pistol_woman_attack.json",
   "Formation": "FrontArc"
 }

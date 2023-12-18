@@ -9,6 +9,6 @@
     "AttackStun": 0.025,
     "AttackTicks": 3,
     "AttackCooldown": 2,
-    "AttackingAnimation": "GunnerAttacking",
+    "AttackingAnimation": "Animations/gunner_attack.json",
     "Formation": "Group"
 }

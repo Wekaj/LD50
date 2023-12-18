@@ -17,5 +17,5 @@
   "AttackStun": 0.025,
   "AttackTicks": 5,
   "AttackCooldown": 3,
-  "AttackingAnimation": "MinigunLieutenantAttacking"
+  "AttackingAnimation": "Animations/lieutenant_minigun_attack.json"
 }

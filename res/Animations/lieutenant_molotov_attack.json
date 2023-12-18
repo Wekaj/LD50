@@ -1,0 +1,24 @@
+{
+    "Frames": [
+        {
+            "Texture": "Textures/Lieutenant3_Attack Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant3_Attack2 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant3_Attack3 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant3_Attack4 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant3_Attack5 Test 1",
+            "Duration": 0.075
+        }
+    ]
+}

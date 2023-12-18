@@ -5,5 +5,7 @@
         UnitEditor,
     }
 
-    public readonly record struct ScreenArgs(ScreenType ScreenType);
+    public readonly record struct ScreenArgs(
+        ScreenType ScreenType,
+        bool SkipIntro = false);
 }

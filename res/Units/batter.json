@@ -15,6 +15,6 @@
   "AttackTicks": 1,
   "AttackCooldown": 1,
   "ThrowsMolotovs": false,
-  "AttackingAnimation": "BatterAttacking",
+  "AttackingAnimation": "Animations/batter_attack.json",
   "Formation": "FrontArc"
 }

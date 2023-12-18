@@ -1,0 +1,48 @@
+{
+    "Frames": [
+        {
+            "Texture": "Textures/PistolWoman_Attack Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack2 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack3 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack2 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack3 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack2 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack3 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack2 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack3 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack2 Test 1",
+            "Duration": 0.1
+        },
+        {
+            "Texture": "Textures/PistolWoman_Attack3 Test 1",
+            "Duration": 0.1
+        }
+    ]
+}

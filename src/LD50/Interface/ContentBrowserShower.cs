@@ -1,6 +1,5 @@
 ﻿using LD50.Development;
 using LD50.Levels;
-using LD50.Screens;
 using Microsoft.Xna.Framework;
 using System;
 using System.IO;
@@ -10,7 +9,7 @@ namespace LD50.Interface {
         World world,
         EngineEnvironment engineEnvironment) {
 
-        public void ShowContentBrowser(string type, string directory, string extension, Action<string> callback) {
+        public void ShowContentBrowser(string type, string directory, string extension, Action<string?> callback) {
             if (engineEnvironment.ProjectDirectory is null) {
                 return;
             }
@@ -21,6 +20,17 @@ namespace LD50.Interface {
                 Position = new Vector2(0f, 0f),
                 Size = new Vector2(GameProperties.ScreenWidth, GameProperties.ScreenHeight),
                 BackgroundColor = Color.DimGray * 0.85f,
+            });
+
+            popup.Elements.Add(new Element {
+                Position = new Vector2(8f, 8f),
+                Size = new Vector2(200f, 20f),
+                Label = "Clear",
+                OnClick = () => {
+                    world.Popups.Remove(popup);
+
+                    callback(null);
+                },
             });
 
             popup.Elements.Add(new Element {
@@ -66,7 +76,7 @@ namespace LD50.Interface {
             world.Popups.Add(popup);
         }
 
-        public void ShowTextureBrowser(Action<string> callback) {
+        public void ShowTextureBrowser(Action<string?> callback) {
             ShowContentBrowser(
                 "Texture",
                 @"Textures\",
@@ -78,7 +88,15 @@ namespace LD50.Interface {
                 });
         }
 
-        public void ShowUnitBrowser(Action<string> callback) {
+        public void ShowAnimationBrowser(Action<string?> callback) {
+            ShowContentBrowser(
+                "Animation",
+                @"Animations\",
+                ".json",
+                callback);
+        }
+
+        public void ShowUnitBrowser(Action<string?> callback) {
             ShowContentBrowser(
                 "Unit",
                 @"Units\",

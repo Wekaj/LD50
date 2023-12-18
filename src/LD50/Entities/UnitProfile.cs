@@ -30,7 +30,7 @@ namespace LD50.Entities {
         public int AttackTicks { get; set; } = 1;
         public float AttackCooldown { get; set; }
         public bool ThrowsMolotovs { get; set; }
-        public UnitAnimation AttackingAnimation { get; init; }
+        public string? AttackingAnimation { get; set; }
         public Formation Formation { get; set; }
     }
 }

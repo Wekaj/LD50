@@ -43,7 +43,7 @@ namespace LD50.Entities {
                 AttackCooldown = unitProfile.AttackCooldown,
                 ThrowsMolotovs = unitProfile.ThrowsMolotovs,
 
-                AttackingAnimation = animations.Animations[unitProfile.AttackingAnimation],
+                AttackingAnimation = unitProfile.AttackingAnimation is not null ? animations.GetAnimation(unitProfile.AttackingAnimation) : null,
 
                 Formation = unitProfile.Formation,
             };

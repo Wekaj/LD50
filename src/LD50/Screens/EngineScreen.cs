@@ -10,7 +10,7 @@ namespace LD50.Screens {
         ScreenChanger screenChanger)
         : IScreen {
 
-        public void Show() {
+        public void Show(ScreenArgs args) {
             world.Elements.Add(new Element {
                 Position = new Vector2(GameProperties.ScreenWidth * 0.5f - 100f, 8f),
                 Size = new Vector2(200f, 20f),
@@ -34,6 +34,13 @@ namespace LD50.Screens {
                 Size = new Vector2(300f, 50f),
                 Label = "Play Game",
                 OnClick = () => screenChanger.ChangeScreen(new ScreenArgs(ScreenType.Game)),
+            });
+
+            world.Elements.Add(new Element {
+                Position = new Vector2(GameProperties.ScreenWidth - 308f, 8f + 22f + 28f + 52f),
+                Size = new Vector2(300f, 50f),
+                Label = "Play Game (Skip Intro)",
+                OnClick = () => screenChanger.ChangeScreen(new ScreenArgs(ScreenType.Game, SkipIntro: true)),
             });
 
             world.Elements.Add(new Element {

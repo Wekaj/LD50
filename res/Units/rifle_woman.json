@@ -15,6 +15,6 @@
   "AttackTicks": 1,
   "AttackCooldown": 3,
   "ThrowsMolotovs": false,
-  "AttackingAnimation": "RifleWomanAttacking",
+  "AttackingAnimation": "Animations/rifle_woman_attack.json",
   "Formation": "Group"
 }

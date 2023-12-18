@@ -1,6 +1,6 @@
 ﻿namespace LD50.Screens {
     public interface IScreen {
-        void Show();
+        void Show(ScreenArgs args);
         void Hide();
     }
 }
