@@ -31,6 +31,6 @@ namespace LD50.Entities {
         public float AttackCooldown { get; init; }
         public bool ThrowsMolotovs { get; set; }
         public UnitAnimation AttackingAnimation { get; init; }
-        public Formation Formation { get; init; }
+        public Formation Formation { get; set; }
     }
 }

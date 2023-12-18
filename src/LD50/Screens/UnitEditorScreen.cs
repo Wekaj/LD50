@@ -8,9 +8,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Emit;
 using System.Text.Json;
-using System.Xml.Linq;
 
 namespace LD50.Screens {
     public class UnitEditorScreen(
@@ -135,6 +133,14 @@ namespace LD50.Screens {
                 "Throws Molotovs",
                 () => unitProfile.ThrowsMolotovs.ToString(),
                 () => unitProfile.ThrowsMolotovs = !unitProfile.ThrowsMolotovs);
+
+            position.Y += 22f;
+
+            AddToggleElement(
+                position,
+                "Formation",
+                () => unitProfile.Formation.ToString(),
+                () => unitProfile.Formation = (Formation)(((int)unitProfile.Formation + 1) % Enum.GetValues<Formation>().Length));
 
             position.Y += 28f;
 
