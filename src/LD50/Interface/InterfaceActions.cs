@@ -172,8 +172,18 @@ namespace LD50.Interface {
                 float height = labelSize.Y;
 
                 Texture2D? image = element.Image is not null ? content.Load<Texture2D>(element.Image) : null;
+                Vector2 imageScale = Vector2.One;
                 if (image is not null) {
-                    height += image.Height * element.ImageScale.Y;
+                    if (element.ResizeImageToContain && (image.Width > element.Size.X || image.Height + height > element.Size.Y)) {
+                        if (image.Width > image.Height + height) {
+                            imageScale = new Vector2(element.Size.X / image.Width);
+                        }
+                        else {
+                            imageScale = new Vector2(element.Size.Y / (image.Height + height));
+                        }
+                    }
+
+                    height += image.Height * imageScale.Y;
                 }
 
                 Vector2 position = element.Position + element.Size / 2f - new Vector2(0f, height / 2f);
@@ -181,16 +191,16 @@ namespace LD50.Interface {
                 if (image is not null) {
                     _spriteBatch.Draw(
                         image,
-                        Vector2.Floor(position - new Vector2(image.Width * element.ImageScale.X / 2f, 0f)),
+                        Vector2.Floor(position - new Vector2(image.Width * imageScale.X / 2f, 0f)),
                         null,
                         Color.White,
                         0f,
                         Vector2.Zero,
-                        element.ImageScale,
+                        imageScale,
                         SpriteEffects.None,
                         0f);
                     
-                    position.Y += image.Height * element.ImageScale.Y;
+                    position.Y += image.Height * imageScale.Y;
                 }
                 
                 _spriteBatch.DrawString(

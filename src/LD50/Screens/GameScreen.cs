@@ -92,7 +92,6 @@ namespace LD50.Screens {
                     Size = new Vector2(commanderButtonWidth, commanderButtonHeight),
                     Label = commander.Name,
                     Image = commander.Portrait,
-                    ImageScale = new Vector2(0.5f),
                     OnClick = () => {
                         if (world.SelectedCommander == commander) {
                             world.CurrentLevel = commander.CurrentLevel;

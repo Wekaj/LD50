@@ -9,7 +9,7 @@ namespace LD50.Interface {
         public Vector2 Size { get; set; }
         public string Label { get; set; } = "";
         public string? Image { get; set; } = null;
-        public Vector2 ImageScale { get; set; } = Vector2.One;
+        public bool ResizeImageToContain { get; set; } = true;
         public ActiveAnimation? Animation { get; set; }
         public bool IsTextBlock { get; set; }
         public float Margin { get; set; }

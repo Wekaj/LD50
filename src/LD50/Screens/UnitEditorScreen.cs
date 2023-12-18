@@ -102,7 +102,6 @@ namespace LD50.Screens {
                 Position = position + new Vector2(122f * 2f, 0f),
                 Size = new Vector2(120f, 120f),
                 Image = unitProfile.Portrait,
-                ImageScale = new Vector2(0.5f),
                 Label = "Portrait",
             };
             portraitButton.OnClick = () => contentBrowserShower.ShowTextureBrowser(
