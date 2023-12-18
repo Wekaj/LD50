@@ -2,6 +2,7 @@
     public enum ScreenType {
         Game,
         Engine,
+        UnitEditor,
     }
 
     public readonly record struct ScreenArgs(ScreenType ScreenType);

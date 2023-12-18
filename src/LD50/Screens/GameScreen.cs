@@ -120,7 +120,7 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Unit unit = unitFactory.CreateBatter() with {
+                    Unit unit = unitFactory.CreateUnit(@"Units\batter.json") with {
                         Team = Team.Player,
                         Commander = world.SelectedCommander,
                     };
@@ -142,7 +142,7 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Unit unit = unitFactory.CreateGunner() with {
+                    Unit unit = unitFactory.CreateUnit(@"Units\gunner.json") with {
                         Team = Team.Player,
                         Commander = world.SelectedCommander,
                     };
@@ -164,7 +164,7 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Unit unit = unitFactory.CreatePistolWoman() with {
+                    Unit unit = unitFactory.CreateUnit(@"Units\pistol_woman.json") with {
                         Team = Team.Player,
                         Commander = world.SelectedCommander,
                     };
@@ -186,7 +186,7 @@ namespace LD50.Screens {
                         return;
                     }
 
-                    Unit unit = unitFactory.CreateRifleWoman() with {
+                    Unit unit = unitFactory.CreateUnit(@"Units\rifle_woman.json") with {
                         Team = Team.Player,
                         Commander = world.SelectedCommander,
                     };

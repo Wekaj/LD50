@@ -50,6 +50,11 @@
       "processorParam": {
         "Quality": "Best"
       }
+    },
+    "units": {
+      "path": "Units/*.json",
+      "recursive": "True",
+      "action": "copy"
     }
   }
 }

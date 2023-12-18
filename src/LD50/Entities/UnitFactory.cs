@@ -2,129 +2,53 @@
 using LD50.Levels;
 using Microsoft.Xna.Framework;
 using System;
+using System.IO;
+using System.Text.Json;
 
 namespace LD50.Entities {
     public class UnitFactory(AnimationManager animations) {
         private readonly Random _random = new();
 
+        public Unit CreateUnit(string unitProfileReference) {
+            using FileStream stream = File.OpenRead(unitProfileReference);
+
+            var unitProfile = JsonSerializer.Deserialize<UnitProfile>(stream)!;
+
+            return new Unit {
+                Entity = {
+                    Friction = 500f,
+
+                    Texture = unitProfile.Texture,
+                    Origin = new Vector2(0.5f, 1f),
+                    Scale = new Vector2(0.75f),
+                },
+
+                DefaultTexture = unitProfile.Texture,
+
+                MaxHealth = unitProfile.Health,
+                Health = unitProfile.Health,
+
+                VisionRange = unitProfile.VisionRange,
+                AttackRange = unitProfile.AttackRange,
+                AttackDamage = unitProfile.AttackDamage,
+                AttackStun = unitProfile.AttackStun,
+                AttackTicks = unitProfile.AttackTicks,
+                AttackCooldown = unitProfile.AttackCooldown,
+
+                AttackingAnimation = animations.Animations[unitProfile.AttackingAnimation],
+
+                Formation = unitProfile.Formation,
+            };
+        }
+
         public Unit CreateUnit(Level level) {
             Unit unit = _random.Next(2) == 0
-                ? CreateGunner()
-                : CreateBatter();
+                ? CreateUnit(@"Units\gunner.json")
+                : CreateUnit(@"Units\batter.json");
 
             unit.Entity.Position = level.Position + new Vector2(_random.Next(0, 800), _random.Next(0, 600));
 
             return unit;
-        }
-
-        public Unit CreateGunner() {
-            return new Unit {
-                Entity = {
-                    Friction = 500f,
-
-                    Texture = "Textures/Gunner Test 1",
-                    Origin = new Vector2(0.5f, 1f),
-                    Scale = new Vector2(0.75f),
-                },
-
-                DefaultTexture = "Textures/Gunner Test 1",
-
-                MaxHealth = 80,
-                Health = 80,
-
-                VisionRange = 200f,
-                AttackRange = 150f,
-                AttackDamage = 10,
-                AttackStun = 0.025f,
-                AttackTicks = 3,
-                AttackCooldown = 2f,
-
-                AttackingAnimation = animations.GunnerAttacking,
-
-                Formation = Formation.Group,
-            };
-        }
-
-        public Unit CreateBatter() {
-            return new Unit {
-                Entity = {
-                    Friction = 500f,
-
-                    Texture = "Textures/Batter Test 1",
-                    Origin = new Vector2(0.5f, 1f),
-                    Scale = new Vector2(0.75f),
-                },
-
-                DefaultTexture = "Textures/Batter Test 1",
-
-                MaxHealth = 100,
-                Health = 100,
-
-                VisionRange = 200f,
-                AttackRange = 50f,
-                AttackDamage = 10,
-                AttackStun = 0.25f,
-                AttackCooldown = 1f,
-
-                AttackingAnimation = animations.BatterAttacking,
-
-                Formation = Formation.FrontArc,
-            };
-        }
-
-        public Unit CreateRifleWoman() {
-            return new Unit {
-                Entity = {
-                    Friction = 500f,
-
-                    Texture = "Textures/RifleWoman Test 1",
-                    Origin = new Vector2(0.5f, 1f),
-                    Scale = new Vector2(0.75f),
-                },
-
-                DefaultTexture = "Textures/RifleWoman Test 1",
-
-                MaxHealth = 60,
-                Health = 60,
-
-                VisionRange = 250f,
-                AttackRange = 250f,
-                AttackDamage = 60,
-                AttackStun = 0.5f,
-                AttackCooldown = 3f,
-
-                AttackingAnimation = animations.RifleWomanAttacking,
-
-                Formation = Formation.Group,
-            };
-        }
-
-        public Unit CreatePistolWoman() {
-            return new Unit {
-                Entity = {
-                    Friction = 500f,
-
-                    Texture = "Textures/PistolWoman Test 1",
-                    Origin = new Vector2(0.5f, 1f),
-                    Scale = new Vector2(0.75f),
-                },
-
-                DefaultTexture = "Textures/PistolWoman Test 1",
-
-                MaxHealth = 70,
-                Health = 70,
-
-                VisionRange = 200f,
-                AttackRange = 100f,
-                AttackDamage = 3,
-                AttackStun = 0.025f,
-                AttackTicks = 10,
-                AttackCooldown = 2f,
-
-                AttackingAnimation = animations.PistolWomanAttacking,
-
-                Formation = Formation.FrontArc,
-            };
         }
 
         public Unit CreateMinigunLieutenant() {
@@ -162,7 +86,7 @@ namespace LD50.Entities {
                 AttackTicks = 5,
                 AttackCooldown = 3f,
 
-                AttackingAnimation = animations.MinigunLieutenantAttacking,
+                AttackingAnimation = animations.Animations[UnitAnimation.MinigunLieutenantAttacking],
 
                 DrawPath = true,
             };
@@ -202,7 +126,7 @@ namespace LD50.Entities {
                 AttackStun = 0.025f,
                 AttackCooldown = 0.5f,
 
-                AttackingAnimation = animations.DaggerLieutenantAttacking,
+                AttackingAnimation = animations.Animations[UnitAnimation.DaggerLieutenantAttacking],
 
                 DrawPath = true,
             };
@@ -244,7 +168,7 @@ namespace LD50.Entities {
                 AttackCooldown = 4f,
                 ThrowsMolotovs = true,
 
-                AttackingAnimation = animations.MolotovLieutenantAttacking,
+                AttackingAnimation = animations.Animations[UnitAnimation.MolotovLieutenantAttacking],
 
                 DrawPath = true,
             };

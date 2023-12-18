@@ -1,0 +1,11 @@
+{
+    "Texture": "Textures/RifleWoman Test 1",
+    "Health": 60,
+    "VisionRange": 250,
+    "AttackRange": 250,
+    "AttackDamage": 60,
+    "AttackStun": 0.5,
+    "AttackCooldown": 3,
+    "AttackingAnimation": "RifleWomanAttacking",
+    "Formation": "Group"
+}

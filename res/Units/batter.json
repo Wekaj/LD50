@@ -1,0 +1,12 @@
+{
+  "Texture": "Textures/Batter Test 1",
+  "Health": 100,
+  "VisionRange": 200,
+  "AttackRange": 50,
+  "AttackDamage": 10,
+  "AttackStun": 0.25,
+  "AttackTicks": 1,
+  "AttackCooldown": 1,
+  "AttackingAnimation": "BatterAttacking",
+  "Formation": "FrontArc"
+}

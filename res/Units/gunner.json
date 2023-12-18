@@ -1,0 +1,12 @@
+{
+    "Texture": "Textures/Gunner Test 1",
+    "Health": 80,
+    "VisionRange": 200,
+    "AttackRange": 150,
+    "AttackDamage": 10,
+    "AttackStun": 0.025,
+    "AttackTicks": 3,
+    "AttackCooldown": 2,
+    "AttackingAnimation": "GunnerAttacking",
+    "Formation": "Group"
+}

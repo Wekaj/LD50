@@ -1,10 +1,13 @@
-﻿using LD50.Entities;
+﻿using LD50.Development;
+using LD50.Entities;
 using LD50.Input;
 using LD50.Interface;
 using LD50.Scenarios;
+using LD50.Screens;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +20,8 @@ namespace LD50.Levels {
         InterfaceActions interfaceActions,
         ScenarioShower scenarioShower,
         UnitFactory unitFactory,
+        EngineEnvironment engineEnvironment,
+        ScreenChanger screenChanger,
         IDeltaTimeSource deltaTimeSource)
         : IStartupHandler, IFixedUpdateable {
 
@@ -81,6 +86,11 @@ namespace LD50.Levels {
         }
 
         public void FixedUpdate() {
+            if (engineEnvironment.ProjectDirectory is not null && (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))) {
+                screenChanger.ChangeScreen(new ScreenArgs(ScreenType.Engine));
+                return;
+            }
+
             if (inputBindings.JustReleased(BindingId.Select)) {
                 DoSelection();
             }
