@@ -1,0 +1,20 @@
+{
+  "Name": "Pirro",
+  "Portrait": "Textures/portrait_pirro",
+  "StrongEnemyQuotes": [
+    "Uh oh, this can't be good!",
+    "Imma need more bombs for this one!",
+    "It's party time!"
+  ],
+  "Mass": 5,
+  "Texture": "Textures/Lieutenant3 Test 1",
+  "Health": 250,
+  "VisionRange": 300,
+  "AttackRange": 300,
+  "AttackDamage": 0,
+  "AttackStun": 0,
+  "AttackTicks": 2,
+  "AttackCooldown": 4,
+  "ThrowsMolotovs": true,
+  "AttackingAnimation": "MolotovLieutenantAttacking"
+}

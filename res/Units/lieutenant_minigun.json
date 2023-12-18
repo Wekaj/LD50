@@ -1,0 +1,19 @@
+{
+  "Name": "Alphonso",
+  "Portrait": "Textures/portrait_alphonso",
+  "StrongEnemyQuotes": [
+    "Everyone, prepare yourself!",
+    "We need all the firepower we can get for this one.",
+    "This is gonna hurt."
+  ],
+  "Mass": 5,
+  "Texture": "Textures/Batter Test 1",
+  "Health": 300,
+  "VisionRange": 300,
+  "AttackRange": 300,
+  "AttackDamage": 15,
+  "AttackStun": 0.025,
+  "AttackTicks": 5,
+  "AttackCooldown": 3,
+  "AttackingAnimation": "MinigunLieutenantAttacking"
+}

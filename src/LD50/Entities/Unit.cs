@@ -14,7 +14,7 @@ namespace LD50.Entities {
 
         public string? Dialogue { get; set; }
         public float DialogueTimer { get; set; }
-        public List<string> StrongEnemyQuotes { get; } = new();
+        public List<string> StrongEnemyQuotes { get; set; } = new();
 
         public float Direction { get; set; }
         public bool PrioritisesTargetPosition { get; set; }

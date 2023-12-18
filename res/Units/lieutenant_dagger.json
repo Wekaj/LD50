@@ -1,0 +1,18 @@
+{
+  "Name": "Marissa",
+  "Portrait": "Textures/Lieutenant2_Portrait2 Test 1",
+  "StrongEnemyQuotes": [
+    "No time for breaks, huh...",
+    "This won't be easy.",
+    "I'll need an extra sharp blade for this one..."
+  ],
+  "Mass": 5,
+  "Texture": "Textures/Lieutenant2 Test 1",
+  "Health": 200,
+  "VisionRange": 300,
+  "AttackRange": 300,
+  "AttackDamage": 20,
+  "AttackStun": 0.025,
+  "AttackCooldown": 0.5,
+  "AttackingAnimation": "DaggerLieutenantAttacking"
+}

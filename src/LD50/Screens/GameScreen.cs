@@ -69,9 +69,9 @@ namespace LD50.Screens {
             }
 
             Unit[] commanders = [
-                unitFactory.CreateMinigunLieutenant(),
-                unitFactory.CreateDaggerLieutenant(),
-                unitFactory.CreateMolotovLieutenant(),
+                unitFactory.CreateCommander(@"Units\lieutenant_minigun.json"),
+                unitFactory.CreateCommander(@"Units\lieutenant_dagger.json"),
+                unitFactory.CreateCommander(@"Units\lieutenant_molotov.json"),
             ];
 
             const float commanderButtonWidth = 120f;

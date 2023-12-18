@@ -99,6 +99,14 @@ namespace LD50.Screens {
                 () => unitProfile.AttackTicks++,
                 () => unitProfile.AttackTicks--);
 
+            y += 22f;
+
+            AddToggleElement(
+                new Vector2(8f + 308f, y),
+                "Throws Molotovs",
+                () => unitProfile.ThrowsMolotovs.ToString(),
+                () => unitProfile.ThrowsMolotovs = !unitProfile.ThrowsMolotovs);
+
             y += 28f;
 
             _selectionElements.Add(new Element {
@@ -144,6 +152,19 @@ namespace LD50.Screens {
                     label.Label = $"{name}: {getValue()}";
                 },
             });
+        }
+
+        private void AddToggleElement(Vector2 position, string name, Func<string> getValue, Action toggle) {
+            var button = new Element {
+                Position = position,
+                Size = new Vector2(300f, 20f),
+                Label = $"{name}: {getValue()}",
+            };
+            button.OnClick = () => {
+                toggle();
+                button.Label = $"{name}: {getValue()}";
+            };
+            _selectionElements.Add(button);
         }
     }
 }

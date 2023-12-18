@@ -1,12 +1,17 @@
 {
-    "Texture": "Textures/PistolWoman Test 1",
-    "Health": 70,
-    "VisionRange": 200,
-    "AttackRange": 100,
-    "AttackDamage": 3,
-    "AttackStun": 0.025,
-    "AttackTicks": 10,
-    "AttackCooldown": 2,
-    "AttackingAnimation": "PistolWomanAttacking",
-    "Formation": "FrontArc"
+  "Name": null,
+  "Portrait": null,
+  "StrongEnemyQuotes": [],
+  "Mass": 1,
+  "Texture": "Textures/PistolWoman Test 1",
+  "Health": 70,
+  "VisionRange": 200,
+  "AttackRange": 100,
+  "AttackDamage": 3,
+  "AttackStun": 0.025,
+  "AttackTicks": 10,
+  "AttackCooldown": 2,
+  "ThrowsMolotovs": false,
+  "AttackingAnimation": "PistolWomanAttacking",
+  "Formation": "FrontArc"
 }
