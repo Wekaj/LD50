@@ -13,9 +13,10 @@ namespace LD50.Levels {
 
         public Scenario? CurrentScenario { get; set; }
         public float ScenarioTimer { get; set; }
-        public List<Element> ScenarioElements { get; } = [];
 
         public List<Element> Elements { get; } = [];
+        public List<Element> ScenarioElements { get; } = [];
+        public List<Element> SelectedCommanderElements { get; } = [];
 
         public List<Unit> Commanders { get; } = [];
         public Unit? SelectedCommander { get; set; }
@@ -29,9 +30,10 @@ namespace LD50.Levels {
 
             CurrentScenario = null;
             ScenarioTimer = 0f;
-            ScenarioElements.Clear();
 
             Elements.Clear();
+            ScenarioElements.Clear();
+            SelectedCommanderElements.Clear();
 
             Commanders.Clear();
             SelectedCommander = null;

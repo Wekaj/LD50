@@ -18,6 +18,8 @@ namespace LD50.Entities {
                 Name = unitProfile.Name ?? "",
                 Portrait = unitProfile.Portrait,
                 StrongEnemyQuotes = unitProfile.StrongEnemyQuotes,
+                Minion1 = unitProfile.Minion1,
+                Minion2 = unitProfile.Minion2,
 
                 Entity = {
                     Friction = 500f,

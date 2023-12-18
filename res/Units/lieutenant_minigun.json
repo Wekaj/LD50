@@ -6,8 +6,10 @@
     "We need all the firepower we can get for this one.",
     "This is gonna hurt."
   ],
+  "Minion1": "Units/batter.json",
+  "Minion2": "Units/gunner.json",
   "Mass": 5,
-  "Texture": "Textures/Batter Test 1",
+  "Texture": "Textures/Lieutenant Test 1",
   "Health": 300,
   "VisionRange": 300,
   "AttackRange": 300,

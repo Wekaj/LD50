@@ -1,4 +1,6 @@
 {
+  "Name": "Rifler",
+  "Cost": 125,
   "Texture": "Textures/RifleWoman Test 1",
   "Health": 60,
   "VisionRange": 250,

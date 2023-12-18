@@ -10,7 +10,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 namespace LD50.Levels {
     public class WorldUpdater(
@@ -22,6 +24,7 @@ namespace LD50.Levels {
         UnitFactory unitFactory,
         EngineEnvironment engineEnvironment,
         ScreenChanger screenChanger,
+        CommanderSelector commanderSelector,
         IDeltaTimeSource deltaTimeSource)
         : IStartupHandler, IFixedUpdateable {
 
@@ -138,7 +141,7 @@ namespace LD50.Levels {
                 Unit commander = world.Commanders[i];
 
                 if (MouseIntersectsUnit(commander)) {
-                    world.SelectedCommander = commander;
+                    commanderSelector.SelectCommander(commander);
                     return;
                 }
             }

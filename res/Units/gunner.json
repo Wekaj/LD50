@@ -1,4 +1,6 @@
 {
+    "Name": "Gunner",
+    "Cost": 100,
     "Texture": "Textures/Gunner Test 1",
     "Health": 80,
     "VisionRange": 200,

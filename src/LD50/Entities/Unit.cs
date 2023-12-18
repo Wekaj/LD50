@@ -9,12 +9,15 @@ namespace LD50.Entities {
 
         public string Name { get; set; } = "";
         public string? Portrait { get; set; }
-        
+
         public Level? CurrentLevel { get; set; }
 
         public string? Dialogue { get; set; }
         public float DialogueTimer { get; set; }
         public List<string> StrongEnemyQuotes { get; set; } = new();
+
+        public string? Minion1 { get; set; }
+        public string? Minion2 { get; set; }
 
         public float Direction { get; set; }
         public bool PrioritisesTargetPosition { get; set; }

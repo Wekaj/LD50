@@ -80,6 +80,7 @@ namespace LD50 {
             container.RegisterSingleton<World>();
             container.RegisterSingleton<ScenarioShower>();
             container.RegisterSingleton<UnitFactory>();
+            container.RegisterSingleton<CommanderSelector>();
 
             container.RegisterSingleton<EngineEnvironment>();
 

@@ -11,7 +11,8 @@ namespace LD50.Screens {
     public class GameScreen(
         World world,
         UnitFactory unitFactory,
-        ScenarioShower scenarioShower)
+        ScenarioShower scenarioShower,
+        CommanderSelector commanderSelector)
         : IScreen {
 
         private readonly Random _random = new();
@@ -82,7 +83,9 @@ namespace LD50.Screens {
                 world.Commanders.Add(commander);
                 world.Levels[0].Units.Add(commander);
 
-                world.SelectedCommander ??= commander;
+                if (world.SelectedCommander is null) {
+                    commanderSelector.SelectCommander(commander);
+                }
 
                 world.Elements.Add(new Element {
                     Position = new Vector2(GameProperties.ScreenWidth - 8f - commanderButtonWidth, 8f + (commanderButtonHeight + 8f) * i),
@@ -95,7 +98,7 @@ namespace LD50.Screens {
                             world.CurrentLevel = commander.CurrentLevel;
                         }
                         else {
-                            world.SelectedCommander = commander;
+                            commanderSelector.SelectCommander(commander);
                         }
                     },
                     IsHighlighted = () => world.SelectedCommander == commander,
@@ -110,94 +113,6 @@ namespace LD50.Screens {
 
             const float elementWidth = 150f;
 
-            world.Elements.Add(new Element {
-                Position = new Vector2(8f + (elementWidth + 8f) * 0f, 600f - 8f - 50f),
-                Size = new Vector2(elementWidth, 50f),
-                Label = "Buy Batter\nCost: $50",
-                IsVisible = () => world.SelectedCommander?.Name == "Alphonso",
-                OnClick = () => {
-                    if (world.SelectedCommander is null || world.PlayerMoney < 50) {
-                        return;
-                    }
-
-                    Unit unit = unitFactory.CreateUnit(@"Units\batter.json") with {
-                        Team = Team.Player,
-                        Commander = world.SelectedCommander,
-                    };
-                    unit.Entity.Position = world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
-
-                    world.PlayerMoney -= 50;
-                    world.CurrentLevel.Units.Add(unit);
-                    world.SelectedCommander.Minions.Add(unit);
-                },
-                Binding = BindingId.Action1,
-            });
-            world.Elements.Add(new Element {
-                Position = new Vector2(8f + (elementWidth + 8f) * 1f, 600f - 8f - 50f),
-                Size = new Vector2(elementWidth, 50f),
-                Label = "Buy Gunner\nCost: $100",
-                IsVisible = () => world.SelectedCommander?.Name == "Alphonso",
-                OnClick = () => {
-                    if (world.SelectedCommander is null || world.PlayerMoney < 100) {
-                        return;
-                    }
-
-                    Unit unit = unitFactory.CreateUnit(@"Units\gunner.json") with {
-                        Team = Team.Player,
-                        Commander = world.SelectedCommander,
-                    };
-                    unit.Entity.Position = world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
-
-                    world.PlayerMoney -= 100;
-                    world.CurrentLevel.Units.Add(unit);
-                    world.SelectedCommander.Minions.Add(unit);
-                },
-                Binding = BindingId.Action2,
-            });
-            world.Elements.Add(new Element {
-                Position = new Vector2(8f + (elementWidth + 8f) * 0f, 600f - 8f - 50f),
-                Size = new Vector2(elementWidth, 50f),
-                Label = "Buy Pistolier\nCost: $100",
-                IsVisible = () => world.SelectedCommander?.Name == "Marissa",
-                OnClick = () => {
-                    if (world.SelectedCommander is null || world.PlayerMoney < 100) {
-                        return;
-                    }
-
-                    Unit unit = unitFactory.CreateUnit(@"Units\pistol_woman.json") with {
-                        Team = Team.Player,
-                        Commander = world.SelectedCommander,
-                    };
-                    unit.Entity.Position = world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
-
-                    world.PlayerMoney -= 100;
-                    world.CurrentLevel.Units.Add(unit);
-                    world.SelectedCommander.Minions.Add(unit);
-                },
-                Binding = BindingId.Action1,
-            });
-            world.Elements.Add(new Element {
-                Position = new Vector2(8f + (elementWidth + 8f) * 1f, 600f - 8f - 50f),
-                Size = new Vector2(elementWidth, 50f),
-                Label = "Buy Rifler\nCost: $125",
-                IsVisible = () => world.SelectedCommander?.Name == "Marissa",
-                OnClick = () => {
-                    if (world.SelectedCommander is null || world.PlayerMoney < 125) {
-                        return;
-                    }
-
-                    Unit unit = unitFactory.CreateUnit(@"Units\rifle_woman.json") with {
-                        Team = Team.Player,
-                        Commander = world.SelectedCommander,
-                    };
-                    unit.Entity.Position = world.SelectedCommander.Entity.Position + AngleToVector(_random.NextSingle() * MathHelper.TwoPi) * 50f;
-
-                    world.PlayerMoney -= 125;
-                    world.CurrentLevel.Units.Add(unit);
-                    world.SelectedCommander.Minions.Add(unit);
-                },
-                Binding = BindingId.Action2,
-            });
             world.Elements.Add(new Element {
                 Position = new Vector2(8f + (elementWidth + 8f) * 2f, 600f - 8f - 50f),
                 Size = new Vector2(elementWidth, 50f),
@@ -271,10 +186,6 @@ namespace LD50.Screens {
 
         public void Hide() {
             world.Reset();
-        }
-
-        private Vector2 AngleToVector(float angle) {
-            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
         }
     }
 }

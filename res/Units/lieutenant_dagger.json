@@ -6,6 +6,8 @@
     "This won't be easy.",
     "I'll need an extra sharp blade for this one..."
   ],
+  "Minion1": "Units/pistol_woman.json",
+  "Minion2": "Units/rifle_woman.json",
   "Mass": 5,
   "Texture": "Textures/Lieutenant2 Test 1",
   "Health": 200,

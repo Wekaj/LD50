@@ -76,6 +76,15 @@ namespace LD50.Screens {
 
             AddIncrementalElement(
                 new Vector2(8f + 308f, y),
+                "Cost",
+                () => unitProfile.Cost.ToString(),
+                () => unitProfile.Cost++,
+                () => unitProfile.Cost--);
+
+            y += 22f;
+
+            AddIncrementalElement(
+                new Vector2(8f + 308f, y),
                 "Health",
                 () => unitProfile.Health.ToString(),
                 () => unitProfile.Health++,

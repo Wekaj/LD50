@@ -1,5 +1,6 @@
 {
-  "Name": null,
+  "Name": "Pistolier",
+  "Cost": 100,
   "Portrait": null,
   "StrongEnemyQuotes": [],
   "Mass": 1,
