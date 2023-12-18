@@ -28,17 +28,6 @@ namespace LD50.Screens {
 
         private Texture2D _pixelTexture;
         private Texture2D _circleTexture;
-        private Texture2D _gunnerTexture;
-        private Texture2D _batterTexture;
-        private Texture2D _pistolWomanTexture;
-        private Texture2D _rifleWomanTexture;
-        private Texture2D _minigunLieutenantTexture;
-        private Texture2D _daggerLieutenantTexture;
-        private Texture2D _molotovLieutenantTexture;
-        private Texture2D _portraitAlphonsoTexture;
-        private Texture2D _portraitMarissaTexture;
-        private Texture2D _portraitPirroTexture;
-        private Texture2D _molotovTexture;
         private SpriteFont _font;
 
         private readonly Random _random = new();

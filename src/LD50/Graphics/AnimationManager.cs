@@ -1,6 +1,6 @@
 ﻿namespace LD50.Graphics {
-    public class AnimationManager : IStartupHandler {
-        public void OnStartup() {
+    public class AnimationManager {
+        public AnimationManager() {
             GunnerAttacking = new Animation()
                 .AddFrame("Textures/Gunner_Attack Test 1", 0.1f)
                 .AddFrame("Textures/Gunner_Attack2 Test 1", 0.1f)
