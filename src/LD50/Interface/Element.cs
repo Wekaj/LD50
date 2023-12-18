@@ -1,6 +1,5 @@
 ﻿using LD50.Input;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace LD50.Interface {

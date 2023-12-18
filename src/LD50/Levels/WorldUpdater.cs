@@ -92,7 +92,7 @@ namespace LD50.Levels {
 
             interfaceActions.Update(world);
 
-            if (world.CurrentScenario is null) {
+            if (world.Levels.Count > 0 && world.CurrentScenario is null) {
                 for (int i = 0; i < world.Levels.Count; i++) {
                     UpdateLevel(world.Levels[i], deltaTimeSource.Latest);
                 }
