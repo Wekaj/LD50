@@ -15,13 +15,13 @@ namespace LD50.Entities {
 
     public record UnitProfile {
         public string? Name { get; init; }
-        public string? Portrait { get; init; }
+        public string? Portrait { get; set; }
         public int Cost { get; set; }
         public List<string> StrongEnemyQuotes { get; init; } = [];
-        public string? Minion1 { get; init; }
-        public string? Minion2 { get; init; }
+        public string? Minion1 { get; set; }
+        public string? Minion2 { get; set; }
         public float Mass { get; set; } = 1f;
-        public string? Texture { get; init; }
+        public string? Texture { get; set; }
         public int Health { get; set; }
         public float VisionRange { get; set; }
         public float AttackRange { get; set; }

@@ -103,7 +103,7 @@ namespace LD50.Levels {
                 world.SelectedCommander.TargetUnit = null;
             }
 
-            interfaceActions.Update(world);
+            interfaceActions.Update();
 
             if (world.Levels.Count > 0 && world.CurrentScenario is null) {
                 for (int i = 0; i < world.Levels.Count; i++) {
@@ -119,7 +119,7 @@ namespace LD50.Levels {
         }
 
         private void DoSelection() {
-            if (interfaceActions.HandleMouseClick(world)) {
+            if (interfaceActions.HandleMouseClick()) {
                 return;
             }
 

@@ -15,7 +15,8 @@ namespace LD50.Screens {
         World world,
         ScreenChanger screenChanger,
         EngineEnvironment engineEnvironment,
-        AnimationManager animationManager)
+        AnimationManager animationManager,
+        ContentBrowserShower contentBrowserShower)
         : IScreen {
 
         private readonly List<Element> _selectionElements = [];
@@ -40,12 +41,11 @@ namespace LD50.Screens {
                 Label = "Unit Editor",
             });
 
-            string unitDirectory = Path.Combine(engineEnvironment.ProjectDirectory ?? "", @"res\units\");
-            string[] unitFiles = Directory.GetFiles(unitDirectory, "*.json");
+            string[] unitFiles = Directory.GetFiles(engineEnvironment.UnitDirectory, "*.json");
 
             for (int i = 0; i < unitFiles.Length; i++) {
                 string unitFile = unitFiles[i];
-                string unitName = Path.GetFileNameWithoutExtension(unitFile);
+                string unitName = Path.ChangeExtension(Path.GetRelativePath(engineEnvironment.UnitDirectory, unitFile), null);
 
                 world.Elements.Add(new Element {
                     Position = new Vector2(8f, 8f + 28f + 22f * i),
@@ -76,11 +76,18 @@ namespace LD50.Screens {
 
             var position = new Vector2(8f + 308f, 8f + 28f);
 
-            _selectionElements.Add(new Element {
+            var textureButton = new Element {
                 Position = position,
                 Size = new Vector2(120f, 120f),
                 Image = unitProfile.Texture,
-            });
+                Label = "Idle",
+            };
+            textureButton.OnClick = () => contentBrowserShower.ShowTextureBrowser(
+                texture => {
+                    unitProfile.Texture = texture;
+                    textureButton.Image = texture;
+                });
+            _selectionElements.Add(textureButton);
 
             _selectionElements.Add(new Element {
                 Position = position + new Vector2(122f, 0f),
@@ -88,14 +95,22 @@ namespace LD50.Screens {
                 Animation = new ActiveAnimation(animationManager.Animations[unitProfile.AttackingAnimation]) {
                     IsLooping = true,
                 },
+                Label = "Attack",
             });
 
-            _selectionElements.Add(new Element {
+            var portraitButton = new Element {
                 Position = position + new Vector2(122f * 2f, 0f),
                 Size = new Vector2(120f, 120f),
                 Image = unitProfile.Portrait,
                 ImageScale = new Vector2(0.5f),
-            });
+                Label = "Portrait",
+            };
+            portraitButton.OnClick = () => contentBrowserShower.ShowTextureBrowser(
+                texture => {
+                    unitProfile.Portrait = texture;
+                    portraitButton.Image = texture;
+                });
+            _selectionElements.Add(portraitButton);
 
             position.Y += 122f;
 
@@ -112,6 +127,28 @@ namespace LD50.Screens {
                 () => unitProfile.Cost.ToString(),
                 () => unitProfile.Cost++,
                 () => unitProfile.Cost--);
+
+            position.Y += 22f;
+
+            AddValueElement(
+                position,
+                "Minion 1",
+                () => unitProfile.Minion1?.GetContentName() ?? "",
+                callback => contentBrowserShower.ShowUnitBrowser(unit => {
+                    unitProfile.Minion1 = unit;
+                    callback();
+                }));
+
+            position.Y += 22f;
+
+            AddValueElement(
+                position,
+                "Minion 2",
+                () => unitProfile.Minion2?.GetContentName() ?? "",
+                callback => contentBrowserShower.ShowUnitBrowser(unit => {
+                    unitProfile.Minion2 = unit;
+                    callback();
+                }));
 
             position.Y += 22f;
 
@@ -278,6 +315,27 @@ namespace LD50.Screens {
                     label.Label = $"{name}: {getValue()}";
                 },
             });
+        }
+
+        private void AddValueElement(Vector2 position, string name, Func<string> getValue, Action<Action> changeValue) {
+            var label = new Element {
+                Position = position,
+                Size = new Vector2(300f, 20f),
+                Label = $"{name}:",
+            };
+            _selectionElements.Add(label);
+
+            var value = new Element {
+                Position = position + new Vector2(302f, 0f),
+                Size = new Vector2(300f, 20f),
+                Label = getValue(),
+            };
+            value.OnClick = () => {
+                changeValue(() => {
+                    value.Label = getValue();
+                });
+            };
+            _selectionElements.Add(value);
         }
 
         private void AddToggleElement(Vector2 position, string name, Func<string> getValue, Action toggle) {

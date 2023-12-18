@@ -6,9 +6,11 @@ using LD50.Levels;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace LD50.Interface {
     public class InterfaceActions(
+        World world,
         XnaMouse mouse,
         InputBindings bindings,
         IGraphicsDeviceSource graphicsDeviceSource,
@@ -18,34 +20,26 @@ namespace LD50.Interface {
 
         private SpriteBatch _spriteBatch;
 
-        private Texture2D _pixelTexture;
-        private SpriteFont _font;
+        private Texture2D PixelTexture => content.Load<Texture2D>("Textures/pixel");
+        private SpriteFont Font => content.Load<SpriteFont>("Fonts/font");
 
         public void Initialize() {
             _spriteBatch = new SpriteBatch(graphicsDeviceSource.GraphicsDevice);
-
-            _pixelTexture = content.Load<Texture2D>("Textures/pixel");
-            _font = content.Load<SpriteFont>("Fonts/font");
         }
 
-        public void Update(World world) {
-            for (int i = 0; i < world.Elements.Count; i++) {
-                Element element = world.Elements[i];
+        public void Update() {
+            UpdateElements(world.Elements, world.Popups.Count == 0);
 
-                if (element.IsVisible() && element.OnClick is not null && element.Binding.HasValue && bindings.JustReleased(element.Binding.Value)) {
-                    element.OnClick.Invoke();
-                }
-
-                if (element.Animation is not null) {
-                    element.Animation.Update(deltaTimeSource.Latest);
-                    element.Image = element.Animation.Apply() ?? element.Image;
-                }
+            for (int i = 0; i < world.Popups.Count; i++) {
+                UpdateElements(world.Popups[i].Elements, i == world.Popups.Count - 1);
             }
         }
 
-        public bool HandleMouseClick(World world) {
-            for (int i = 0; i < world.Elements.Count; i++) {
-                Element element = world.Elements[i];
+        public bool HandleMouseClick() {
+            List<Element> activeElements = GetActiveElements();
+
+            for (int i = 0; i < activeElements.Count; i++) {
+                Element element = activeElements[i];
 
                 if (element.IsVisible() && element.OnClick is not null && MouseIntersectsElement(element)) {
                     element.OnClick.Invoke();
@@ -56,15 +50,13 @@ namespace LD50.Interface {
             return false;
         }
 
-        public void DrawInterface(World world) {
+        public void DrawInterface() {
             _spriteBatch.Begin();
 
             string moneyString = $"${world.PlayerMoney}";
-            _spriteBatch.DrawString(_font, moneyString, new Vector2(8f, 600f - 8f - 50f - 8f - _font.MeasureString(moneyString).Y), Color.Black);
+            _spriteBatch.DrawString(Font, moneyString, new Vector2(8f, 600f - 8f - 50f - 8f - Font.MeasureString(moneyString).Y), Color.Black);
 
-            for (int i = 0; i < world.Elements.Count; i++) {
-                DrawElement(world.Elements[i]);
-            }
+            DrawElements(world.Elements, world.Popups.Count == 0);
             
             for (int i = 0; i < world.Commanders.Count; i++) {
                 Unit commander = world.Commanders[i];
@@ -73,10 +65,10 @@ namespace LD50.Interface {
                     continue;
                 }
 
-                Vector2 dialogueSize = _font.MeasureString(commander.Dialogue);
+                Vector2 dialogueSize = Font.MeasureString(commander.Dialogue);
 
                 _spriteBatch.Draw(
-                    _pixelTexture,
+                    PixelTexture,
                     new Vector2(960f - 8f - 120f - dialogueSize.X, 8f + (120f + 8f) * i),
                     null,
                     Color.Black * 0.5f,
@@ -87,21 +79,54 @@ namespace LD50.Interface {
                     0f);
 
                 _spriteBatch.DrawString(
-                    _font,
+                    Font,
                     commander.Dialogue,
                     new Vector2(960f - 8f - 120f - dialogueSize.X, 8f + (120f + 8f) * i),
                     Color.White);
             }
 
+            for (int i = 0; i < world.Popups.Count; i++) {
+                DrawElements(world.Popups[i].Elements, i == world.Popups.Count - 1);
+            }
+
             _spriteBatch.End();
         }
 
-        private void DrawElement(Element element) {
+        private List<Element> GetActiveElements() {
+            if (world.Popups.Count == 0) {
+                return world.Elements;
+            }
+
+            return world.Popups[^1].Elements;
+        }
+
+        private void UpdateElements(List<Element> elements, bool groupIsActive) {
+            for (int i = 0; i < elements.Count; i++) {
+                Element element = elements[i];
+
+                if (groupIsActive && element.IsVisible() && element.OnClick is not null && element.Binding.HasValue && bindings.JustReleased(element.Binding.Value)) {
+                    element.OnClick.Invoke();
+                }
+
+                if (element.Animation is not null) {
+                    element.Animation.Update(deltaTimeSource.Latest);
+                    element.Image = element.Animation.Apply() ?? element.Image;
+                }
+            }
+        }
+
+        private void DrawElements(List<Element> elements, bool groupIsActive) {
+            for (int i = 0; i < elements.Count; i++) {
+                DrawElement(elements[i], groupIsActive);
+            }
+        }
+
+        private void DrawElement(Element element, bool groupIsActive) {
             if (!element.IsVisible()) {
                 return;
             }
             
-            Color backgroundColor = Color.Black * 0.5f;
+            Color backgroundColor = element.BackgroundColor;
             Color labelColor = Color.White;
 
             if (element.IsHighlighted()) {
@@ -109,7 +134,7 @@ namespace LD50.Interface {
                 labelColor = Color.Black;
             }
 
-            if (element.OnClick is not null) {
+            if (groupIsActive && element.OnClick is not null) {
                 bool mouseIntersects = MouseIntersectsElement(element);
 
                 if (mouseIntersects) {
@@ -124,7 +149,7 @@ namespace LD50.Interface {
             }
 
             _spriteBatch.Draw(
-                _pixelTexture,
+                PixelTexture,
                 element.Position,
                 null,
                 backgroundColor,
@@ -136,13 +161,13 @@ namespace LD50.Interface {
 
             if (element.IsTextBlock) {
                 _spriteBatch.DrawString(
-                    _font,
-                    element.Label.WrapText(_font, element.Size.X - element.Margin * 2f),
+                    Font,
+                    element.Label.WrapText(Font, element.Size.X - element.Margin * 2f),
                     Vector2.Floor(element.Position + new Vector2(element.Margin)),
                     labelColor);
             }
             else {
-                Vector2 labelSize = _font.MeasureString(element.Label);
+                Vector2 labelSize = Font.MeasureString(element.Label);
 
                 float height = labelSize.Y;
 
@@ -169,7 +194,7 @@ namespace LD50.Interface {
                 }
                 
                 _spriteBatch.DrawString(
-                    _font,
+                    Font,
                     element.Label,
                     Vector2.Floor(position - new Vector2(labelSize.X / 2f, 0f)),
                     labelColor);

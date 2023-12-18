@@ -18,6 +18,8 @@ namespace LD50.Levels {
         public List<Element> ScenarioElements { get; } = [];
         public List<Element> SelectedCommanderElements { get; } = [];
 
+        public List<Popup> Popups { get; } = [];
+
         public List<Unit> Commanders { get; } = [];
         public Unit? SelectedCommander { get; set; }
         public Skill? CurrentSkill { get; set; }

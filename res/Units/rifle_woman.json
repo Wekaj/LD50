@@ -1,6 +1,11 @@
 {
   "Name": "Rifler",
+  "Portrait": null,
   "Cost": 125,
+  "StrongEnemyQuotes": [],
+  "Minion1": null,
+  "Minion2": null,
+  "Mass": 1,
   "Texture": "Textures/RifleWoman Test 1",
   "Health": 60,
   "VisionRange": 250,
@@ -9,6 +14,7 @@
   "AttackStun": 0.5,
   "AttackTicks": 1,
   "AttackCooldown": 3,
+  "ThrowsMolotovs": false,
   "AttackingAnimation": "RifleWomanAttacking",
   "Formation": "Group"
 }

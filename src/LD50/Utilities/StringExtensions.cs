@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.IO;
 using System.Text;
 
 namespace LD50.Utilities {
@@ -24,6 +25,14 @@ namespace LD50.Utilities {
             }
 
             return sb.ToString();
+        }
+
+        public static string GetContentName(this string path) {
+            path = path.Replace('/', '\\');
+            
+            path = path[(path.IndexOf('\\') + 1)..];
+
+            return Path.GetFileNameWithoutExtension(path);
         }
     }
 }

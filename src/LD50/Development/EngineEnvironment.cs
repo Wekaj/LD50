@@ -6,6 +6,8 @@ namespace LD50.Development {
 
         public string? ProjectDirectory { get; private set; }
 
+        public string UnitDirectory { get; private set; } = "";
+
         public void OnStartup() {
             if (runArguments.ProjectDirectory is null) {
                 return;
@@ -16,6 +18,8 @@ namespace LD50.Development {
             if (!Directory.Exists(ProjectDirectory)) {
                 throw new DirectoryNotFoundException($"Project directory not found: {ProjectDirectory}");
             }
+
+            UnitDirectory = Path.Combine(ProjectDirectory, @"res\Units\");
         }
     }
 }

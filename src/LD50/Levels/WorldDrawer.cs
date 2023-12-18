@@ -62,7 +62,7 @@ namespace LD50.Levels {
                 _spriteBatch.Value.End();
             }
 
-            interfaceActions.DrawInterface(world);
+            interfaceActions.DrawInterface();
         }
 
         private void DrawEntity(Entity entity) {

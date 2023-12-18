@@ -1,10 +1,11 @@
 {
   "Name": "Marissa",
-  "Portrait": "Textures/Lieutenant2_Portrait2 Test 1",
+  "Portrait": "Textures\\Lieutenant2_Portrait2 Test 1",
+  "Cost": 0,
   "StrongEnemyQuotes": [
     "No time for breaks, huh...",
-    "This won't be easy.",
-    "I'll need an extra sharp blade for this one..."
+    "This won\u0027t be easy.",
+    "I\u0027ll need an extra sharp blade for this one..."
   ],
   "Minion1": "Units/pistol_woman.json",
   "Minion2": "Units/rifle_woman.json",
@@ -15,6 +16,9 @@
   "AttackRange": 300,
   "AttackDamage": 20,
   "AttackStun": 0.025,
+  "AttackTicks": 1,
   "AttackCooldown": 0.5,
-  "AttackingAnimation": "DaggerLieutenantAttacking"
+  "ThrowsMolotovs": false,
+  "AttackingAnimation": "DaggerLieutenantAttacking",
+  "Formation": "FrontArc"
 }

@@ -83,6 +83,7 @@ namespace LD50 {
             container.RegisterSingleton<CommanderSelector>();
 
             container.RegisterSingleton<EngineEnvironment>();
+            container.RegisterSingleton<ContentBrowserShower>();
 
             container.Verify();
 

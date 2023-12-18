@@ -17,5 +17,6 @@ namespace LD50.Interface {
         public Func<bool> IsHighlighted { get; set; } = () => false;
         public Func<bool> IsVisible { get; set; } = () => true;
         public BindingId? Binding { get; set; }
+        public Color BackgroundColor { get; set; } = Color.Black * 0.5f;
     }
 }
