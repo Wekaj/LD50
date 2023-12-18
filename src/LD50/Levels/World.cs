@@ -20,5 +20,22 @@ namespace LD50.Levels {
         public List<Unit> Commanders { get; } = [];
         public Unit? SelectedCommander { get; set; }
         public Skill? CurrentSkill { get; set; }
+
+        public void Reset() {
+            Levels.Clear();
+            CurrentLevel = null;
+
+            PlayerMoney = 1000;
+
+            CurrentScenario = null;
+            ScenarioTimer = 0f;
+            ScenarioElements.Clear();
+
+            Elements.Clear();
+
+            Commanders.Clear();
+            SelectedCommander = null;
+            CurrentSkill = null;
+        }
     }
 }

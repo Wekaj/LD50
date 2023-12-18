@@ -1,7 +1,8 @@
 ﻿using LD50;
 using SimpleInjector;
 
-using Container container = CompositionRoot.CreateContainer();
+var runArguments = RunArguments.FromArray(args);
+using Container container = CompositionRoot.CreateContainer(runArguments);
 
 var startupHandler = container.GetInstance<IStartupHandler>();
 startupHandler.OnStartup();

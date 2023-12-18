@@ -1,4 +1,5 @@
 ﻿using LD50.Content;
+using LD50.Development;
 using LD50.Entities;
 using LD50.Graphics;
 using LD50.Input;
@@ -8,12 +9,15 @@ using LD50.Screens;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
 using SimpleInjector;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace LD50 {
     public static class CompositionRoot {
-        public static Container CreateContainer() {
+        public static Container CreateContainer(RunArguments runArguments) {
             var container = new Container();
+
+            container.RegisterInstance(runArguments);
 
             container.RegisterSingleton<Game, LD50Game>();
             container.RegisterSingleton<IGameEvents, LD50Game>();
@@ -33,7 +37,6 @@ namespace LD50 {
                 new[] {
                     typeof(XnaMouse),
                     typeof(InputBindings),
-                    typeof(ScreenManager),
                     typeof(WorldUpdater),
                 },
                 Lifestyle.Singleton);
@@ -44,7 +47,6 @@ namespace LD50 {
 
             container.Collection.Register<IDrawable>(
                 new[] {
-                    typeof(ScreenManager),
                     typeof(WorldDrawer),
                 },
                 Lifestyle.Singleton);
@@ -56,8 +58,16 @@ namespace LD50 {
             container.RegisterSingleton<XnaMouse>();
             container.RegisterSingleton<InterfaceActions>();
 
-            container.RegisterSingleton<GameScreen>();
+            container.RegisterSingleton<ScreenChanger>();
             container.RegisterSingleton<ScreenManager>();
+
+            var gameScreenProducer = Lifestyle.Singleton.CreateProducer<IScreen, GameScreen>(container);
+            var engineScreenProducer = Lifestyle.Singleton.CreateProducer<IScreen, EngineScreen>(container);
+            container.RegisterSingleton<IDictionary<ScreenType, IScreen>>(
+                () => new Dictionary<ScreenType, IScreen> {
+                    [ScreenType.Game] = gameScreenProducer.GetInstance(),
+                    [ScreenType.Engine] = engineScreenProducer.GetInstance(),
+                });
 
             container.RegisterSingleton<UpdateInfo>();
             container.RegisterSingleton<IGameTimeSource, UpdateInfo>();
@@ -68,6 +78,10 @@ namespace LD50 {
             container.RegisterSingleton<World>();
             container.RegisterSingleton<ScenarioShower>();
             container.RegisterSingleton<UnitFactory>();
+
+            container.RegisterSingleton<EngineEnvironment>();
+
+            container.Verify();
 
             return container;
         }

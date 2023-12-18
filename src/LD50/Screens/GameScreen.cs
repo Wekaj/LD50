@@ -12,7 +12,7 @@ namespace LD50.Screens {
         World world,
         UnitFactory unitFactory,
         ScenarioShower scenarioShower)
-        : IScreen, IInitializable {
+        : IScreen {
 
         private readonly Random _random = new();
 
@@ -23,29 +23,25 @@ namespace LD50.Screens {
             "Back Alleys"
         ];
 
-        private Skill _bloodSpikes;
+        private readonly Skill _bloodSpikes = new() {
+            IsValidTarget = target => target.Team == Team.Player,
+            Use = target => {
+                const float radius = 100f;
 
-        public void Initialize() {
-            _bloodSpikes = new Skill {
-                IsValidTarget = target => target.Team == Team.Player,
-                Use = target => {
-                    const float radius = 100f;
+                // Reduce the unit's health and damage all nearby units.
+                target.Health -= 30;
 
-                    // Reduce the unit's health and damage all nearby units.
-                    target.Health -= 30;
+                if (world.CurrentLevel is not null) {
+                    for (int i = 0; i < world.CurrentLevel.Units.Count; i++) {
+                        Unit unit = world.CurrentLevel.Units[i];
 
-                    if (world.CurrentLevel is not null) {
-                        for (int i = 0; i < world.CurrentLevel.Units.Count; i++) {
-                            Unit unit = world.CurrentLevel.Units[i];
-
-                            if (unit.Team != Team.Player && Vector2.DistanceSquared(unit.Entity.Position, target.Entity.Position) < radius * radius) {
-                                unit.Health -= 60;
-                            }
+                        if (unit.Team != Team.Player && Vector2.DistanceSquared(unit.Entity.Position, target.Entity.Position) < radius * radius) {
+                            unit.Health -= 60;
                         }
                     }
-                },
-            };
-        }
+                }
+            },
+        };
 
         public void Show() {
             const int levels = 4;
@@ -274,12 +270,7 @@ namespace LD50.Screens {
         }
 
         public void Hide() {
-        }
-
-        public void Update(GameTime gameTime) {
-        }
-
-        public void Draw(GameTime gameTime) {
+            world.Reset();
         }
 
         private Vector2 AngleToVector(float angle) {

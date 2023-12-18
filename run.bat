@@ -1,3 +1,3 @@
 cd src\LD50\
-dotnet run
+dotnet run -- -project ..\..\
 pause
