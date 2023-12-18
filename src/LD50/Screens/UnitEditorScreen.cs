@@ -90,6 +90,13 @@ namespace LD50.Screens {
                 },
             });
 
+            _selectionElements.Add(new Element {
+                Position = position + new Vector2(122f * 2f, 0f),
+                Size = new Vector2(120f, 120f),
+                Image = unitProfile.Portrait,
+                ImageScale = new Vector2(0.5f),
+            });
+
             position.Y += 122f;
 
             AddIncrementalElement(
@@ -98,6 +105,15 @@ namespace LD50.Screens {
                 () => unitProfile.Cost.ToString(),
                 () => unitProfile.Cost++,
                 () => unitProfile.Cost--);
+
+            position.Y += 22f;
+
+            AddIncrementalElement(
+                position,
+                "Mass",
+                () => unitProfile.Mass.ToString(),
+                () => unitProfile.Mass++,
+                () => unitProfile.Mass--);
 
             position.Y += 22f;
 
@@ -112,6 +128,24 @@ namespace LD50.Screens {
 
             AddIncrementalElement(
                 position,
+                "Vision Range",
+                () => unitProfile.VisionRange.ToString(),
+                () => unitProfile.VisionRange++,
+                () => unitProfile.VisionRange--);
+
+            position.Y += 22f;
+
+            AddIncrementalElement(
+                position,
+                "Attack Range",
+                () => unitProfile.VisionRange.ToString(),
+                () => unitProfile.VisionRange++,
+                () => unitProfile.VisionRange--);
+
+            position.Y += 22f;
+
+            AddIncrementalElement(
+                position,
                 "Attack Damage",
                 () => unitProfile.AttackDamage.ToString(),
                 () => unitProfile.AttackDamage++,
@@ -121,10 +155,28 @@ namespace LD50.Screens {
 
             AddIncrementalElement(
                 position,
+                "Attack Stun",
+                () => unitProfile.AttackStun.ToString("N2"),
+                () => unitProfile.AttackStun += 0.01f,
+                () => unitProfile.AttackStun -= 0.01f);
+
+            position.Y += 22f;
+
+            AddIncrementalElement(
+                position,
                 "Attack Ticks",
                 () => unitProfile.AttackTicks.ToString(),
                 () => unitProfile.AttackTicks++,
                 () => unitProfile.AttackTicks--);
+
+            position.Y += 22f;
+
+            AddIncrementalElement(
+                position,
+                "Attack Cooldown",
+                () => unitProfile.AttackCooldown.ToString("N1"),
+                () => unitProfile.AttackCooldown += 0.1f,
+                () => unitProfile.AttackCooldown -= 0.1f);
 
             position.Y += 22f;
 
@@ -170,6 +222,18 @@ namespace LD50.Screens {
 
             _selectionElements.Add(new Element {
                 Position = position + new Vector2(302f, 0f),
+                Size = new Vector2(40f, 20f),
+                Label = "-10",
+                OnClick = () => {
+                    for (int i = 0; i < 10; i++) {
+                        decrement();
+                    }
+                    label.Label = $"{name}: {getValue()}";
+                },
+            });
+
+            _selectionElements.Add(new Element {
+                Position = position + new Vector2(302f + 42f, 0f),
                 Size = new Vector2(20f, 20f),
                 Label = "-",
                 OnClick = () => {
@@ -179,11 +243,23 @@ namespace LD50.Screens {
             });
 
             _selectionElements.Add(new Element {
-                Position = position + new Vector2(302f + 22f, 0f),
+                Position = position + new Vector2(302f + 42f + 22f, 0f),
                 Size = new Vector2(20f, 20f),
                 Label = "+",
                 OnClick = () => {
                     increment();
+                    label.Label = $"{name}: {getValue()}";
+                },
+            });
+
+            _selectionElements.Add(new Element {
+                Position = position + new Vector2(302f + 42f + 22f * 2f, 0f),
+                Size = new Vector2(40f, 20f),
+                Label = "+10",
+                OnClick = () => {
+                    for (int i = 0; i < 10; i++) {
+                        increment();
+                    }
                     label.Label = $"{name}: {getValue()}";
                 },
             });
