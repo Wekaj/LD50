@@ -1,5 +1,6 @@
 ﻿using LD50.Development;
 using LD50.Entities;
+using LD50.Graphics;
 using LD50.Interface;
 using LD50.Levels;
 using LD50.Utilities;
@@ -7,13 +8,16 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Emit;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace LD50.Screens {
     public class UnitEditorScreen(
         World world,
         ScreenChanger screenChanger,
-        EngineEnvironment engineEnvironment)
+        EngineEnvironment engineEnvironment,
+        AnimationManager animationManager)
         : IScreen {
 
         private readonly List<Element> _selectionElements = [];
@@ -72,54 +76,70 @@ namespace LD50.Screens {
                 unitProfile = JsonSerializer.Deserialize<UnitProfile>(stream, _jsonSerializerOptions)!;
             }
 
-            float y = 8f + 28f;
+            var position = new Vector2(8f + 308f, 8f + 28f);
+
+            _selectionElements.Add(new Element {
+                Position = position,
+                Size = new Vector2(120f, 120f),
+                Image = unitProfile.Texture,
+            });
+
+            _selectionElements.Add(new Element {
+                Position = position + new Vector2(122f, 0f),
+                Size = new Vector2(120f, 120f),
+                Animation = new ActiveAnimation(animationManager.Animations[unitProfile.AttackingAnimation]) {
+                    IsLooping = true,
+                },
+            });
+
+            position.Y += 122f;
 
             AddIncrementalElement(
-                new Vector2(8f + 308f, y),
+                position,
                 "Cost",
                 () => unitProfile.Cost.ToString(),
                 () => unitProfile.Cost++,
                 () => unitProfile.Cost--);
 
-            y += 22f;
+            position.Y += 22f;
 
             AddIncrementalElement(
-                new Vector2(8f + 308f, y),
+                position,
                 "Health",
                 () => unitProfile.Health.ToString(),
                 () => unitProfile.Health++,
                 () => unitProfile.Health--);
 
-            y += 22f;
+            position.Y += 22f;
 
             AddIncrementalElement(
-                new Vector2(8f + 308f, y),
+                position,
                 "Attack Damage",
                 () => unitProfile.AttackDamage.ToString(),
                 () => unitProfile.AttackDamage++,
                 () => unitProfile.AttackDamage--);
 
-            y += 22f;
+            position.Y += 22f;
 
             AddIncrementalElement(
-                new Vector2(8f + 308f, y),
+                position,
                 "Attack Ticks",
                 () => unitProfile.AttackTicks.ToString(),
                 () => unitProfile.AttackTicks++,
                 () => unitProfile.AttackTicks--);
 
-            y += 22f;
+            position.Y += 22f;
 
             AddToggleElement(
-                new Vector2(8f + 308f, y),
+                position,
                 "Throws Molotovs",
                 () => unitProfile.ThrowsMolotovs.ToString(),
                 () => unitProfile.ThrowsMolotovs = !unitProfile.ThrowsMolotovs);
 
-            y += 28f;
+            position.Y += 28f;
 
             _selectionElements.Add(new Element {
-                Position = new Vector2(8f + 308f, y),
+                Position = position,
                 Size = new Vector2(300f, 20f),
                 Label = "Save Changes",
                 OnClick = () => {

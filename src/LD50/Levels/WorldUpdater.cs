@@ -288,7 +288,7 @@ namespace LD50.Levels {
                     unit.Entity.Texture = unit.DefaultTexture;
                 }
                 else {
-                    unit.Animation.Apply(unit.Entity);
+                    unit.Entity.Texture = unit.Animation.Apply() ?? unit.Entity.Texture;
                 }
             }
 

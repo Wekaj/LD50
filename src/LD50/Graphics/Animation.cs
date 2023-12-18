@@ -8,8 +8,6 @@ namespace LD50.Graphics {
 
         public float Duration { get; private set; }
 
-        public bool IsLooping { get; set; }
-
         public Animation AddFrame(string texture, float duration) {
             _frames.Add(new Frame(texture, duration));
             Duration += duration;
@@ -19,10 +17,6 @@ namespace LD50.Graphics {
         public string? GetFrame(float time) {
             if (_frames.Count == 0) {
                 return null;
-            }
-
-            if (IsLooping) {
-                time %= Duration;
             }
 
             for (int i = 0; i < _frames.Count - 1; i++) {

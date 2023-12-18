@@ -12,6 +12,7 @@ namespace LD50.Interface {
         XnaMouse mouse,
         InputBindings bindings,
         IGraphicsDeviceSource graphicsDeviceSource,
+        IDeltaTimeSource deltaTimeSource,
         IContentManager content)
         : IInitializable {
 
@@ -33,6 +34,11 @@ namespace LD50.Interface {
 
                 if (element.IsVisible() && element.OnClick is not null && element.Binding.HasValue && bindings.JustReleased(element.Binding.Value)) {
                     element.OnClick.Invoke();
+                }
+
+                if (element.Animation is not null) {
+                    element.Animation.Update(deltaTimeSource.Latest);
+                    element.Image = element.Animation.Apply() ?? element.Image;
                 }
             }
         }
