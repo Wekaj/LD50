@@ -194,9 +194,9 @@ namespace LD50.Screens {
             AddIncrementalElement(
                 position,
                 "Attack Range",
-                () => unitProfile.VisionRange.ToString(),
-                () => unitProfile.VisionRange++,
-                () => unitProfile.VisionRange--);
+                () => unitProfile.AttackRange.ToString(),
+                () => unitProfile.AttackRange++,
+                () => unitProfile.AttackRange--);
 
             position.Y += 22f;
 
