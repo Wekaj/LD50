@@ -99,6 +99,13 @@ namespace LD50.Screens {
 
             position.Y += 122f;
 
+            AddLabelElement(
+                position,
+                "Name",
+                () => unitProfile.Name ?? "");
+
+            position.Y += 22f;
+
             AddIncrementalElement(
                 position,
                 "Cost",
@@ -210,6 +217,14 @@ namespace LD50.Screens {
             });
 
             world.Elements.AddRange(_selectionElements);
+        }
+
+        private void AddLabelElement(Vector2 position, string name, Func<string> getValue) {
+            _selectionElements.Add(new Element {
+                Position = position,
+                Size = new Vector2(300f, 20f),
+                Label = $"{name}: {getValue()}",
+            });
         }
 
         private void AddIncrementalElement(Vector2 position, string name, Func<string> getValue, Action increment, Action decrement) {
