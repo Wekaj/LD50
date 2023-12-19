@@ -10,9 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
 
 namespace LD50.Levels {
     public class WorldUpdater(
@@ -33,30 +31,37 @@ namespace LD50.Levels {
         private readonly List<Scenario> _scenarios = [];
 
         public void OnStartup() {
-            Scenario guyScenario = null;
-            guyScenario = new Scenario {
+            var guyScenario = new Scenario {
                 Description = "A guy comes up to you and asks to join your gang for $100. The crowd of guys behind him watch with intrigue.",
-                Choices = {
-                    new Choice {
-                        Label = "Give him the money.",
-                        Action = world => {
-                            if (world.PlayerMoney < 100) {
-                                scenarioShower.ShowScenario(new Scenario {
-                                    Description = "It turns out you don't even have $100. He scoffs and walks away.",
-                                });
-                                return;
-                            }
-
-                            world.PlayerMoney -= 100;
-
-                            Unit recruit = unitFactory.CreateUnit(world.CurrentLevel) with {
-                                Team = Team.Player,
-                            };
-                            world.CurrentLevel.Units.Add(recruit);
-
+            };
+            guyScenario.Choices.Add(
+                new Choice {
+                    Label = "Give him the money.",
+                    Action = world => {
+                        if (world.PlayerMoney < 100) {
                             scenarioShower.ShowScenario(new Scenario {
-                                Description = "He thanks you and mentions that one of his friends will be interested in joining too.",
-                                Choices = {
+                                Description = "It turns out you don't even have $100. He scoffs and walks away.",
+                            });
+                            return;
+                        }
+
+                        if (world.CurrentLevel is null) {
+                            scenarioShower.ShowScenario(new Scenario {
+                                Description = "It turns out your game isn't even functioning correctly. He scoffs and walks away.",
+                            });
+                            return;
+                        }
+
+                        world.PlayerMoney -= 100;
+
+                        Unit recruit = unitFactory.CreateUnit(world.CurrentLevel) with {
+                            Team = Team.Player,
+                        };
+                        world.CurrentLevel.Units.Add(recruit);
+
+                        scenarioShower.ShowScenario(new Scenario {
+                            Description = "He thanks you and mentions that one of his friends will be interested in joining too.",
+                            Choices = {
                                     new Choice {
                                         Label = "High five.",
                                         Action = world => {
@@ -72,19 +77,18 @@ namespace LD50.Levels {
                                         }
                                     },
                                 }
-                            });
-                        },
+                        });
                     },
-                    new Choice {
-                        Label = "Reject him.",
-                        Action = world => {
-                            scenarioShower.ShowScenario(new Scenario {
-                                Description = "Booing and expletives erupt from the crowd of guys and they all walk away.",
-                            });
-                        },
+                });
+            guyScenario.Choices.Add(
+                new Choice {
+                    Label = "Reject him.",
+                    Action = world => {
+                        scenarioShower.ShowScenario(new Scenario {
+                            Description = "Booing and expletives erupt from the crowd of guys and they all walk away.",
+                        });
                     },
-                },
-            };
+                });
             _scenarios.Add(guyScenario);
         }
 
@@ -344,7 +348,7 @@ namespace LD50.Levels {
                         unit.Animation = unit.AttackingAnimation.Play();
 
                         if (unit.AttackTicks > 1) {
-                            unit.AttackTickTimer = unit.AttackingAnimation.Duration / (unit.AttackTicks - 1);
+                            unit.AttackTickTimer = unit.AttackingAnimation.GetDuration() / (unit.AttackTicks - 1);
                             unit.AttackingUnit = unit.TargetUnit;
                             unit.RemainingTicks = unit.AttackTicks - 1;
                         }
@@ -358,7 +362,10 @@ namespace LD50.Levels {
                 if (unit.AttackTickTimer <= 0f) {
                     Attack(unit, unit.AttackingUnit, level);
 
-                    unit.AttackTickTimer += unit.AttackingAnimation.Duration / (unit.AttackTicks - 1);
+                    if (unit.AttackingAnimation is not null) {
+                        unit.AttackTickTimer += unit.AttackingAnimation.GetDuration() / (unit.AttackTicks - 1);
+                    }
+
                     unit.RemainingTicks--;
                 }
             }

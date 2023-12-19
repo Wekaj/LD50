@@ -54,14 +54,14 @@ namespace LD50.Screens {
                 Position = new Vector2(8f, 8f + 22f + 28f + 52f),
                 Size = new Vector2(300f, 50f),
                 Label = "Edit Animations",
-                OnClick = () => { },
+                OnClick = () => screenChanger.ChangeScreen(new ScreenArgs(ScreenType.AnimationEditor)),
             });
 
             world.Elements.Add(new Element {
                 Position = new Vector2(8f, 8f + 22f + 28f + 52f * 2f),
                 Size = new Vector2(300f, 50f),
-                Label = "Edit Events",
-                OnClick = () => { },
+                Label = "Edit Scenarios",
+                OnClick = () => screenChanger.ChangeScreen(new ScreenArgs(ScreenType.ScenarioEditor)),
             });
         }
 

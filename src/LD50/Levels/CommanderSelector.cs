@@ -1,4 +1,5 @@
-﻿using LD50.Entities;
+﻿using LD50.Content;
+using LD50.Entities;
 using LD50.Input;
 using LD50.Interface;
 using Microsoft.Xna.Framework;
@@ -32,7 +33,7 @@ namespace LD50.Levels {
 
         private void CreateMinionButton(string minionProfile, Vector2 position, BindingId binding) {
             UnitProfile unitProfile;
-            using (FileStream stream = File.OpenRead(minionProfile)) {
+            using (FileStream stream = FileOpener.OpenContentFile(minionProfile)) {
                 unitProfile = JsonSerializer.Deserialize<UnitProfile>(stream)!;
             }
 

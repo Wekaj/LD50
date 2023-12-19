@@ -6,6 +6,7 @@ using LD50.Levels;
 using LD50.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace LD50.Interface {
@@ -15,17 +16,12 @@ namespace LD50.Interface {
         InputBindings bindings,
         IGraphicsDeviceSource graphicsDeviceSource,
         IDeltaTimeSource deltaTimeSource,
-        IContentManager content)
-        : IInitializable {
+        IContentManager content) {
 
-        private SpriteBatch _spriteBatch;
+        private readonly Lazy<SpriteBatch> _spriteBatch = new(() => new SpriteBatch(graphicsDeviceSource.GraphicsDevice));
 
         private Texture2D PixelTexture => content.Load<Texture2D>("Textures/pixel");
         private SpriteFont Font => content.Load<SpriteFont>("Fonts/font");
-
-        public void Initialize() {
-            _spriteBatch = new SpriteBatch(graphicsDeviceSource.GraphicsDevice);
-        }
 
         public void Update() {
             UpdateElements(world.Elements, world.Popups.Count == 0);
@@ -51,10 +47,10 @@ namespace LD50.Interface {
         }
 
         public void DrawInterface() {
-            _spriteBatch.Begin();
+            _spriteBatch.Value.Begin();
 
             string moneyString = $"${world.PlayerMoney}";
-            _spriteBatch.DrawString(Font, moneyString, new Vector2(8f, 600f - 8f - 50f - 8f - Font.MeasureString(moneyString).Y), Color.Black);
+            _spriteBatch.Value.DrawString(Font, moneyString, new Vector2(8f, 600f - 8f - 50f - 8f - Font.MeasureString(moneyString).Y), Color.Black);
 
             DrawElements(world.Elements, world.Popups.Count == 0);
             
@@ -67,7 +63,7 @@ namespace LD50.Interface {
 
                 Vector2 dialogueSize = Font.MeasureString(commander.Dialogue);
 
-                _spriteBatch.Draw(
+                _spriteBatch.Value.Draw(
                     PixelTexture,
                     new Vector2(960f - 8f - 120f - dialogueSize.X, 8f + (120f + 8f) * i),
                     null,
@@ -78,7 +74,7 @@ namespace LD50.Interface {
                     SpriteEffects.None,
                     0f);
 
-                _spriteBatch.DrawString(
+                _spriteBatch.Value.DrawString(
                     Font,
                     commander.Dialogue,
                     new Vector2(960f - 8f - 120f - dialogueSize.X, 8f + (120f + 8f) * i),
@@ -89,7 +85,7 @@ namespace LD50.Interface {
                 DrawElements(world.Popups[i].Elements, i == world.Popups.Count - 1);
             }
 
-            _spriteBatch.End();
+            _spriteBatch.Value.End();
         }
 
         private List<Element> GetActiveElements() {
@@ -148,7 +144,7 @@ namespace LD50.Interface {
                 }
             }
 
-            _spriteBatch.Draw(
+            _spriteBatch.Value.Draw(
                 PixelTexture,
                 element.Position,
                 null,
@@ -160,7 +156,7 @@ namespace LD50.Interface {
                 0f);
 
             if (element.IsTextBlock) {
-                _spriteBatch.DrawString(
+                _spriteBatch.Value.DrawString(
                     Font,
                     element.Label.WrapText(Font, element.Size.X - element.Margin * 2f),
                     Vector2.Floor(element.Position + new Vector2(element.Margin)),
@@ -189,7 +185,7 @@ namespace LD50.Interface {
                 Vector2 position = element.Position + element.Size / 2f - new Vector2(0f, height / 2f);
 
                 if (image is not null) {
-                    _spriteBatch.Draw(
+                    _spriteBatch.Value.Draw(
                         image,
                         Vector2.Floor(position - new Vector2(image.Width * imageScale.X / 2f, 0f)),
                         null,
@@ -203,7 +199,7 @@ namespace LD50.Interface {
                     position.Y += image.Height * imageScale.Y;
                 }
                 
-                _spriteBatch.DrawString(
+                _spriteBatch.Value.DrawString(
                     Font,
                     element.Label,
                     Vector2.Floor(position - new Vector2(labelSize.X / 2f, 0f)),

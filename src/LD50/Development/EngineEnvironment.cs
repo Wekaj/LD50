@@ -6,7 +6,9 @@ namespace LD50.Development {
 
         public string? ProjectDirectory { get; private set; }
 
+        public string ContentDirectory { get; private set; } = "";
         public string UnitDirectory { get; private set; } = "";
+        public string AnimationDirectory { get; private set; } = "";
 
         public void OnStartup() {
             if (runArguments.ProjectDirectory is null) {
@@ -19,7 +21,9 @@ namespace LD50.Development {
                 throw new DirectoryNotFoundException($"Project directory not found: {ProjectDirectory}");
             }
 
-            UnitDirectory = Path.Combine(ProjectDirectory, @"res\Units\");
+            ContentDirectory = Path.Combine(ProjectDirectory, @"res\");
+            UnitDirectory = Path.Combine(ContentDirectory, @"Units\");
+            AnimationDirectory = Path.Combine(ContentDirectory, @"Animations\");
         }
     }
 }

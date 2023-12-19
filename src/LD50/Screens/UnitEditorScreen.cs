@@ -1,4 +1,5 @@
-﻿using LD50.Development;
+﻿using LD50.Content;
+using LD50.Development;
 using LD50.Entities;
 using LD50.Graphics;
 using LD50.Interface;
@@ -107,6 +108,10 @@ namespace LD50.Screens {
                         attackButton.Animation = new ActiveAnimation(animationManager.GetAnimation(animation)) {
                             IsLooping = true,
                         };
+                    }
+                    else {
+                        attackButton.Image = null;
+                        attackButton.Animation = null;
                     }
                 });
             _selectionElements.Add(attackButton);
@@ -261,7 +266,7 @@ namespace LD50.Screens {
                         JsonSerializer.Serialize(stream, unitProfile, _jsonSerializerOptions);
                     }
 
-                    File.Copy(unitFile, @$"Units\{Path.GetFileName(unitFile)}", true);
+                    FileOpener.CopyContentToExecutingDirectory(engineEnvironment, unitFile);
                 },
             });
 

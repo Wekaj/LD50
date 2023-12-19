@@ -3,6 +3,8 @@
         Game,
         Engine,
         UnitEditor,
+        AnimationEditor,
+        ScenarioEditor,
     }
 
     public readonly record struct ScreenArgs(

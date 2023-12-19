@@ -4,7 +4,7 @@
 
         public bool IsLooping { get; set; }
 
-        public bool IsFinished => !IsLooping && _timer >= animation.Duration;
+        public bool IsFinished => !IsLooping && _timer >= animation.GetDuration();
 
         public void Update(float deltaTime) {
             _timer += deltaTime;
@@ -14,10 +14,14 @@
             float time = _timer;
 
             if (IsLooping) {
-                time %= animation.Duration;
+                time %= animation.GetDuration();
             }
 
             return animation.GetFrame(time);
+        }
+
+        public void Reset() {
+            _timer = 0f;
         }
     }
 }

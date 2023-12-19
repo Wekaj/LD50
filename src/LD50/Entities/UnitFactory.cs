@@ -1,4 +1,5 @@
-﻿using LD50.Graphics;
+﻿using LD50.Content;
+using LD50.Graphics;
 using LD50.Levels;
 using Microsoft.Xna.Framework;
 using System;
@@ -10,7 +11,7 @@ namespace LD50.Entities {
         private readonly Random _random = new();
 
         public Unit CreateUnit(string unitProfileReference) {
-            using FileStream stream = File.OpenRead(unitProfileReference);
+            using FileStream stream = FileOpener.OpenContentFile(unitProfileReference);
 
             var unitProfile = JsonSerializer.Deserialize<UnitProfile>(stream)!;
 

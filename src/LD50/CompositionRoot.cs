@@ -64,11 +64,15 @@ namespace LD50 {
             var gameScreenProducer = Lifestyle.Singleton.CreateProducer<IScreen, GameScreen>(container);
             var engineScreenProducer = Lifestyle.Singleton.CreateProducer<IScreen, EngineScreen>(container);
             var unitEditorScreenProducer = Lifestyle.Singleton.CreateProducer<IScreen, UnitEditorScreen>(container);
+            var animationEditorScreenProducer = Lifestyle.Singleton.CreateProducer<IScreen, AnimationEditorScreen>(container);
+            var scenarioEditorScreenProducer = Lifestyle.Singleton.CreateProducer<IScreen, ScenarioEditorScreen>(container);
             container.RegisterSingleton<IDictionary<ScreenType, IScreen>>(
                 () => new Dictionary<ScreenType, IScreen> {
                     [ScreenType.Game] = gameScreenProducer.GetInstance(),
                     [ScreenType.Engine] = engineScreenProducer.GetInstance(),
                     [ScreenType.UnitEditor] = unitEditorScreenProducer.GetInstance(),
+                    [ScreenType.AnimationEditor] = animationEditorScreenProducer.GetInstance(),
+                    [ScreenType.ScenarioEditor] = scenarioEditorScreenProducer.GetInstance(),
                 });
 
             container.RegisterSingleton<UpdateInfo>();

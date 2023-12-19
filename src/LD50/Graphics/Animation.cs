@@ -1,20 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace LD50.Graphics {
-    public record Frame(string Texture, float Duration);
+    public record Frame {
+        public string? Texture { get; set; }
+        public float Duration { get; set; }
+    }
 
     public record Animation {
         public List<Frame> Frames { get; set; } = [];
-
-        public float Duration {
-            get {
-                float duration = 0f;
-                for (int i = 0; i < Frames.Count; i++) {
-                    duration += Frames[i].Duration;
-                }
-                return duration;
-            }
-        }
 
         public string? GetFrame(float time) {
             if (Frames.Count == 0) {
@@ -36,6 +30,14 @@ namespace LD50.Graphics {
 
         public ActiveAnimation Play() {
             return new ActiveAnimation(this);
+        }
+
+        public float GetDuration() {
+            float duration = 0f;
+            for (int i = 0; i < Frames.Count; i++) {
+                duration += Frames[i].Duration;
+            }
+            return duration;
         }
     }
 }

@@ -1,28 +1,28 @@
 {
-    "Frames": [
-        {
-            "Texture": "Textures/Gunner_Attack Test 1",
-            "Duration": 0.1
-        },
-        {
-            "Texture": "Textures/Gunner_Attack2 Test 1",
-            "Duration": 0.1
-        },
-        {
-            "Texture": "Textures/Gunner_Attack Test 1",
-            "Duration": 0.1
-        },
-        {
-            "Texture": "Textures/Gunner_Attack2 Test 1",
-            "Duration": 0.1
-        },
-        {
-            "Texture": "Textures/Gunner_Attack Test 1",
-            "Duration": 0.1
-        },
-        {
-            "Texture": "Textures/Gunner_Attack2 Test 1",
-            "Duration": 0.1
-        }
-    ]
+  "Frames": [
+    {
+      "Texture": "Textures/Gunner_Attack Test 1",
+      "Duration": 0.1
+    },
+    {
+      "Texture": "Textures/Gunner_Attack2 Test 1",
+      "Duration": 0.1
+    },
+    {
+      "Texture": "Textures/Gunner_Attack Test 1",
+      "Duration": 0.1
+    },
+    {
+      "Texture": "Textures/Gunner_Attack2 Test 1",
+      "Duration": 0.1
+    },
+    {
+      "Texture": "Textures/Gunner_Attack Test 1",
+      "Duration": 0.1
+    },
+    {
+      "Texture": "Textures/Gunner_Attack2 Test 1",
+      "Duration": 0.1
+    }
+  ]
 }
