@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace LD50.Entities {
@@ -22,6 +23,7 @@ namespace LD50.Entities {
         public string? Minion2 { get; set; }
         public float Mass { get; set; } = 1f;
         public string? Texture { get; set; }
+        public float Scale { get; set; } = 1f;
         public int Health { get; set; }
         public float VisionRange { get; set; }
         public float AttackRange { get; set; }

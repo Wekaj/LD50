@@ -11,6 +11,7 @@
   "Minion2": "Units/gunner.json",
   "Mass": 5,
   "Texture": "Textures/Lieutenant Test 1",
+  "Scale": 0.75000024,
   "Health": 300,
   "VisionRange": 300,
   "AttackRange": 300,

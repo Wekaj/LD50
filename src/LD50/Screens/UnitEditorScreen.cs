@@ -131,6 +131,15 @@ namespace LD50.Screens {
 
             position.Y += 122f;
 
+            AddIncrementalElement(
+                position,
+                "Scale",
+                () => unitProfile.Scale.ToString("N2"),
+                () => unitProfile.Scale += 0.01f,
+                () => unitProfile.Scale -= 0.01f);
+
+            position.Y += 22f;
+
             AddLabelElement(
                 position,
                 "Name",

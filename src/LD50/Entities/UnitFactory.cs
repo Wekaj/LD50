@@ -28,7 +28,7 @@ namespace LD50.Entities {
 
                     Texture = unitProfile.Texture,
                     Origin = new Vector2(0.5f, 1f),
-                    Scale = new Vector2(0.75f),
+                    Scale = new Vector2(unitProfile.Scale),
                 },
 
                 DefaultTexture = unitProfile.Texture,
