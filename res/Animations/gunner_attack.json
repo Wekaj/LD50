@@ -1,27 +1,27 @@
 {
   "Frames": [
     {
-      "Texture": "Textures/Gunner_Attack Test 1",
+      "Texture": "Textures\\Gunner_Attack",
       "Duration": 0.1
     },
     {
-      "Texture": "Textures/Gunner_Attack2 Test 1",
+      "Texture": "Textures\\Gunner_Attack2",
       "Duration": 0.1
     },
     {
-      "Texture": "Textures/Gunner_Attack Test 1",
+      "Texture": "Textures\\Gunner_Attack",
       "Duration": 0.1
     },
     {
-      "Texture": "Textures/Gunner_Attack2 Test 1",
+      "Texture": "Textures\\Gunner_Attack2",
       "Duration": 0.1
     },
     {
-      "Texture": "Textures/Gunner_Attack Test 1",
+      "Texture": "Textures\\Gunner_Attack",
       "Duration": 0.1
     },
     {
-      "Texture": "Textures/Gunner_Attack2 Test 1",
+      "Texture": "Textures\\Gunner_Attack2",
       "Duration": 0.1
     }
   ]
