@@ -1,12 +1,23 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LD50.Development;
+using Microsoft.Xna.Framework;
 
 namespace LD50.Graphics {
-    public class GraphicsDeviceManagerInitializer(GraphicsDeviceManager graphicsDeviceManager)
+    public class GraphicsDeviceManagerInitializer(
+        Game game,
+        EngineEnvironment engineEnvironment,
+        GraphicsDeviceManager graphicsDeviceManager)
         : IInitializable {
         
         public void Initialize() {
-            graphicsDeviceManager.PreferredBackBufferWidth = 960;
-            graphicsDeviceManager.PreferredBackBufferHeight = 600;
+            if (engineEnvironment.ProjectDirectory is not null) {
+                game.Window.Title = $"{GameProperties.Name} (Development Mode)";
+            }
+            else {
+                game.Window.Title = GameProperties.Name;
+            }
+
+            graphicsDeviceManager.PreferredBackBufferWidth = GameProperties.ScreenWidth;
+            graphicsDeviceManager.PreferredBackBufferHeight = GameProperties.ScreenHeight;
             graphicsDeviceManager.SynchronizeWithVerticalRetrace = true;
             graphicsDeviceManager.ApplyChanges();
         }

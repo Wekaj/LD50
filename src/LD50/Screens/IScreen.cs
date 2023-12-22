@@ -1,8 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace LD50.Screens {
+﻿namespace LD50.Screens {
     public interface IScreen {
-        void Update(GameTime gameTime);
-        void Draw(GameTime gameTime);
+        void Show(ScreenArgs args);
+        void Hide();
     }
 }

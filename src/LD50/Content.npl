@@ -50,6 +50,16 @@
       "processorParam": {
         "Quality": "Best"
       }
+    },
+    "animations": {
+      "path": "Animations/*.json",
+      "recursive": "True",
+      "action": "copy"
+    },
+    "units": {
+      "path": "Units/*.json",
+      "recursive": "True",
+      "action": "copy"
     }
   }
 }

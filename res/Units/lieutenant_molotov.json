@@ -1,0 +1,24 @@
+{
+  "Name": "Pirro",
+  "Portrait": "Textures\\portrait_pirro",
+  "Cost": 0,
+  "StrongEnemyQuotes": [
+    "Uh oh, this can\u0027t be good!",
+    "Imma need more bombs for this one!",
+    "It\u0027s party time!"
+  ],
+  "Minion1": null,
+  "Minion2": null,
+  "Mass": 5,
+  "Texture": "Textures/Lieutenant3 Test 1",
+  "Health": 250,
+  "VisionRange": 300,
+  "AttackRange": 300,
+  "AttackDamage": 0,
+  "AttackStun": 0,
+  "AttackTicks": 2,
+  "AttackCooldown": 4,
+  "ThrowsMolotovs": true,
+  "AttackingAnimation": "Animations/lieutenant_molotov_attack.json",
+  "Formation": "FrontArc"
+}

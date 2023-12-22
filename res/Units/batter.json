@@ -1,0 +1,20 @@
+{
+  "Name": "Batter",
+  "Portrait": null,
+  "Cost": 50,
+  "StrongEnemyQuotes": [],
+  "Minion1": null,
+  "Minion2": null,
+  "Mass": 1,
+  "Texture": "Textures/Batter Test 1",
+  "Health": 100,
+  "VisionRange": 200,
+  "AttackRange": 50,
+  "AttackDamage": 10,
+  "AttackStun": 0.25,
+  "AttackTicks": 1,
+  "AttackCooldown": 1,
+  "ThrowsMolotovs": false,
+  "AttackingAnimation": "Animations\\batter_attack.json",
+  "Formation": "FrontArc"
+}

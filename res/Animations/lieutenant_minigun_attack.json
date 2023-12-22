@@ -1,0 +1,48 @@
+{
+    "Frames": [
+        {
+            "Texture": "Textures/Lieutenant_Attack Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack2 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack3 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack2 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack3 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack2 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack3 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack2 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack3 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack2 Test 1",
+            "Duration": 0.075
+        },
+        {
+            "Texture": "Textures/Lieutenant_Attack3 Test 1",
+            "Duration": 0.075
+        }
+    ]
+}

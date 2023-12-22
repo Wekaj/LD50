@@ -1,32 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace LD50.Graphics {
-    public class Animation {
-        private record Frame(string Texture, float Duration);
+    public record Frame {
+        public string? Texture { get; set; }
+        public float Duration { get; set; }
+    }
 
-        private readonly List<Frame> _frames = new();
-
-        public float Duration { get; private set; }
-
-        public bool IsLooping { get; set; }
-
-        public Animation AddFrame(string texture, float duration) {
-            _frames.Add(new Frame(texture, duration));
-            Duration += duration;
-            return this;
-        }
+    public record Animation {
+        public List<Frame> Frames { get; set; } = [];
 
         public string? GetFrame(float time) {
-            if (_frames.Count == 0) {
+            if (Frames.Count == 0) {
                 return null;
             }
 
-            if (IsLooping) {
-                time %= Duration;
-            }
-
-            for (int i = 0; i < _frames.Count - 1; i++) {
-                Frame frame = _frames[i];
+            for (int i = 0; i < Frames.Count - 1; i++) {
+                Frame frame = Frames[i];
 
                 if (time < frame.Duration) {
                     return frame.Texture;
@@ -35,11 +25,19 @@ namespace LD50.Graphics {
                 time -= frame.Duration;
             }
 
-            return _frames[^1].Texture;
+            return Frames[^1].Texture;
         }
 
         public ActiveAnimation Play() {
             return new ActiveAnimation(this);
+        }
+
+        public float GetDuration() {
+            float duration = 0f;
+            for (int i = 0; i < Frames.Count; i++) {
+                duration += Frames[i].Duration;
+            }
+            return duration;
         }
     }
 }

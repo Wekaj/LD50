@@ -1,25 +1,35 @@
-﻿using LD50.Utilities;
+﻿using System.Collections.Generic;
 
 namespace LD50.Screens {
-    public class ScreenManager : IFixedUpdateable, IDrawable {
-        private readonly GameScreen _gameScreen;
-        private readonly IGameTimeSource _gameTimeSource;
+    public class ScreenManager(
+        RunArguments runArguments,
+        IDictionary<ScreenType, IScreen> screens,
+        ScreenChanger screenChanger)
+        : IStartupHandler, IInitializable {
 
-        private IScreen _currentScreen;
+        private IScreen? _currentScreen;
 
-        public ScreenManager(GameScreen gameScreen, IGameTimeSource gameTimeSource) {
-            _gameScreen = gameScreen;
-            _gameTimeSource = gameTimeSource;
-
-            _currentScreen = _gameScreen;
+        public void OnStartup() {
+            screenChanger.Transitioned += OnTransitioned;
         }
 
-        public void FixedUpdate() {
-            _currentScreen.Update(_gameTimeSource.Latest);
+        public void Initialize() {
+            if (runArguments.ProjectDirectory is not null) {
+                ChangeScreen(new ScreenArgs(ScreenType.Engine));
+            }
+            else {
+                ChangeScreen(new ScreenArgs(ScreenType.Game));
+            }
         }
 
-        public void Draw() {
-            _currentScreen.Draw(_gameTimeSource.Latest);
+        public void ChangeScreen(ScreenArgs args) {
+            _currentScreen?.Hide();
+            _currentScreen = screens[args.ScreenType];
+            _currentScreen.Show(args);
+        }
+
+        private void OnTransitioned(object? sender, ScreenArgs e) {
+            ChangeScreen(e);
         }
     }
 }

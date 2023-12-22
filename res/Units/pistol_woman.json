@@ -1,0 +1,18 @@
+{
+  "Name": "Pistolier",
+  "Cost": 100,
+  "Portrait": null,
+  "StrongEnemyQuotes": [],
+  "Mass": 1,
+  "Texture": "Textures/PistolWoman Test 1",
+  "Health": 70,
+  "VisionRange": 200,
+  "AttackRange": 100,
+  "AttackDamage": 3,
+  "AttackStun": 0.025,
+  "AttackTicks": 10,
+  "AttackCooldown": 2,
+  "ThrowsMolotovs": false,
+  "AttackingAnimation": "Animations/pistol_woman_attack.json",
+  "Formation": "FrontArc"
+}

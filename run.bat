@@ -1,3 +1,2 @@
-cd src\LD50\
-dotnet run
+dotnet run --project src\LD50\LD50.csproj -- -project .\
 pause

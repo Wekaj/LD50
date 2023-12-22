@@ -1,0 +1,24 @@
+{
+  "Name": "Alphonso",
+  "Portrait": "Textures/portrait_alphonso",
+  "Cost": 0,
+  "StrongEnemyQuotes": [
+    "Everyone, prepare yourself!",
+    "We need all the firepower we can get for this one.",
+    "This is gonna hurt."
+  ],
+  "Minion1": "Units\\batter.json",
+  "Minion2": "Units/gunner.json",
+  "Mass": 5,
+  "Texture": "Textures/Lieutenant Test 1",
+  "Health": 300,
+  "VisionRange": 300,
+  "AttackRange": 300,
+  "AttackDamage": 15,
+  "AttackStun": 0.025,
+  "AttackTicks": 5,
+  "AttackCooldown": 3,
+  "ThrowsMolotovs": false,
+  "AttackingAnimation": "Animations\\lieutenant_minigun_attack.json",
+  "Formation": "FrontArc"
+}

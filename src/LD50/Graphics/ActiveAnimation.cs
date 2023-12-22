@@ -1,23 +1,27 @@
-﻿using LD50.Entities;
-
-namespace LD50.Graphics {
-    public class ActiveAnimation {
-        private readonly Animation _animation;
-
+﻿namespace LD50.Graphics {
+    public class ActiveAnimation(Animation animation) {
         private float _timer;
 
-        public ActiveAnimation(Animation animation) {
-            _animation = animation;
-        }
+        public bool IsLooping { get; set; }
 
-        public bool IsFinished => !_animation.IsLooping && _timer >= _animation.Duration;
+        public bool IsFinished => !IsLooping && _timer >= animation.GetDuration();
 
         public void Update(float deltaTime) {
             _timer += deltaTime;
         }
 
-        public void Apply(Entity entity) {
-            entity.Texture = _animation.GetFrame(_timer) ?? entity.Texture;
+        public string? Apply() {
+            float time = _timer;
+
+            if (IsLooping) {
+                time %= animation.GetDuration();
+            }
+
+            return animation.GetFrame(time);
+        }
+
+        public void Reset() {
+            _timer = 0f;
         }
     }
 }
